@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Equity Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="container">
+        <h1 class="hero__title">Equity Analyzer</h1>
+        <p class="hero__subtitle">
+          Osobní nástroj pro investory – jednoduché „šuplíky“ pro férovou cenu,
+          watchlist, portfolio, trhy, poznámky a historii.
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- ŠUPLÍKY -->
+      <section class="tiles">
+        <!-- 1) Rychlý výpočet férové ceny -->
+        <button class="tile tile--primary js-open-fast-fv" type="button">
+          <div class="tile__icon">🔍</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Rychlý výpočet férové ceny</h2>
+            <p class="tile__subtitle">
+              Zadej ticker a spočítej orientační vnitřní hodnotu akcie.
+              Navíc můžeš otevřít pokročilý DCF model.
+            </p>
+          </div>
+          <div class="tile__chevron">▾</div>
+        </button>
+
+        <!-- 2) Ostatní šuplíky – zatím jen „Brzy“ -->
+        <article class="tile">
+          <div class="tile__icon">📊</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Watchlist &amp; výsledky</h2>
+            <p class="tile__subtitle">
+              Brzy: sledování firem, odhad férové ceny a termíny výsledků.
+            </p>
+          </div>
+          <div class="tile__badge">Brzy</div>
+        </article>
+
+        <article class="tile">
+          <div class="tile__icon">💼</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Moje portfolio</h2>
+            <p class="tile__subtitle">
+              Brzy: přehled pozic, brokerů a celkové zhodnocení.
+            </p>
+          </div>
+          <div class="tile__badge">Brzy</div>
+        </article>
+
+        <article class="tile">
+          <div class="tile__icon">🌍</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Trhy &amp; indexy</h2>
+            <p class="tile__subtitle">
+              Brzy: hlavní indexy, komodity a kryptoměny na jednom místě.
+            </p>
+          </div>
+          <div class="tile__badge">Brzy</div>
+        </article>
+
+        <article class="tile">
+          <div class="tile__icon">✏️</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Poznámkový blok</h2>
+            <p class="tile__subtitle">
+              Brzy: myšlenky k firmám, obchodní plány a shrnutí výsledků.
+            </p>
+          </div>
+          <div class="tile__badge">Brzy</div>
+        </article>
+
+        <article class="tile">
+          <div class="tile__icon">📜</div>
+          <div class="tile__content">
+            <h2 class="tile__title">Aktivita &amp; historie</h2>
+            <p class="tile__subtitle">
+              Brzy: přehled nákupů, prodejů a důležitých změn v portfoliu.
+            </p>
+          </div>
+          <div class="tile__badge">Brzy</div>
+        </article>
+      </section>
+
+      <!-- ROZBALENÝ PRVNÍ ŠUPLÍK -->
+      <section id="fast-fv-panel" class="panel hidden">
+        <!-- 1) Chatbot – rychlý výpočet podle tickeru -->
+        <div class="panel__section">
+          <h2>Robot na rychlý výpočet férové ceny (chatbot)</h2>
+          <p class="panel__text">
+            Zadej pouze ticker. Robot zkusí najít orientační férovou cenu
+            podle demo dat. Později se to napojí na reálné API
+            (např. podle tickeru).
+          </p>
+
+          <form id="chatbot-form" class="form form--single">
+            <div class="form__row">
+              <label for="ticker" class="form__label">Ticker</label>
+              <input
+                id="ticker"
+                name="ticker"
+                type="text"
+                class="form__input"
+                placeholder="např. AAPL, MSFT, SOFI, PLTR"
+                autocomplete="off"
+              />
+            </div>
+
+            <button type="submit" class="btn btn--primary">
+              Zjistit férovou cenu
+            </button>
+          </form>
+
+          <div id="chatbot-result" class="result"></div>
+
+          <p class="panel__note">
+            ⚠️ Výpočet je pouze ilustrační demo a není to investiční doporučení.
+          </p>
+        </div>
+
+        <hr class="panel__divider" />
+
+        <!-- 2) Pokročilý DCF model -->
+        <div class="panel__section">
+          <div class="panel__section-header">
+            <h2>Pokročilý DCF model</h2>
+            <button id="toggle-dcf" type="button" class="btn btn--ghost">
+              Otevřít pokročilý DCF model
+            </button>
+          </div>
+
+          <div id="dcf-wrapper" class="panel__collapse hidden">
+            <p class="panel__text">
+              Ruční DCF kalkulačka pro detailní výpočet vnitřní hodnoty akcie.
+              Hodnoty jsou na akcii (FCF na akcii apod.).
+            </p>
+
+            <form id="dcf-form" class="form">
+              <div class="form__grid">
+                <div class="form__field">
+                  <label for="dcf-currency" class="form__label">Měna</label>
+                  <select id="dcf-currency" class="form__input">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="CZK">CZK</option>
+                  </select>
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-fcf" class="form__label">
+                    Výchozí FCF na akcii
+                  </label>
+                  <input
+                    id="dcf-fcf"
+                    type="number"
+                    step="0.01"
+                    class="form__input"
+                    placeholder="např. 5"
+                  />
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-growth" class="form__label">
+                    Roční růst FCF (prvních N let) [%]
+                  </label>
+                  <input
+                    id="dcf-growth"
+                    type="number"
+                    step="0.1"
+                    class="form__input"
+                    placeholder="např. 10"
+                  />
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-years" class="form__label">
+                    Počet let detailní projekce
+                  </label>
+                  <input
+                    id="dcf-years"
+                    type="number"
+                    class="form__input"
+                    placeholder="např. 10"
+                  />
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-discount" class="form__label">
+                    Diskontní sazba [%]
+                  </label>
+                  <input
+                    id="dcf-discount"
+                    type="number"
+                    step="0.1"
+                    class="form__input"
+                    placeholder="např. 9"
+                  />
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-terminal" class="form__label">
+                    Terminální růst po období projekce [%]
+                  </label>
+                  <input
+                    id="dcf-terminal"
+                    type="number"
+                    step="0.1"
+                    class="form__input"
+                    placeholder="např. 2"
+                  />
+                </div>
+
+                <div class="form__field">
+                  <label for="dcf-mos" class="form__label">
+                    Bezpečnostní rezerva [%]
+                  </label>
+                  <input
+                    id="dcf-mos"
+                    type="number"
+                    step="1"
+                    class="form__input"
+                    placeholder="např. 25"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn--primary">
+                Spočítat férovou cenu (DCF)
+              </button>
+            </form>
+
+            <div id="dcf-result" class="result"></div>
+
+            <details class="explain">
+              <summary>Jak tento DCF model přemýšlí</summary>
+              <p>
+                Pro jednoduchost počítáme vnitřní hodnotu akcie takto:
+              </p>
+              <ul>
+                <li>
+                  Diskontujeme budoucí FCF na akcii po zadaný počet let
+                  se zadaným růstem.
+                </li>
+                <li>
+                  Přidáme terminální hodnotu po období projekce
+                  s terminálním růstem.
+                </li>
+                <li>
+                  Na závěr aplikujeme bezpečnostní rezervu, abychom dostali
+                  konzervativnější férovou cenu.
+                </li>
+              </ul>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
