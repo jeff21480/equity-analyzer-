@@ -1,0 +1,280 @@
+/* ZÁKLADNÍ NASTAVENÍ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top left, #5b3fff, #120020 55%, #050008);
+    color: #f7f4ff;
+    line-height: 1.5;
+}
+
+/* HLAVNÍ OBAL */
+.shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+}
+
+/* HLAVIČKA */
+.top-header {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.app-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.app-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #c4b9ff;
+}
+
+/* ŠUPLÍKY / TILES */
+.tiles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.tile {
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(34, 9, 73, 0.95), rgba(16, 4, 47, 0.95));
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+    color: inherit;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, background 0.12s ease-out;
+}
+
+.tile-primary {
+    background: linear-gradient(135deg, #7b4bff, #ff4bc1);
+}
+
+.tile:disabled {
+    cursor: default;
+    opacity: 0.75;
+}
+
+.tile-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.tile-text h2 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.tile-text p {
+    font-size: 0.85rem;
+    color: #d3c9ff;
+}
+
+.tile:not(:disabled):active {
+    transform: translateY(2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
+}
+
+/* PANEL */
+.panel {
+    background: rgba(12, 2, 35, 0.92);
+    border-radius: 1.3rem;
+    padding: 1.1rem 1rem 1.3rem;
+    box-shadow: 0 22px 40px rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.panel h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.panel-intro {
+    font-size: 0.9rem;
+    color: #d0c5ff;
+    margin-bottom: 1rem;
+}
+
+/* FORMULÁŘ DCF */
+.dcf-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 1.2rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.form-row.inline {
+    flex-direction: row;
+    gap: 0.9rem;
+}
+
+.form-row.inline > div {
+    flex: 1;
+}
+
+label {
+    font-size: 0.85rem;
+    color: #e8e0ff;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.7rem;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+    background: rgba(15, 23, 42, 0.9);
+    color: #f9fafb;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+input::placeholder {
+    color: #9ca3af;
+}
+
+input:focus,
+select:focus {
+    border-color: #a855f7;
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.7);
+}
+
+small {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.primary-btn {
+    margin-top: 0.3rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #052e16;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(22, 163, 74, 0.6);
+    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+.primary-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 8px 18px rgba(22, 163, 74, 0.7);
+}
+
+/* VÝSLEDEK DCF */
+.dcf-result {
+    margin-top: 0.6rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+    background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.dcf-result.hidden {
+    display: none;
+}
+
+.dcf-result h3 {
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+
+.result-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+}
+
+.result-mos {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.result-note {
+    font-size: 0.8rem;
+    color: #a5b4fc;
+}
+
+/* INFORMACE O DCF */
+.dcf-info {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #e5e7eb;
+}
+
+.dcf-info h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+
+.dcf-info ol {
+    margin-left: 1.05rem;
+    margin-top: 0.25rem;
+    display: grid;
+    gap: 0.2rem;
+}
+
+.tiny-text {
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+/* PATIČKA */
+.footer {
+    margin-top: 1.6rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+/* RESPONSIVE – větší displeje */
+@media (min-width: 640px) {
+    .shell {
+        padding-top: 2rem;
+    }
+
+    .app-title {
+        font-size: 2.4rem;
+    }
+
+    .tiles {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 900px) {
+    .tiles {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
