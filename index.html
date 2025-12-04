@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyzátor akcií – férová hodnota a portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        header {
+            background: #111827;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        header p {
+            margin: 4px 0 0;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .karty {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        @media (min-width: 900px) {
+            .karty {
+                grid-template-columns: 1.1fr 1fr;
+            }
+        }
+
+        .karta {
+            background: #020617;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #1f2937;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .karta h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+        }
+
+        .radek {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .radek label {
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+            color: #9ca3af;
+        }
+
+        .radek input {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+            background: #020617;
+            color: #e5e7eb;
+        }
+
+        .radek input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            cursor: pointer;
+            background: #22c55e;
+            color: #020617;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        button.sec {
+            background: #1f2937;
+            color: #e5e7eb;
+        }
+
+        button.sec:hover {
+            background: #374151;
+        }
+
+        .tlacitka {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .vysledek-blok {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            background: #020617;
+            border: 1px dashed #374151;
+            font-size: 0.9rem;
+        }
+
+        .vysledek-hodnoceni {
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .vysledek-hodnoceni.podhodnocena {
+            color: #22c55e;
+        }
+
+        .vysledek-hodnoceni.nadhodnocena {
+            color: #f97316;
+        }
+
+        .vysledek-hodnoceni.ferova {
+            color: #38bdf8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 6px;
+            text-align: right;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        th {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        td:first-child, th:first-child {
+            text-align: left;
+        }
+
+        tfoot td {
+            font-weight: 700;
+            border-top: 1px solid #4b5563;
+        }
+
+        .info {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            margin-left: 4px;
+            background: #1e293b;
+            color: #e5e7eb;
+        }
+
+        .mala {
+            font-size: 0.75rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 12px;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Analyzátor akcií &amp; jednoduché portfolio</h1>
+    <p>Správa finančního portfolia a přibližný výpočet férové ceny akcie (DCF, diskont 9&nbsp;%)</p>
+</header>
+
+<main>
+    <div class="karty">
+        <!-- DCF kalkulačka -->
+        <section class="karta">
+            <h2>Výpočet férové ceny akcie (DCF)</h2>
+
+            <div class="radek">
+                <label>Název / ticker akcie</label>
+                <input id="akcie-nazev" type="text" placeholder="Např. AAPL, MSFT, SOFI">
+            </div>
+
+            <div class="radek">
+                <label>Současný zisk na akcii (EPS) – v USD/EUR</label>
+                <input id="eps" type="number" step="0.01" placeholder="Např. 2.50">
+            </div>
+
+            <div class="radek">
+                <label>Očekávaný roční růst zisku (%)</label>
+                <input id="rust" type="number" step="0.1" value="10">
+            </div>
+
+            <div class="radek">
+                <label>Počet let projekce</label>
+                <input id="let" type="number" min="3" max="20" value="10">
+            </div>
+
+            <div class="radek">
+                <label>Diskontní sazba (%) <span class="badge">tvoje oblíbená: 9&nbsp;%</span></label>
+                <input id="diskont" type="number" step="0.1" value="9">
+            </div>
+
+            <div class="radek">
+                <label>Cílový P/E při prodeji (násobek zisku)</label>
+                <input id="pe" type="number" step="0.1" value="15">
+            </div>
+
+            <div class="radek">
+                <label>Aktuální cena akcie (pro porovnání)</label>
+                <input id="cena-aktualni" type="number" step="0.01" placeholder="Např. 80">
+            </div>
+
+            <div class="tlacitka">
+                <button onclick="spocitejDCF()">Spočítat férovou cenu</button>
+                <button class="sec" onclick="vymazDCF()">Vymazat</button>
+            </div>
+
+            <div id="vysledek-dcf" class="vysledek-blok" style="display:none;"></div>
+            <p class="info">
+                Jednoduchý model: předpokládá, že volné cash-flow ≈ EPS.  
+                Výsledky ber jako orientační odhad, ne jako investiční doporučení.
+            </p>
+        </section>
+
+        <!-- Portfolio -->
+        <section class="karta">
+            <h2>Jednoduché portfolio</h2>
+
+            <div class="radek">
+                <label>Ticker / název</label>
+                <input id="p-ticker" type="text" placeholder="Např. AAPL">
+            </div>
+
+            <div class="radek">
+                <label>Nákupní cena</label>
+                <input id="p-nakup" type="number" step="0.01" placeholder="Např. 80">
+            </div>
+
+            <div class="radek">
+                <label>Počet kusů</label>
+                <input id="p-ks" type="number" step="0.01" placeholder="Např. 10">
+            </div>
+
+            <div class="radek">
+                <label>Aktuální cena</label>
+                <input id="p-aktualni" type="number" step="0.01" placeholder="Např. 95">
+            </div>
+
+            <div class="tlacitka">
+                <button onclick="pridejPolozku()">Přidat do portfolia</button>
+                <button class="sec" onclick="smazPortfolio()">Vymazat celé portfolio</button>
+            </div>
+
+            <div class="info">
+                Portfolio se ukládá jen do tohoto prohlížeče (lokálně).  
+                Když vymažeš historii/úložiště, záznamy zmizí.
+            </div>
+
+            <div id="tabulka-obal"></div>
+        </section>
+    </div>
+</main>
+
+<footer>
+    Vytvořeno pro osobní analýzu akcií – bez záruky správnosti výpočtů.
+</footer>
+
+<script>
+    // --- DCF kalkulačka ---
+    function spocitejDCF() {
+        const eps = parseFloat(document.getElementById("eps").value.replace(",", "."));
+        const rust = parseFloat(document.getElementById("rust").value.replace(",", ".")) / 100;
+        const roky = parseInt(document.getElementById("let").value, 10);
+        const diskont = parseFloat(document.getElementById("diskont").value.replace(",", ".")) / 100;
+        const pe = parseFloat(document.getElementById("pe").value.replace(",", "."));
+        const cenaAkt = parseFloat(document.getElementById("cena-aktualni").value.replace(",", "."));
+        const nazev = document.getElementById("akcie-nazev").value || "Akcie";
+
+        if (isNaN(eps) || isNaN(rust) || isNaN(roky) || isNaN(diskont) || isNaN(pe)) {
+            alert("Prosím, vyplň minimálně EPS, růst, počet let, diskont a P/E.");
+            return;
+        }
+
+        let soucetDiskontovanychCF = 0;
+        let epsT = eps;
+
+        for (let t = 1; t <= roky; t++) {
+            epsT = epsT * (1 + rust);
+            const diskontovanyCF = epsT / Math.pow(1 + diskont, t);
+            soucetDiskontovanychCF += diskontovanyCF;
+        }
+
+        const terminalEPS = epsT;
+        const terminalHodnota = (terminalEPS * pe) / Math.pow(1 + diskont, roky);
+        const ferovaCena = soucetDiskontovanychCF + terminalHodnota;
+
+        let html = `<strong>${nazev}</strong><br>`;
+        html += `Odhadovaná férová cena: <strong>${ferovaCena.toFixed(2)}</strong><br>`;
+
+        if (!isNaN(cenaAkt)) {
+            const odchylka = ((ferovaCena - cenaAkt) / cenaAkt) * 100;
+            const odchO = odchylka.toFixed(1);
+            html += `Aktuální cena: <strong>${cenaAkt.toFixed(2)}</strong><br>`;
+            html += `Rozdíl vůči férové ceně: <strong>${odchO}%</strong><br>`;
+
+            let hodnoceniText = "";
+            let trida = "";
+
+            if (odchylka > 15) {
+                hodnoceniText = "Podhodnocená (zajímavá ke koupi – podle tohoto modelu).";
+                trida = "podhodnocena";
+            } else if (odchylka < -15) {
+                hodnoceniText = "Nadhodnocená (dražší než férová hodnota).";
+                trida = "nadhodnocena";
+            } else {
+                hodnoceniText = "Blízko férové ceny.";
+                trida = "ferova";
+            }
+
+            html += `<div class="vysledek-hodnoceni ${trida}">${hodnoceniText}</div>`;
+        }
+
+        html += `<div class="mala" style="margin-top:6px;">Poznámka: jde o jednoduchý DCF model, který ignoruje dluh, buybacky, změny marží a další faktory.</div>`;
+
+        const blok = document.getElementById("vysledek-dcf");
+        blok.innerHTML = html;
+        blok.style.display = "block";
+    }
+
+    function vymazDCF() {
+        document.getElementById("akcie-nazev").value = "";
+        document.getElementById("eps").value = "";
+        document.getElementById("rust").value = "10";
+        document.getElementById("let").value = "10";
+        document.getElementById("diskont").value = "9";
+        document.getElementById("pe").value = "15";
+        document.getElementById("cena-aktualni").value = "";
+        document.getElementById("vysledek-dcf").style.display = "none";
+    }
+
+    // --- Portfolio ---
+    let portfolio = [];
+
+    function nactiPortfolio() {
+        try {
+            const data = localStorage.getItem("analyzator-portfolio");
+            if (data) {
+                portfolio = JSON.parse(data);
+            }
+        } catch (e) {
+            portfolio = [];
+        }
+        vykresliPortfolio();
+    }
+
+    function ulozPortfolio() {
+        localStorage.setItem("analyzator-portfolio", JSON.stringify(portfolio));
+    }
+
+    function pridejPolozku() {
+        const t = document.getElementById("p-ticker").value.trim();
+        const n = parseFloat(document.getElementById("p-nakup").value.replace(",", "."));
+        const ks = parseFloat(document.getElementById("p-ks").value.replace(",", "."));
+        const a = parseFloat(document.getElementById("p-aktualni").value.replace(",", "."));
+
+        if (!t || isNaN(n) || isNaN(ks) || isNaN(a)) {
+            alert("Vyplň prosím všechny údaje pro položku portfolia.");
+            return;
+        }
+
+        portfolio.push({
+            ticker: t,
+            nakup: n,
+            ks: ks,
+            aktualni: a
+        });
+
+        ulozPortfolio();
+        vykresliPortfolio();
+
+        document.getElementById("p-ticker").value = "";
+        document.getElementById("p-nakup").value = "";
+        document.getElementById("p-ks").value = "";
+        document.getElementById("p-aktualni").value = "";
+    }
+
+    function smazPortfolio() {
+        if (!confirm("Opravdu chceš vymazat celé portfolio?")) return;
+        portfolio = [];
+        ulozPortfolio();
+        vykresliPortfolio();
+    }
+
+    function smazRadek(index) {
+        portfolio.splice(index, 1);
+        ulozPortfolio();
+        vykresliPortfolio();
+    }
+
+    function vykresliPortfolio() {
+        const obal = document.getElementById("tabulka-obal");
+
+        if (portfolio.length === 0) {
+            obal.innerHTML = "<p class='info'>Zatím nemáš žádné položky v portfoliu.</p>";
+            return;
+        }
+
+        let celkNakup = 0;
+        let celkAkt = 0;
+
+        let html = "<table><thead><tr>" +
+            "<th>Ticker</th>" +
+            "<th>Nákupní cena</th>" +
+            "<th>Ks</th>" +
+            "<th>Investice</th>" +
+            "<th>Aktuální cena</th>" +
+            "<th>Hodnota</th>" +
+            "<th>Zisk / ztráta</th>" +
+            "<th></th>" +
+            "</tr></thead><tbody>";
+
+        portfolio.forEach((p, i) => {
+            const investice = p.nakup * p.ks;
+            const hodnota = p.aktualni * p.ks;
+            const zisk = hodnota - investice;
+            const ziskPct = investice !== 0 ? (zisk / investice) * 100 : 0;
+
+            celkNakup += investice;
+            celkAkt += hodnota;
+
+            let barva = zisk > 0 ? "#22c55e" : (zisk < 0 ? "#f97316" : "#e5e7eb");
+
+            html += "<tr>" +
+                `<td>${p.ticker}</td>` +
+                `<td>${p.nakup.toFixed(2)}</td>` +
+                `<td>${p.ks}</td>` +
+                `<td>${investice.toFixed(2)}</td>` +
+                `<td>${p.aktualni.toFixed(2)}</td>` +
+                `<td>${hodnota.toFixed(2)}</td>` +
+                `<td style="color:${barva}">${zisk.toFixed(2)} (${ziskPct.toFixed(1)}%)</td>` +
+                `<td><button class="sec mala" onclick="smazRadek(${i})">x</button></td>` +
+                "</tr>";
+        });
+
+        const celkZisk = celkAkt - celkNakup;
+        const celkZiskPct = celkNakup !== 0 ? (celkZisk / celkNakup) * 100 : 0;
+        const barvaCelkem = celkZisk > 0 ? "#22c55e" : (celkZisk < 0 ? "#f97316" : "#e5e7eb");
+
+        html += "</tbody><tfoot><tr>" +
+            "<td colspan='3'>Celkem</td>" +
+            `<td>${celkNakup.toFixed(2)}</td>` +
+            "<td></td>" +
+            `<td>${celkAkt.toFixed(2)}</td>` +
+            `<td style="color:${barvaCelkem}">${celkZisk.toFixed(2)} (${celkZiskPct.toFixed(1)}%)</td>` +
+            "<td></td>" +
+            "</tr></tfoot></table>";
+
+        obal.innerHTML = html;
+    }
+
+    // Inicializace
+    nactiPortfolio();
+</script>
+</body>
+</html>
