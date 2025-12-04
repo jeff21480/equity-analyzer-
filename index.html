@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eqity Analyzér</title>
+
+  <!-- Google font (volitelně) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Ikony (Font Awesome) – můžeš klidně nechat -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <style>
+    :root {
+      --bg-main: #020617;
+      --bg-card: rgba(15, 23, 42, 0.92);
+      --bg-card-hover: rgba(15, 23, 42, 1);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.28);
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.75);
+      --radius-xl: 20px;
+      --radius-2xl: 26px;
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.25), transparent 55%),
+        var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1200px;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: var(--shadow-soft);
+      padding: 22px 22px 26px;
+      backdrop-filter: blur(18px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* dekorativní glow */
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.15), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 60%);
+      opacity: 0.8;
+      z-index: -1;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-pill {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #e0f2fe, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.6),
+        0 12px 25px rgba(15, 23, 42, 0.9);
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .app-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.25);
+    }
+
+    .status-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .status-text {
+      font-size: 11px;
+      color: var(--text-main);
+    }
+
+    /* GRID KOSTEK */
+    .cards-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      padding: 16px 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      overflow: hidden;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        translate var(--transition-fast);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at top left,
+        rgba(56, 189, 248, 0.22),
+        transparent 55%
+      );
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      translate: 0 -1px;
+      background: var(--bg-card-hover);
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px dashed rgba(148, 163, 184, 0.4);
+      padding-top: 7px;
+      margin-top: 4px;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .card-cta i {
+      font-size: 11px;
+    }
+
+    /* SEKCE / MÍSTNOSTI */
+
+    .view {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    #main-view {
+      animation: fadeInUp 0.25s ease-out;
+    }
+
+    .room-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .room-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .room-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .room-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .back-btn {
+      border-radius: 999px;
+      padding: 7px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-main);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .back-btn:hover {
+      background: rgba(15, 23, 42, 1);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .room-body {
+      border-radius: var(--radius-2xl);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+      padding: 16px;
+      min-height: 260px;
+    }
+
+    .placeholder-box {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .placeholder-label {
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .room-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 720px) {
+      .app-shell {
+        padding: 18px 14px 20px;
+        border-radius: 22px;
+      }
+
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .status-pill {
+        align-self: flex-start;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- HLAVNÍ MENU – KOSTKY -->
+    <div id="main-view" class="view active">
+      <header class="app-header">
+        <div class="title-block">
+          <div class="title-row">
+            <div class="logo-pill">E</div>
+            <div class="app-title">
+              Eqity Analyzér
+              <span class="app-badge">All-in-one hub</span>
+            </div>
+          </div>
+          <div class="app-subtitle">
+            5 šuplíků, jeden QR kód. Všechny nástroje pro analýzu akcií na jednom místě.
+          </div>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span class="status-label">Verze 1.0</span>
+          <span class="status-text">Základní verze – bez živých dat</span>
+        </div>
+      </header>
+
+      <section class="cards-grid">
+        <!-- 1) DCF MODEL -->
+        <article class="card" onclick="openView('view-dcf')">
+          <div class="card-header">
+            <div class="card-main">
+              <div class="card-icon">
+                <i class="fa-solid fa-calculator"></i>
+              </div>
+              <div>
+                <div class="card-title">Výpočet vnitřní hodnoty (DCF)</div>
+                <div class="card-desc">
+                  Prostor pro DCF model, odhady cashflow a férovou cenu akcie.
+                </div>
+              </div>
+            </div>
+            <span class="card-tag">Šuplík A1</span>
+          </div>
+          <div class="card-footer">
+            <span>Detailní „místnost“</span>
+            <span class="card-cta">Otevřít <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
+
+        <!-- 2) EARNINGS KALENDÁŘ -->
+        <article class="card" onclick="openView('view-earnings')">
+          <div class="card-header">
+            <div class="card-main">
+              <div class="card-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+              </div>
+              <div>
+                <div class="card-title">Earnings kalendář</div>
+                <div class="card-desc">
+                  Přehled výsledků firem po týdnech a měsících.
+                </div>
+              </div>
+            </div>
+            <span class="card-tag">Šuplík A2</span>
+          </div>
+          <div class="card-footer">
+            <span>Reporty &amp; termíny</span>
+            <span class="card-cta">Otevřít <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
+
+        <!-- 3) PORTFOLIO -->
+        <article class="card" onclick="openView('view-portfolio')">
+          <div class="card-header">
+            <div class="card-main">
+              <div class="card-icon">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <div>
+                <div class="card-title">Moje portfolio</div>
+                <div class="card-desc">
+                  Nahrání CSV, přehled pozic a vývoj hodnoty portfolia.
+                </div>
+              </div>
+            </div>
+            <span class="card-tag">Šuplík A3</span>
+          </div>
+          <div class="card-footer">
+            <span>CSV &amp; hodnoty</span>
+            <span class="card-cta">Otevřít <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
+
+        <!-- 4) WATCHLIST -->
+        <article class="card" onclick="openView('view-watchlist')">
+          <div class="card-header">
+            <div class="card-main">
+              <div class="card-icon">
+                <i class="fa-solid fa-eye"></i>
+              </div>
+              <div>
+                <div class="card-title">Watchlist & nápady</div>
+                <div class="card-desc">
+                  Místo pro akcie v hledáčku a poznámky k nim.
+                </div>
+              </div>
+            </div>
+            <span class="card-tag">Šuplík A4</span>
+          </div>
+          <div class="card-footer">
+            <span>Seznam sledovaných</span>
+            <span class="card-cta">Otevřít <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
+
+        <!-- 5) NASTAVENÍ / NÁPOVĚDA -->
+        <article class="card" onclick="openView('view-settings')">
+          <div class="card-header">
+            <div class="card-main">
+              <div class="card-icon">
+                <i class="fa-solid fa-sliders"></i>
+              </div>
+              <div>
+                <div class="card-title">Nastavení & nápověda</div>
+                <div class="card-desc">
+                  Info o aplikaci, verze, poznámky a budoucí plán funkcí.
+                </div>
+              </div>
+            </div>
+            <span class="card-tag">Šuplík A5</span>
+          </div>
+          <div class="card-footer">
+            <span>Informace &amp; roadmapa</span>
+            <span class="card-cta">Otevřít <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <!-- MÍSTNOST: DCF -->
+    <div id="view-dcf" class="view">
+      <div class="room-header">
+        <div class="room-title-group">
+          <div class="room-title">Výpočet vnitřní hodnoty (DCF)</div>
+          <div class="room-subtitle">
+            Tady bude tvůj DCF model – cashflow, diskontní sazba, cílová cena akcie.
+          </div>
+        </div>
+        <button class="back-btn" onclick="goHome()">
+          <i class="fa-solid fa-arrow-left"></i>
+          Zpět na kostky
+        </button>
+      </div>
+
+      <div class="room-body">
+        <div class="placeholder-box">
+          <div class="placeholder-label">Zatím jen připravený prostor</div>
+          <div>
+            Sem postupně doplníme:
+            <ul style="margin: 6px 0 0 18px; padding: 0; font-size: 12px;">
+              <li>zadání tickeru / firmy,</li>
+              <li>projekci tržeb a zisků,</li>
+              <li>diskontní sazbu (např. 9 %),</li>
+              <li>výpočet férové ceny na akcii.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="room-note">
+          Tato verze je záměrně jednoduchá (bez napojení na internet), aby se nic nesekalo.
+          Napojení na živá data přidáme krok po kroku.
+        </p>
+      </div>
+    </div>
+
+    <!-- MÍSTNOST: EARNINGS -->
+    <div id="view-earnings" class="view">
+      <div class="room-header">
+        <div class="room-title-group">
+          <div class="room-title">Earnings kalendář</div>
+          <div class="room-subtitle">
+            Prostor pro týdenní a měsíční přehled výsledků firem.
+          </div>
+        </div>
+        <button class="back-btn" onclick="goHome()">
+          <i class="fa-solid fa-arrow-left"></i>
+          Zpět na kostky
+        </button>
+      </div>
+
+      <div class="room-body">
+        <div class="placeholder-box">
+          <div class="placeholder-label">Budoucí funkce</div>
+          <div>
+            Sem napojíme:
+            <ul style="margin: 6px 0 0 18px; padding: 0; font-size: 12px;">
+              <li>přehled earnings podle týdne,</li>
+              <li>vyhledávání podle tickeru,</li>
+              <li>možná i filtr jen na tvé akcie.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="room-note">
+          Až budeme chtít, přidáme API (např. z Yahoo Finance / jiného zdroje) a zobrazíme to automaticky.
+        </p>
+      </div>
+    </div>
+
+    <!-- MÍSTNOST: PORTFOLIO -->
+    <div id="view-portfolio" class="view">
+      <div class="room-header">
+        <div class="room-title-group">
+          <div class="room-title">Moje portfolio</div>
+          <div class="room-subtitle">
+            Nahrávání CSV, přehled pozic a vývoj hodnoty portfolia.
+          </div>
+        </div>
+        <button class="back-btn" onclick="goHome()">
+          <i class="fa-solid fa-arrow-left"></i>
+          Zpět na kostky
+        </button>
+      </div>
+
+      <div class="room-body">
+        <div class="placeholder-box">
+          <div class="placeholder-label">Nahrání CSV (zatím jen představa)</div>
+          <div>
+            Připravíme:
+            <ul style="margin: 6px 0 0 18px; padding: 0; font-size: 12px;">
+              <li>tlačítko pro nahrání CSV s portfoliem,</li>
+              <li>tabulku s jednotlivými pozicemi,</li>
+              <li>napojení na živé ceny z burzy (API),</li>
+              <li>výpočet zisku/ztráty a celkové hodnoty.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="room-note">
+          Až budeš chtít, můžeme přesně nastavit strukturu CSV a já ti dopíšu konkrétní skript.
+        </p>
+      </div>
+    </div>
+
+    <!-- MÍSTNOST: WATCHLIST -->
+    <div id="view-watchlist" class="view">
+      <div class="room-header">
+        <div class="room-title-group">
+          <div class="room-title">Watchlist & nápady</div>
+          <div class="room-subtitle">
+            Místo pro akcie, které sleduješ, a poznámky k nim.
+          </div>
+        </div>
+        <button class="back-btn" onclick="goHome()">
+          <i class="fa-solid fa-arrow-left"></i>
+          Zpět na kostky
+        </button>
+      </div>
+
+      <div class="room-body">
+        <div class="placeholder-box">
+          <div class="placeholder-label">Jednoduchý watchlist</div>
+          <div>
+            Tady můžeme později udělat:
+            <ul style="margin: 6px 0 0 18px; padding: 0; font-size: 12px;">
+              <li>ruční přidání tickerů,</li>
+              <li>krátké poznámky, proč tě firma zajímá,</li>
+              <li>možná i jednoduché barvy / štítky.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="room-note">
+          Začneme ručně (bez databáze), případně později přidáme ukládání do prohlížeče.
+        </p>
+      </div>
+    </div>
+
+    <!-- MÍSTNOST: NASTAVENÍ / NÁPOVĚDA -->
+    <div id="view-settings" class="view">
+      <div class="room-header">
+        <div class="room-title-group">
+          <div class="room-title">Nastavení & nápověda</div>
+          <div class="room-subtitle">
+            Informace o aplikaci, verze 
