@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Equity Analyzér – DCF, Watchlist, Úročení</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #4c1d95 0, #020617 55%, #020617 100%);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 24px 16px 12px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.03em;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #c4b5fd;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px 12px 24px;
+    }
+
+    .drawers {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .drawer {
+      background: linear-gradient(90deg, rgba(37,99,235,0.25), rgba(124,58,237,0.6));
+      border-radius: 18px;
+      padding: 14px 16px;
+      border: 1px solid rgba(148,163,184,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.7);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+    }
+
+    .drawer:first-child {
+      padding: 20px 18px;
+      border-radius: 22px;
+      transform: scale(1.02);
+      box-shadow: 0 24px 50px rgba(15,23,42,0.85);
+      background: linear-gradient(120deg, rgba(129,140,248,0.35), rgba(124,58,237,0.85));
+    }
+
+    .drawer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 22px 55px rgba(15,23,42,0.9);
+      border-color: rgba(248,250,252,0.4);
+    }
+
+    .drawer-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .drawer-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .drawer-subtitle {
+      font-size: 0.82rem;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    .drawer-pill {
+      border-radius: 999px;
+      padding: 6px 14px;
+      border: 1px solid rgba(226,232,240,0.6);
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .drawer-pill.soon {
+      opacity: 0.7;
+    }
+
+    .drawer.active {
+      border-color: #22c55e;
+    }
+
+    .drawer.active .drawer-pill {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+    }
+
+    .module {
+      display: none;
+      background: rgba(15,23,42,0.96);
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      padding: 16px 14px 18px;
+      box-shadow: 0 20px 45px rgba(15,23,42,0.9);
+    }
+
+    .module.active {
+      display: block;
+    }
+
+    .module h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      margin-bottom: 3px;
+      color: #9ca3af;
+    }
+
+    .field input,
+    .field textarea {
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 16px;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: #16a34a;
+    }
+
+    .btn-secondary {
+      border-radius: 999px;
+      padding: 9px 16px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: #111827;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      margin-top: 4px;
+      color: #9ca3af;
+    }
+
+    .checkbox-row input {
+      width: 14px;
+      height: 14px;
+    }
+
+    .result-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px dashed #4b5563;
+      background: #020617;
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 6px;
+      border-bottom: 1px solid #1f2937;
+      text-align: right;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      color: #9ca3af;
+      font-weight: 500;
+    }
+
+    tfoot td {
+      border-top: 1px solid #4b5563;
+      font-weight: 600;
+    }
+
+    .pill-status {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      background: #1e293b;
+      color: #e5e7eb;
+      display: inline-block;
+    }
+
+    .pill-status.plus {
+      background: rgba(34,197,94,0.1);
+      color: #4ade80;
+    }
+
+    .pill-status.minus {
+      background: rgba(248,113,113,0.08);
+      color: #f97373;
+    }
+
+    .small {
+      font-size: 0.76rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Equity Analyzér</h1>
+  <p>DCF ve 3 scénářích, watchlist a složené úročení – v jednom jednoduchém nástroji.</p>
+</header>
+
+<main>
+  <!-- ŠUPLÍKY -->
+  <div class="drawers">
+    <div class="drawer active" data-module="dcf">
+      <div class="drawer-text">
+        <div class="drawer-title">Výpočet vnitřní hodnoty (DCF – 3 scénáře)</div>
+        <div class="drawer-subtitle">Konzervativní, základní a optimistický scénář pro jednu akcii.</div>
+      </div>
+      <div class="drawer-pill">Otevřít</div>
+    </div>
+
+    <div class="drawer" data-module="watchlist">
+      <div class="drawer-text">
+        <div class="drawer-title">Watchlist</div>
+        <div class="drawer-subtitle">Seznam firem, které jsi analyzoval DCF modelem.</div>
+      </div>
+      <div class="drawer-pill">Otevřít</div>
+    </div>
+
+    <div class="drawer" data-module="earnings">
+      <div class="drawer-text">
+        <div class="drawer-title">Earnings kalendář</div>
+        <div class="drawer-subtitle">Vlastní seznam termínů výsledků (připravený pro budoucí API).</div>
+      </div>
+      <div class="drawer-pill">Otevřít</div>
+    </div>
+
+    <div class="drawer" data-module="compound">
+      <div class="drawer-text">
+        <div class="drawer-title">Kalkulačka složeného úročení</div>
+        <div class="drawer-subtitle">Jednoduchý přehled, co s tebou udělá čas a procenta.</div>
+      </div>
+      <div class="drawer-pill">Otevřít</div>
+    </div>
+  </div>
+
+  <!-- MODUL 1 – DCF se scénáři -->
+  <section id="module-dcf" class="module active">
+    <h2>Výpočet vnitřní hodnoty akcie (DCF – 3 scénáře)</h2>
+
+    <!-- Základní vstupy společné pro všechny scénáře -->
+    <div class="field">
+      <label>Název / ticker akcie</label>
+      <input id="dcf-name" type="text" placeholder="Např. SOFI, AAPL, MSFT">
+    </div>
+
+    <div class="field">
+      <label>Současný zisk na akcii (EPS)</label>
+      <input id="dcf-eps" type="number" step="0.01" placeholder="Např. 2.50">
+    </div>
+
+    <div class="field">
+      <label>Počet let projekce</label>
+      <input id="dcf-years" type="number" min="3" max="20" value="10">
+    </div>
+
+    <div class="field">
+      <label>Diskontní sazba (%)</label>
+      <input id="dcf-discount" type="number" step="0.1" value="9">
+    </div>
+
+    <div class="field">
+      <label>Aktuální cena akcie</label>
+      <input id="dcf-price" type="number" step="0.01" placeholder="Např. 80">
+    </div>
+
+    <hr style="opacity:0.2;margin:15px 0;">
+
+    <h3>Tři scénáře (můžeš čísla přepsat podle sebe)</h3>
+
+    <!-- Konzervativní scénář -->
+    <div class="field">
+      <label>Konzervativní růst EPS (%)</label>
+      <input id="sc1-growth" type="number" step="0.1" value="5">
+    </div>
+    <div class="field">
+      <label>Konzervativní cílové P/E</label>
+      <input id="sc1-pe" type="number" step="0.1" value="10">
+    </div>
+
+    <!-- Základní scénář -->
+    <div class="field">
+      <label>Základní růst EPS (%)</label>
+      <input id="sc2-growth" type="number" step="0.1" value="10">
+    </div>
+    <div class="field">
+      <label>Základní cílové P/E</label>
+      <input id="sc2-pe" type="number" step="0.1" value="15">
+    </div>
+
+    <!-- Optimistický scénář -->
+    <div class="field">
+      <label>Optimistický růst EPS (%)</label>
+      <input id="sc3-growth" type="number" step="0.1" value="15">
+    </div>
+    <div class="field">
+      <label>Optimistické cílové P/E</label>
+      <input id="sc3-pe" type="number" step="0.1" value="20">
+    </div>
+
+    <div class="checkbox-row">
+      <input id="dcf-add-watchlist" type="checkbox" checked />
+      <label for="dcf-add-watchlist">Po spočítání uložit základní scénář do watchlistu</label>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="calculateDCFScenarios()">Spočítat scénáře</button>
+      <button class="btn-secondary" onclick="resetDCF()">Vymazat</button>
+    </div>
+
+    <div id="dcf-result" class="result-box" style="display:none;"></div>
+    <div id="scenario-table"></div>
+
+    <p class="note">
+      Jednoduchý DCF model – EPS ~ volné cash-flow, ignoruje dluh, buybacky a další faktory.  
+      Výsledky ber jako orientační, ne jako investiční doporučení.
+    </p>
+  </section>
+
+  <!-- MODUL 2 – Watchlist -->
+  <section id="module-watchlist" class="module">
+    <h2>Watchlist</h2>
+    <p class="note">
+      Kdykoli spočítáš DCF a necháš zaškrtnuté „uložit do watchlistu“, akcie se objeví zde.  
+      Data se ukládají jen do tohoto prohlížeče (LocalStorage).
+    </p>
+    <div id="wl-table-wrapper"></div>
+  </section>
+
+  <!-- MODUL 3 – Earnings kalendář -->
+  <section id="module-earnings" class="module">
+    <h2>Earnings kalendář</h2>
+    <p class="note">
+      Zatím ruční seznam termínů výsledků. Do budoucna může být napojeno na API (Yahoo / Finnhub).  
+      Pro teď slouží jako jednoduchý přehled, kdy má která firma výsledky.
+    </p>
+
+    <div class="field">
+      <label>Ticker</label>
+      <input id="er-ticker" type="text" placeholder="Např. AAPL">
+    </div>
+    <div class="field">
+      <label>Datum výsledků</label>
+      <input id="er-date" type="date">
+    </div>
+    <div class="field">
+      <label>Poznámka</label>
+      <input id="er-note" type="text" placeholder="AMC / BMO, na co si dát pozor…">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="erAdd()">Přidat termín</button>
+      <button class="btn-secondary" onclick="erClearAll()">Vymazat všechny</button>
+    </div>
+
+    <div id="er-table-wrapper"></div>
+  </section>
+
+  <!-- MODUL 4 – Složené úročení -->
+  <section id="module-compound" class="module">
+    <h2>Kalkulačka složeného úročení</h2>
+
+    <div class="field">
+      <label>Počáteční částka</label>
+      <input id="ci-start" type="number" step="0.01" value="0">
+    </div>
+    <div class="field">
+      <label>Měsíční vklad</label>
+      <input id="ci-monthly" type="number" step="0.01" value="200">
+    </div>
+    <div class="field">
+      <label>Roční výnos (%)</label>
+      <input id="ci-rate" type="number" step="0.1" value="8">
+    </div>
+    <div class="field">
+      <label>Počet let</label>
+      <input id="ci-years" type="number" min="1" max="60" value="20">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="ciCalculate()">Spočítat</button>
+      <button class="btn-secondary" onclick="ciReset()">Vymazat</button>
+    </div>
+
+    <div id="ci-result" class="result-box" style="display:none;"></div>
+
+    <p class="note">
+      Výpočet je orientační – předpokládá měsíční připisování výnosu a vklady na začátku měsíce.
+    </p>
+  </section>
+</main>
+
+<footer>
+  Vytvořeno pro osobní analýzu akcií – bez záruky správnosti výpočtů.
+</footer>
+
+<script>
+  // přepínání šuplíků
+  document.querySelectorAll('.drawer').forEach(d => {
+    d.addEventListener('click', () => {
+      const target = d.getAttribute('data-module');
+      document.querySelectorAll('.drawer').forEach(x => x.classList.remove('active'));
+      d.classList.add('active');
+      document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+      const mod = document.getElementById('module-' + target);
+      if (mod) mod.classList.add('active');
+    });
+  });
+
+  function toNum(val) {
+    if (val === null || val === undefined) return NaN;
+    return parseFloat(String(val).replace(',', '.'));
+  }
+
+  // --- DCF se třemi scénáři ---
+  function calculateDCFScenarios() {
+    const name = (document.getElementById('dcf-name').value || 'Akcie').trim();
+    const eps = toNum(document.getElementById('dcf-eps').value);
+    const years = parseInt(document.getElementById('dcf-years').value, 10);
+    const discount = toNum(document.getElementById('dcf-discount').value) / 100;
+    const price = toNum(document.getElementById('dcf-price').value);
+
+    if (isNaN(eps) || isNaN(years) || isNaN(discount)) {
+      alert('Vyplň prosím EPS, počet let a diskont.');
+      return;
+    }
+
+    const scenarios = [
+      {
+        label: 'Konzervativní',
+        growth: toNum(document.getElementById('sc1-growth').value) / 100,
+        pe: toNum(document.getElementById('sc1-pe').value)
+      },
+      {
+        label: 'Základní',
+        growth: toNum(document.getElementById('sc2-growth').value) / 100,
+        pe: toNum(document.getElementById('sc2-pe').value)
+      },
+      {
+        label: 'Optimistický',
+        growth: toNum(document.getElementById('sc3-growth').value) / 100,
+        pe: toNum(document.getElementById('sc3-pe').value)
+      }
+    ];
+
+    let rowsHTML = '';
+    const results = [];
+
+    scenarios.forEach(sc => {
+      if (isNaN(sc.growth) || isNaN(sc.pe)) return;
+      let epsT = eps;
+      let sum = 0;
+
+      for (let i = 1; i <= years; i++) {
+        epsT *= (1 + sc.growth);
+        sum += epsT / Math.pow(1 + discount, i);
+      }
+
+      const terminal = (epsT * sc.pe) / Math.pow(1 + discount, years);
+      const fair = sum + terminal;
+
+      let diffTxt = '-';
+      let diffPct = null;
+      if (!isNaN(price)) {
+        diffPct = ((fair - price) / price) * 100;
+        diffTxt = diffPct.toFixed(1) + ' %';
+      }
+
+      results.push({ label: sc.label, fair, growth: sc.growth, pe: sc.pe, diffPct });
+
+      rowsHTML += `
+        <tr>
+          <td>${sc.label}</td>
+          <td>${(sc.growth * 100).toFixed(1)} %</td>
+          <td>${sc.pe.toFixed(1)}</td>
+          <td>${fair.toFixed(2)}</td>
+          <td>${diffTxt}</td>
+        </tr>
+      `;
+    });
+
+    if (!results.length) {
+      alert('Scénáře nemají správně vyplněné hodnoty.');
+      return;
+    }
+
+    const scenarioTable = `
+      <table>
+        <thead>
+          <tr>
+            <th>Scénář</th>
+            <th>Růst EPS</th>
+            <th>Cílové P/E</th>
+            <th>Vnitřní hodnota</th>
+            <th>Rozdíl vs cena</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHTML}
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('scenario-table').innerHTML = scenarioTable;
+
+    let summary = `<strong>${name}</strong><br>`;
+    if (!isNaN(price)) {
+      summary += `Aktuální cena: <strong>${price.toFixed(2)}</strong><br>`;
+    }
+    summary += 'Podívej se na rozdíl u jednotlivých scénářů – podle toho můžeš odhadnout, jak moc konzervativní chceš být.';
+
+    const resBox = document.getElementById('dcf-result');
+    resBox.innerHTML = summary;
+    resBox.style.display = 'block';
+
+    // automatické uložení základního scénáře do watchlistu
+    const addToWatchlist = document.getElementById('dcf-add-watchlist').checked;
+    if (addToWatchlist && !isNaN(price) && results[1]) {
+      const base = results[1]; // základní scénář
+      wlAddFromDCF(name, base.fair, price, base.diffPct);
+    }
+  }
+
+  function resetDCF() {
+    document.getElementById('dcf-name').value = '';
+    document.getElementById('dcf-eps').value = '';
+    document.getElementById('dcf-years').value = '10';
+    document.getElementById('dcf-discount').value = '9';
+    document.getElementById('dcf-price').value = '';
+    document.getElementById('sc1-growth').value = '5';
+    document.getElementById('sc1-pe').value = '10';
+    document.getElementById('sc2-growth').value = '10';
+    document.getElementById('sc2-pe').value = '15';
+    document.getElementById('sc3-growth').value = '15';
+    document.getElementById('sc3-pe').value = '20';
+    document.getElementById('dcf-result').style.display = 'none';
+    document.getElementById('scenario-table').innerHTML = '';
+  }
+
+  // --- Watchlist ---
+  let watchlist = [];
+
+  function wlLoad() {
+    try {
+      const raw = localStorage.getItem('ea_watchlist_v2');
+      if (raw) watchlist = JSON.parse(raw);
+    } catch (e) {
+      watchlist = [];
+    }
+    wlRender();
+  }
+
+  function wlSave() {
+    localStorage.setItem('ea_watchlist_v2', JSON.stringify(watchlist));
+  }
+
+  function wlAddFromDCF(ticker, fair, price, diffPct) {
+    if (!ticker) ticker = 'Akcie';
+    if (isNaN(fair) || isNaN(price)) return;
+
+    const idx = watchlist.findIndex(x => x.ticker.toLowerCase() === ticker.toLowerCase());
+    const item = {
+      ticker,
+      fair,
+      current: price,
+      upside: diffPct
+    };
+    if (idx >= 0) watchlist[idx] = item;
+    else watchlist.push(item);
+    wlSave();
+    wlRender();
+  }
+
+  function wlRemove(i) {
+    watchlist.splice(i, 1);
+    wlSave();
+    wlRender();
+  }
+
+  function wlClearAll() {
+    if (!confirm('Opravdu chceš smazat celý watchlist?')) return;
+    watchlist = [];
+    wlSave();
+    wlRender();
+  }
+
+  function wlRender() {
+    const wrap = document.getElementById('wl-table-wrapper');
+    if (!watchlist.length) {
+      wrap.innerHTML = "<p class='note'>Watchlist je zatím prázdný. Spočítej DCF a nech zapnuté ukládání.</p>";
+      return;
+    }
+
+    let html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Vnitřní hodnota</th>
+            <th>Aktuální cena</th>
+            <th>Potenciál</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    watchlist.forEach((w, i) => {
+      const diff = w.upside;
+      let cls = '';
+      if (diff > 0) cls = 'plus';
+      if (diff < 0) cls = 'minus';
+      const txt = (diff === null || isNaN(diff)) ? '-' : diff.toFixed(1) + ' %';
+
+      html += `
+        <tr>
+          <td>${w.ticker}</td>
+          <td>${w.fair.toFixed(2)}</td>
+          <td>${w.current.toFixed(2)}</td>
+          <td><span class="pill-status ${cls}">${txt}</span></td>
+          <td><button class="btn-secondary small" onclick="wlRemove(${i})">x</button></td>
+        </tr>
+      `;
+    });
+
+    html += `
+        </tbody>
+      </table>
+      <div class="btn-row">
+        <button class="btn-secondary small" onclick="wlClearAll()">Vymazat celý watchlist</button>
+      </div>
+    `;
+
+    wrap.innerHTML = html;
+  }
+
+  // --- Earnings ---
+  let earnings = [];
+
+  function erLoad() {
+    try {
+      const raw = localStorage.getItem('ea_earnings_v2');
+      if (raw) earnings = JSON.parse(raw);
+    } catch (e) {
+      earnings = [];
+    }
+    erRender();
+  }
+
+  function erSave() {
+    localStorage.setItem('ea_earnings_v2', JSON.stringify(earnings));
+  }
+
+  function erAdd() {
+    const t = document.getElementById('er-ticker').value.trim();
+    const d = document.getElementById('er-date').value;
+    const n = document.getElementById('er-note').value.trim();
+    if (!t || !d) {
+      al
