@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyzátor akcií</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+    <header class="app-header">
+        <h1>Analyzátor akcií</h1>
+        <p>Základní nástroje pro orientační analýzu akcií. Všechno běží jen v tvém prohlížeči.</p>
+    </header>
+
+    <!-- ŠUPLÍKY (navigace) -->
+    <nav class="drawer-list">
+        <button class="drawer-header active" data-target="panel-main">
+            <span class="icon">📊</span>
+            <div class="drawer-text">
+                <h2>Výpočet vnitřní (férové) ceny</h2>
+                <p>Rychlý DCF model + prostor pro chatbot a pokročilý DCF.</p>
+            </div>
+        </button>
+
+        <button class="drawer-header" data-target="panel-watchlist">
+            <span class="icon">📈</span>
+            <div class="drawer-text">
+                <h2>Watchlist &amp; výsledky</h2>
+                <p>Seznam sledovaných akcií uložený v zařízení.</p>
+            </div>
+        </button>
+
+        <button class="drawer-header" data-target="panel-earnings">
+            <span class="icon">📅</span>
+            <div class="drawer-text">
+                <h2>Earnings kalendář</h2>
+                <p>Přehled termínů výsledků (zatím příprava).</p>
+            </div>
+        </button>
+
+        <button class="drawer-header" data-target="panel-compound">
+            <span class="icon">🧮</span>
+            <div class="drawer-text">
+                <h2>Kalkulačka složeného úročení</h2>
+                <p>Jak ti poroste majetek v čase.</p>
+            </div>
+        </button>
+
+        <button class="drawer-header" data-target="panel-portfolio">
+            <span class="icon">💼</span>
+            <div class="drawer-text">
+                <h2>Moje portfolio</h2>
+                <p>Orientační přehled pozic – uložený jen tady.</p>
+            </div>
+        </button>
+    </nav>
+
+    <!-- OBSAH ŠUPLÍKŮ -->
+    <main class="panels">
+
+        <!-- 1) HLAVNÍ PANEL – DCF -->
+        <section id="panel-main" class="panel active">
+            <h2 class="panel-title">Hlavní panel – výpočet vnitřní (férové) ceny</h2>
+            <p class="panel-subtitle">
+                Zadej základní předpoklady a spočítej orientační vnitřní (férovou) hodnotu akcie.
+                Výsledek je jen informativní, žádné investiční doporučení.
+            </p>
+
+            <form class="form" onsubmit="return false;">
+                <label>
+                    Ticker (jen název, neovlivňuje výpočet)
+                    <input id="ticker" type="text" placeholder="Např. AAPL">
+                </label>
+
+                <label>
+                    Aktuální zisk na akcii (EPS) (v USD)
+                    <input id="eps" type="number" step="0.01" value="6">
+                </label>
+
+                <label>
+                    Očekávaný roční růst zisků (%)
+                    <input id="growthRate" type="number" step="0.1" value="10">
+                </label>
+
+                <label>
+                    Počet let prognózy
+                    <input id="years" type="number" value="10">
+                </label>
+
+                <label>
+                    Diskontní sazba (%) – požadovaný výnos
+                    <input id="discountRate" type="number" step="0.1" value="9">
+                </label>
+
+                <label>
+                    Cílový P/E na konci období
+                    <input id="terminalPE" type="number" step="0.1" value="15">
+                </label>
+
+                <label>
+                    Bezpečnostní rezerva (%) – sleva pro nákup
+                    <input id="marginOfSafety" type="number" step="1" value="25">
+                </label>
+
+                <button id="btn-calc-dcf" type="button" class="btn-primary">
+                    Spočítat férovou cenu
+                </button>
+
+                <button id="btn-add-to-watchlist-main" type="button" class="btn-secondary">
+                    + Přidat tento ticker do watchlistu
+                </button>
+            </form>
+
+            <div id="dcf-result" class="result-box">
+                Zatím není spočítáno. Zadej data a klikni na „Spočítat férovou cenu“.
+            </div>
+
+            <div class="info-box">
+                🎯 <strong>Pokročilý DCF model a integrovaný chatbot</strong> budou v další verzi.
+                Tady máš funkční základ – rychlý orientační odhad vnitřní hodnoty.
+            </div>
+        </section>
+
+        <!-- 2) WATCHLIST -->
+        <section id="panel-watchlist" class="panel">
+            <h2 class="panel-title">Watchlist &amp; výsledky</h2>
+            <p class="panel-subtitle">
+                Jednoduchý seznam sledovaných akcií. Ukládá se jen do tvého zařízení
+                (localStorage) – nic se neposílá na server.
+            </p>
+
+            <form class="form" onsubmit="return false;">
+                <label>
+                    Ticker
+                    <input id="watchlist-ticker" type="text" placeholder="Např. MSFT">
+                </label>
+                <button id="btn-add-watchlist" type="button" class="btn-primary">
+                    Přidat do watchlistu
+                </button>
+                <button id="btn-clear-watchlist" type="button" class="btn-danger">
+                    🧹 Vymazat celý watchlist
+                </button>
+            </form>
+
+            <ul id="watchlist-list" class="list">
+                <!-- položky doplní JavaScript -->
+            </ul>
+        </section>
+
+        <!-- 3) EARNINGS KALENDÁŘ -->
+        <section id="panel-earnings" class="panel">
+            <h2 class="panel-title">Earnings kalendář</h2>
+            <p class="panel-subtitle">
+                Tady bude přehled termínů výsledků firem, které tě zajímají.
+                Do budoucna plán: napojení na externí API / ruční zadání.
+            </p>
+
+            <div class="info-box">
+                ⏳ Tato sekce je zatím ve fázi „Brzy“. Klidně si sem dočasně piš
+                vlastní poznámky k termínům výsledků – třeba takhle:
+            </div>
+
+            <textarea class="notes" id="earnings-notes"
+                      placeholder="Např. 25.1.2026 – AAPL, 30.1.2026 – MSFT..."></textarea>
+
+            <p class="small-note">
+                Poznámky se ukládají jen do tvého prohlížeče (localStorage).
+            </p>
+        </section>
+
+        <!-- 4) KALKULAČKA SLOŽENÉHO ÚROČENÍ -->
+        <section id="panel-compound" class="panel">
+            <h2 class="panel-title">Kalkulačka složeného úročení</h2>
+            <p class="panel-subtitle">
+                Spočítej, jak může v čase vyrůst tvoje investice.
+            </p>
+
+            <form class="form" onsubmit="return false;">
+                <label>
+                    Počáteční částka (CZK)
+                    <input id="ci-start" type="number" step="100" value="100000">
+                </label>
+
+                <label>
+                    Měsíční vklad (CZK)
+                    <input id="ci-monthly" type="number" step="100" value="5000">
+                </label>
+
+                <label>
+                    Průměrné roční zhodnocení (%)
+                    <input id="ci-rate" type="number" step="0.1" value="8">
+                </label>
+
+                <label>
+                    Počet let
+                    <input id="ci-years" type="number" value="20">
+                </label>
+
+                <button id="btn-calc-ci" type="button" class="btn-primary">
+                    Spočítat složené úročení
+                </button>
+            </form>
+
+            <div id="ci-result" class="result-box">
+                Zatím není spočítáno.
+            </div>
+        </section>
+
+        <!-- 5) MOJE PORTFOLIO -->
+        <section id="panel-portfolio" class="panel">
+            <h2 class="panel-title">Moje portfolio</h2>
+            <p class="panel-subtitle">
+                Rychlý orientační přehled pozic. Nepracuje s aktuálními kurzy,
+                jen se součtem nákupních cen. Všechno je uložené jen v tomto zařízení.
+            </p>
+
+            <form class="form" onsubmit="return false;">
+                <label>
+                    Ticker
+                    <input id="pf-ticker" type="text" placeholder="Např. AAPL">
+                </label>
+
+                <label>
+                    Počet kusů
+                    <input id="pf-shares" type="number" step="1" value="10">
+                </label>
+
+                <label>
+                    Nákupní cena za akcii (USD)
+                    <input id="pf-price" type="number" step="0.01" value="150">
+                </label>
+
+                <button id="btn-add-position" type="button" class="btn-primary">
+                    Přidat pozici
+                </button>
+
+                <button id="btn-clear-portfolio" type="button" class="btn-danger">
+                    🧹 Vymazat celé portfolio
+                </button>
+            </form>
+
+            <div id="pf-summary" class="result-box">
+                Zatím žádné pozice.
+            </div>
+
+            <table class="table" id="pf-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Kusů</th>
+                        <th>Nákupní cena (USD)</th>
+                        <th>Investováno (USD)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- řádky doplní JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>Všechno běží jen v prohlížeči – žádná data se nikam neposílají.</p>
+    </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
