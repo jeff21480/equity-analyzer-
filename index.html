@@ -582,7 +582,157 @@
             podle hodnoty <code>data-module</code>.
           </div>
         `;
-      });
+      });/* ---------------------------------------------------------
+   MODUL 1 – MANUÁLNÍ DCF MODEL (10 BODŮ)
+   Tento blok vlož úplně dolů do <script> před </script>.
+   Modul funguje samostatně, nezasahuje do žádného tvého kódu.
+--------------------------------------------------------- */
+
+(function () {
+  console.log("📌 Modul 1 – Manuální DCF načten");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const panelBox = document.getElementById("main-panel-box");
+    const tile = document.querySelector('.tile[data-module="intrinsic-manual"]');
+
+    if (!panelBox || !tile) {
+      console.warn("❗ Modul 1: dlaždice nebo panel nebyly nalezeny.");
+      return;
+    }
+
+    tile.addEventListener("click", () => {
+      renderManualDCF(panelBox);
+    });
+  });
+
+  function renderManualDCF(panelBox) {
+    panelBox.innerHTML = `
+      <div class="panel-selected">
+        Vybráno: <strong>Manuální DCF model</strong>
+      </div>
+
+      <div class="text-muted">
+        Kompletní 10-bodový DCF model. Vyplň hodnoty ručně a výpočet spočítá
+        férovou hodnotu akcie na základě projekce FCF (2 růstové fáze) a
+        terminální hodnoty přes násobek P/FCF.
+      </div>
+
+      <div class="form-grid" style="margin-top:10px;">
+        ${renderField("1) Výchozí FCF (v mil.)", "dcf_fcf", "number", "1500")}
+        ${renderField("2) Růst 1–5 let (%)", "dcf_g1", "number", "15")}
+        ${renderField("3) Růst 6–10 let (%)", "dcf_g2", "number", "8")}
+        ${renderField("4) Diskontní sazba (%)", "dcf_r", "number", "9")}
+        ${renderField("5) Terminální násobek P/FCF", "dcf_terminal", "number", "15")}
+        ${renderField("6) Čistý dluh (záporný = hotovost)", "dcf_debt", "number", "-200")}
+        ${renderField("7) Počet akcií (v mil.)", "dcf_shares", "number", "500")}
+        ${renderField("8) Bezpečnostní marže (%)", "dcf_margin", "number", "25")}
+        ${renderField("9) Aktuální cena akcie (volitelná)", "dcf_price", "number", "")}
+        ${renderField("10) Měna", "dcf_currency", "text", "USD")}
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button id="dcf_calc" class="btn">⚙️ Spočítat férovou cenu</button>
+        <button id="dcf_clear" class="btn btn-secondary">Vymazat</button>
+      </div>
+
+      <div id="dcf_result" class="result-box" style="display:none;"></div>
+    `;
+
+    initDCFLogic();
+  }
+
+  function renderField(label, id, type, placeholder) {
+    return `
+      <div class="field">
+        <label class="field-label">${label}</label>
+        <input id="${id}" class="field-input" type="${type}" placeholder="${placeholder}" />
+      </div>
+    `;
+  }
+
+  function getNumber(id) {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const raw = el.value.replace(",", ".").trim();
+    if (raw === "") return null;
+    const n = parseFloat(raw);
+    return isNaN(n) ? null : n;
+  }
+
+  function initDCFLogic() {
+    const btnCalc = document.getElementById("dcf_calc");
+    const btnClear = document.getElementById("dcf_clear");
+    const resultBox = document.getElementById("dcf_result");
+
+    btnCalc.addEventListener("click", () => {
+      const fcf0 = getNumber("dcf_fcf");
+      const g1 = getNumber("dcf_g1");
+      const g2 = getNumber("dcf_g2");
+      const r = getNumber("dcf_r");
+      const terminal = getNumber("dcf_terminal");
+      const debt = getNumber("dcf_debt") || 0;
+      const shares = getNumber("dcf_shares");
+      const margin = getNumber("dcf_margin") || 0;
+      const price = getNumber("dcf_price");
+      const currency = document.getElementById("dcf_currency").value || "USD";
+
+      if ([fcf0, g1, g2, r, terminal, shares].includes(null)) {
+        alert("Vyplň FCF, růsty, diskont, terminální násobek a počet akcií.");
+        return;
+      }
+
+      const rDec = r / 100;
+      let fcf = fcf0;
+      let pvSum = 0;
+      let fcf10 = 0;
+
+      for (let year = 1; year <= 10; year++) {
+        fcf *= 1 + (year <= 5 ? g1 / 100 : g2 / 100);
+        pvSum += fcf / Math.pow(1 + rDec, year);
+        if (year === 10) fcf10 = fcf;
+      }
+
+      const terminalValue = fcf10 * terminal;
+      const pvTerminal = terminalValue / Math.pow(1 + rDec, 10);
+
+      const equityValue = pvSum + pvTerminal + debt;
+
+      let fair = equityValue / shares;
+      fair *= 1 - margin / 100;
+
+      let diffText = "";
+      if (price != null) {
+        const pct = ((fair - price) / price) * 100;
+        diffText = pct >= 0
+          ? `📈 Podhodnoceno o ${pct.toFixed(1)} %`
+          : `⚠️ Předraženo o ${Math.abs(pct).toFixed(1)} %`;
+      }
+
+      resultBox.style.display = "block";
+      resultBox.innerHTML = `
+        <div class="result-main">
+          <div>
+            <div class="result-value">${fair.toFixed(2)} ${currency}</div>
+            <div class="result-note">Férová cena po bezpečnostní marži</div>
+          </div>
+          <div>${diffText}</div>
+        </div>
+
+        <div class="result-note">
+          Výpočet zahrnuje 10 let diskontovaných FCF + terminální hodnotu (P/FCF × FCF v 10. roce)
+          + čistý dluh/hotovost.
+        </div>
+      `;
+    });
+
+    btnClear.addEventListener("click", () => {
+      document.querySelectorAll(".field-input").forEach(el => el.value = "");
+      resultBox.style.display = "none";
+      resultBox.innerHTML = "";
+    });
+  }
+
+})();
     });
   </script>
 </body>
