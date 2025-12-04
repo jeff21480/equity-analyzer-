@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eqity Analyzér – Analyzátor akcií</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        /* ŠUPLÍKY (kostky) */
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .panel-card {
+            background: linear-gradient(145deg, #4c1d95, #7c3aed);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .panel-card h3 {
+            margin: 0 0 6px 0;
+            font-size: 18px;
+        }
+
+        .panel-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #e5e7eb;
+            opacity: 0.85;
+        }
+
+        .panel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(15,23,42,0.8);
+            opacity: 0.97;
+        }
+
+        /* OBSAH ŠUPLÍKŮ */
+        .content-wrapper {
+            background: #020617;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+        }
+
+        .content-panel { display: none; }
+        .content-panel.active { display: block; }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 9px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid #4b5563;
+            background: #020617;
+            color: #e5e7eb;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 9px 14px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-primary { background: #6366f1; color: #fff; }
+        .btn-primary:hover { background: #4f46e5; }
+        .btn-danger { background: #ef4444; color: #fff; }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .row > div {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .result-box {
+            margin-top: 8px;
+            padding: 10px;
+            background: #020617;
+            border-radius: 12px;
+            border: 1px solid #4b5563;
+            font-size: 14px;
+        }
+
+        .list-card {
+            background: #020617;
+            border-radius: 14px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #4b5563;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .ticker { font-weight: bold; font-size: 16px; }
+        .price { font-size: 14px; color: #22c55e; }
+
+        .delete {
+            font-size: 20px;
+            cursor: pointer;
+            color: #ef4444;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Eqity Analyzér</h1>
+    <div class="subtitle">Klepni na šuplík a otevře se jeho modul.</div>
+
+    <!-- ŠUPLÍKY / KOSTKY -->
+    <div class="panel-grid">
+        <div class="panel-card" onclick="openPanel('dcfPanel')">
+            <h3>1️⃣ DCF výpočet</h3>
+            <p>Vnitřní hodnota akcie</p>
+        </div>
+
+        <div class="panel-card" onclick="openPanel('watchlistPanel')">
+            <h3>2️⃣ Watchlist</h3>
+            <p>Sledované tickery</p>
+        </div>
+
+        <div class="panel-card" onclick="openPanel('portfolioPanel')">
+            <h3>3️⃣ Portfolio</h3>
+            <p>Přehled tvých pozic</p>
+        </div>
+
+        <div class="panel-card" onclick="openPanel('earningsPanel')">
+            <h3>4️⃣ Earnings</h3>
+            <p>Kalendář výsledků</p>
+        </div>
+
+        <div class="panel-card" onclick="openPanel('notesPanel')">
+            <h3>5️⃣ Poznámky</h3>
+            <p>Vlastní texty a nápady</p>
+        </div>
+    </div>
+
+    <!-- OBSAH ŠUPLÍKŮ -->
+    <div class="content-wrapper">
+
+        <!-- 1) DCF PANEL -->
+        <div id="dcfPanel" class="content-panel active">
+            <h2>DCF – výpočet vnitřní hodnoty</h2>
+
+            <div class="row">
+                <div>
+                    <label>Současný FCF (v milionech)</label>
+                    <input id="fcfNow" type="number" step="0.01" placeholder="např. 500">
+                </div>
+                <div>
+                    <label>Růst FCF (% ročně – prvních 5 let)</label>
+                    <input id="growthHigh" type="number" step="0.1" placeholder="např. 10">
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Růst FCF (% ročně – dalších 5 let)</label>
+                    <input id="growthLow" type="number" step="0.1" placeholder="např. 5">
+                </div>
+                <div>
+                    <label>Diskontní sazba (%)</label>
+                    <input id="discountRate" type="number" step="0.1" value="9">
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Terminální růst (%) po 10. roce</label>
+                    <input id="terminalGrowth" type="number" step="0.1" value="2">
+                </div>
+                <div>
+                    <label>Počet akcií (v milionech)</label>
+                    <input id="shares" type="number" step="0.01" placeholder="např. 1000">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="calculateDCF()">Spočítat vnitřní hodnotu</button>
+
+            <div id="dcfResult" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- 2) WATCHLIST PANEL -->
+        <div id="watchlistPanel" class="content-panel">
+            <h2>Watchlist</h2>
+
+            <div class="row">
+                <div style="flex:1;">
+                    <label>Přidat ticker</label>
+                    <input type="text" id="tickerInput" placeholder="např. AAPL, PLTR, SOFI">
+                </div>
+                <div style="align-self:flex-end;">
+                    <button class="btn-primary" onclick="addTicker()">Přidat</button>
+                </div>
+</div>
+
+            <div class="result-box">
+                Ticker se ukládá jen do tohoto zařízení (localStorage).  
+                Online ceny doplníme později – teď se zobrazuje „N/A“.
+            </div>
+
+            <div id="watchlist" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- 3) PORTFOLIO PANEL -->
+        <div id="portfolioPanel" class="content-panel">
+            <h2>Moje portfolio</h2>
+
+            <div class="row">
+                <div>
+                    <label>Ticker</label>
+                    <input id="pf-ticker" type="text" placeholder="např. SOFI">
+                </div>
+                <div>
+                    <label>Počet ks</label>
+                    <input id="pf-qty" type="number" step="1" min="0" placeholder="např. 100">
+                </div>
+                <div>
+                    <label>Cena nákupu</label>
+                    <input id="pf-price" type="number" step="0.01" min="0" placeholder="např. 7.50">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="addPosition()">Přidat pozici</button>
+
+            <div id="pf-list" style="margin-top:10px;"></div>
+            <div id="pf-summary" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- 4) EARNINGS PANEL -->
+        <div id="earningsPanel" class="content-panel">
+            <h2>Earnings kalendář</h2>
+
+            <div class="row">
+                <div>
+                    <label>Datum výsledků</label>
+                    <input id="er-date" type="date">
+                </div>
+                <div>
+                    <label>Ticker</label>
+                    <input id="er-ticker" type="text" placeholder="např. PLTR">
+                </div>
+                <div>
+                    <label>Poznámka</label>
+                    <input id="er-note" type="text" placeholder="Q2, guidance, důležitá info…">
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="addEarnings()">Přidat do kalendáře</button>
+
+            <div class="result-box" style="margin-top:10px;">
+                Zatím ruční kalendář. Později sem můžeme připojit online earnings API.
+            </div>
+
+            <div id="er-list" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- 5) NOTES PANEL -->
+        <div id="notesPanel" class="content-panel">
+            <h2>Poznámky</h2>
+            <div class="result-box" style="margin-bottom:8px;">
+                Libovolné poznámky k firmám, strategii, úkolům…  
+                Automaticky se ukládají do prohlížeče (localStorage).
+            </div>
+            <textarea id="notes-text" placeholder="Začni psát poznámky…"></textarea>
+        </div>
+
+    </div> <!-- konec .content-wrapper -->
+
+    <script>
+        // Přepínání šuplíků
+        function openPanel(id) {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+
+        // ==============
+        // 1) DCF MODEL
+        // ==============
+        function calculateDCF() {
+            const fcfNow = parseFloat(document.getElementById('fcfNow').value);
+            const growthHigh = parseFloat(document.getElementById('growthHigh').value) / 100;
+            const growthLow = parseFloat(document.getElementById('growthLow').value) / 100;
+            const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
+            const terminalGrowth = parseFloat(document.getElementById('terminalGrowth').value) / 100;
+            const shares = parseFloat(document.getElementById('shares').value);
+
+            if (isNaN(fcfNow) || isNaN(growthHigh) || isNaN(growthLow) ||
+                isNaN(discountRate) || isNaN(terminalGrowth) || isNaN(shares)) {
+                alert("Vyplň prosím všechna pole.");
+                return;
+            }
+
+            let fcf = fcfNow;
+            let npv = 0;
+
+            // prvních 5 let – vyšší růst
+            for (let year = 1; year <= 5; year++) {
+                fcf *= (1 + growthHigh);
+                npv += fcf / Math.pow(1 + discountRate, year);
+            }
+
+            // dalších 5 let – nižší růst
+            for (let year = 6; year <= 10; year++) {
+                fcf *= (1 + growthLow);
+                npv += fcf / Math.pow(1 + discountRate, year);
+            }
+
+            // terminální hodnota
+            const terminalValue = fcf * (1 + terminalGrowth) / (discountRate - terminalGrowth);
+            const terminalNPV = terminalValue / Math.pow(1 + discountRate, 10);
+
+            const equityValue = npv + terminalNPV;
+            const fairValuePerShare = equityValue / shares;
+
+            const box = document.getElementById('dcfResult');
+            box.style.display = 'block';
+            box.innerHTML = `
+                <div><strong>Součet diskontovaných FCF:</strong> ${npv.toFixed(2)} mil.</div>
+                <div><strong>Terminální hodnota (diskontovaná):</strong> ${terminalNPV.toFixed(2)} mil.</div>
+                <div><strong>Celková hodnota equity:</strong> ${equityValue.toFixed(2)} mil.</div>
+                <div style="margin-top:6px;font-size:16px;">
+                    💰 <strong>Vnitřní hodnota na akcii:</strong> ${fairValuePerShare.toFixed(2)}
+                </div>
+            `;
+        }
+
+        // ==============
+        // 2) WATCHLIST
+        // ==============
+        let watchlist = JSON.parse(localStorage.getItem("watchlist_v1") || "[]");
+
+        function saveWatchlist() {
+            localStorage.setItem("watchlist_v1", JSON.stringify(watchlist));
+        }
+
+        function addTicker() {
+            const input = document.getElementById("tickerInput");
+            const ticker = (input.value || "").trim().toUpperCase();
+
+            if (!ticker) {
+                alert("Zadej ticker.");
+                return;
+            }
+            if (watchlist.includes(ticker)) {
+                alert("Ticker už ve watchlistu je.");
+                return;
+            }
+
+            watchlist.push(ticker);
+            saveWatchlist();
+            input.value = "";
+            renderWatchlist();
+        }
+
+        function deleteTicker(ticker) {
+            watchlist = watchlist.filter(t => t !== ticker);
+            saveWatchlist();
+            renderWatchlist();
+        }
+
+        async function getPrice(ticker) {
+            // později se sem napojí API na ceny
+            return "N/A";
+        }
+
+        async function renderWatchlist() {
+            const container = document.getElementById("watchlist");
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            if (watchlist.length === 0) {
+                container.innerHTML = `<div class="result-box">Watchlist je prázdný. Přidej první ticker.</div>`;
+                return;
+            }
+
+            for (const ticker of watchlist) {
+                const price = await getPrice(ticker);
+                const row = document.createElement("div");
+                row.className = "list-card";
+                row.innerHTML = `
+                    <div>
+                        <div class="ticker">${ticker}</div>
+                        <div class="price">Cena: ${price}</div>
+                    </div>
+                    <div class="delete" onclick="deleteTicker('${ticker}')">×</div>
+                `;
+                container.appendChild(row);
+            }
+        }
+
+        // ==============
+        // 3) PORTFOLIO
+        // ==============
+        let portfolio = JSON.parse(localStorage.getItem("portfolio_v1") || "[]");
+
+        function savePortfolio() {
+            localStorage.setItem("portfolio_v1", JSON.stringify(portfolio));
+        }
+
+        function addPosition() {
+            const tEl = document.getElementById("pf-ticker");
+            const qEl = document.getElementById("pf-qty");
+            const pEl = document.getElementById("pf-price");
+
+            const ticker = (tEl.value || "").trim().toUpperCase();
+            const qty = Number(qEl.value || "0");
+            const price = Number(pEl.value || "0");
+
+            if (!ticker || !qty || !price) {
+                alert("Vyplň ticker, počet a cenu.");
+                return;
+            }
+
+            portfolio.push({ ticker, qty, price });
+            savePortfolio();
+
+            tEl.value = "";
+            qEl.value = "";
+            pEl.value = "";
+
+            renderPortfolio();
+        }
+
+        function deletePosition(idx) {
+            portfolio.splice(idx, 1);
+            savePortfolio();
+            renderPortfolio();
+        }
+
+        function renderPortfolio() {
+            const listEl = document.getElementById("pf-list");
+            const sumEl = document.getElementById("pf-summary");
+            if (!listEl || !sumEl) return;
+
+            listEl.innerHTML = "";
+
+            if (portfolio.length === 0) {
+                listEl.innerHTML = `<div class="result-box">Portfolio je prázdné. Přidej první pozici.</div>`;
+                sumEl.style.display = "none";
+                return;
+            }
+
+            let total = 0;
+            portfolio.forEach((pos, idx) => {
+                const invested = pos.qty * pos.price;
+                total += invested;
+
+                const row = document.createElement("div");
+                row.className = "list-card";
+                row.innerHTML = `
+                    <div>
+                        <div class="ticker">${pos.ticker}</div>
+                        <div>${pos.qty} ks @ ${pos.price.toFixed(2)} = ${invested.toFixed(2)}</div>
+                    </div>
+                    <div class="delete" onclick="deletePosition(${idx})">×</div>
+                `;
+                listEl.appendChild(row);
+            });
+
+            sumEl.style.display = "block";
+            sumEl.innerHTML = `<strong>Celkem investováno:</strong> ${total.toFixed(2)}`;
+        }
+
+        // ==============
+        // 4) EARNINGS
+        // ==============
+        let earnings = JSON.parse(localStorage.getItem("earnings_v1") || "[]");
+
+        function saveEarnings() {
+            localStorage.setItem("earnings_v1", JSON.stringify(earnings));
+        }
+
+        function addEarnings() {
+            const dEl = document.getElementById("er-date");
+            const tEl = document.getElementById("er-ticker");
+            const nEl = document.getElementById("er-note");
+
+            const date = dEl.value || "";
+            const ticker = (tEl.value || "").trim().toUpperCase();
+            const note = (nEl.value || "").trim();
+
+            if (!ticker) {
+                alert("Zadej ticker.");
+                return;
+            }
+
+            earnings.push({ date, ticker, note });
+            saveEarnings();
+
+            tEl.value = "";
+            nEl.value = "";
+
+            renderEarnings();
+        }
+
+        function deleteEarnings(idx) {
+            earnings.splice(idx, 1);
+            saveEarnings();
+            renderEarnings();
+        }
+
+        function renderEarnings() {
+            const listEl = document.getElementById("er-list");
+            if (!listEl) return;
+
+            listEl.innerHTML = "";
+
+            if (earnings.length === 0) {
+                listEl.innerHTML = `<div class="result-box">Žádné zapsané termíny. Přidej první.</div>`;
+                return;
+            }
+
+            const sorted = [...earnings].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+
+            sorted.forEach((it, idx) => {
+                const row = document.createElement("div");
+                row.className = "list-card";
+                row.innerHTML = `
+                    <div>
+                        <div class="ticker">${it.ticker}</div>
+                        <div>${it.date || "bez data"}</div>
+                        <div>${it.note || ""}</div>
+                    </div>
+                    <div class="delete" onclick="deleteEarnings(${idx})">×</div>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        // ==============
+        // 5) POZNÁMKY
+        // ==============
+        function initNotes() {
+            const area = document.getElementById("notes-text");
+            if (!area) return;
+
+            area.value = localStorage.getItem("notes_v1") || "";
+            area.addEventListener("input", () => {
+                localStorage.setItem("notes_v1", area.value);
+            });
+        }
+
+        // Inicializace po načtení
+        renderWatchlist();
+        renderPortfolio();
+        renderEarnings();
+        initNotes();
+    </script>
+
+</body>
+</html>
