@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyzátor akcií</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #a855f7 0, #4c1d95 35%, #1d0537 70%, #040016 100%);
+      color: #f9fafb;
+    }
+
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #e5e7eb;
+      max-width: 720px;
+    }
+
+    .card {
+      margin-top: 24px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(88, 28, 135, 0.95), rgba(30, 64, 175, 0.95));
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.7);
+      padding: 24px 18px 20px;
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .card h2 span.icon {
+      font-size: 1.6rem;
+    }
+
+    .card p.subtitle {
+      font-size: 0.9rem;
+      color: #d1d5db;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.86rem;
+      color: #e5e7eb;
+    }
+
+    .field small {
+      font-size: 0.78rem;
+      color: #cbd5f5;
+    }
+
+    .field input {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 14px;
+      font-size: 0.98rem;
+      outline: none;
+      color: #0f172a;
+      background: #f9fafb;
+    }
+
+    .field input::placeholder {
+      color: #9ca3af;
+    }
+
+    .button-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    button#spocitat {
+      border: none;
+      border-radius: 999px;
+      padding: 11px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      box-shadow: 0 10px 25px rgba(22, 163, 74, 0.55);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+    }
+
+    button#spocitat:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 14px rgba(22, 163, 74, 0.55);
+      background: #16a34a;
+    }
+
+    .results {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(191, 219, 254, 0.18);
+      font-size: 0.96rem;
+    }
+
+    .results h3 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .results-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .results-row span.label {
+      color: #cbd5f5;
+      font-size: 0.86rem;
+    }
+
+    .results-row span.value {
+      font-weight: 600;
+      font-size: 1.04rem;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: #cbd5f5;
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    .sections {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-card {
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: linear-gradient(135deg, rgba(76, 29, 149, 0.85), rgba(30, 64, 175, 0.8));
+      border: 1px solid rgba(129, 140, 248, 0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-card .left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-card .icon {
+      font-size: 1.6rem;
+    }
+
+    .section-card h3 {
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+
+    .section-card p {
+      font-size: 0.84rem;
+      color: #e5e7eb;
+    }
+
+    .tag-soon {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+
+    @media (min-width: 640px) {
+      .card {
+        padding: 26px 26px 22px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 18px;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      .button-row {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+      }
+
+      .results {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Analyzátor akcií</h1>
+      <p>
+        Zadej základní předpoklady a orientačně spočítej vnitřní (férovou) hodnotu akcie.
+        Výsledky jsou pouze informační a nejde o investiční doporučení.
+      </p>
+    </header>
+
+    <!-- Rychlý výpočet férové ceny -->
+    <section class="card" aria-label="Rychlý výpočet férové ceny">
+      <h2><span class="icon">📊</span>Rychlý výpočet férové ceny</h2>
+      <p class="subtitle">
+        Jednoduchý DCF model – zadáš ticker (jen pro popisek) a pár předpokladů.
+      </p>
+
+      <form id="fair-value-form" autocomplete="off">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="ticker">Ticker (jen název, neovlivňuje výpočet)</label>
+            <input id="ticker" type="text" placeholder="Např. AAPL" />
+          </div>
+
+          <div class="field">
+            <label for="eps">
+              Aktuální zisk na akcii (EPS) <span style="font-size:0.8rem;opacity:0.85;">(v USD)</span>
+            </label>
+            <input id="eps" type="number" step="0.01" value="6" />
+          </div>
+
+          <div class="field">
+            <label for="growth">Očekávaný roční růst zisků (%)</label>
+            <input id="growth" type="number" step="0.1" value="10" />
+          </div>
+
+          <div class="field">
+            <label for="years">Počet let prognózy</label>
+            <input id="years" type="number" step="1" value="10" />
+          </div>
+
+          <div class="field">
+            <label for="discount">Diskontní sazba (%) – požadovaný výnos</label>
+            <input id="discount" type="number" step="0.1" value="9" />
+          </div>
+
+          <div class="field">
+            <label for="pe">Cílový P/E na konci období</label>
+            <input id="pe" type="number" step="0.1" value="15" />
+          </div>
+
+          <div class="field">
+            <label for="mos">Bezpečnostní rezerva (%) – sleva pro nákup</label>
+            <input id="mos" type="number" step="1" value="25" />
+          </div>
+
+          <div class="button-row">
+            <button type="submit" id="spocitat">Spočítat</button>
+          </div>
+
+          <div class="results" id="results" style="display:none;">
+            <h3>Výsledky</h3>
+            <div class="results-row">
+              <span class="label">Odhad férové hodnoty na akcii:</span>
+              <span class="value" id="fairValueText">–</span>
+            </div>
+            <div class="results-row">
+              <span class="label">Max. nákupní cena (po bezpečnostní rezervě):</span>
+              <span class="value" id="buyPriceText">–</span>
+            </div>
+            <p class="note" id="tickerNote"></p>
+            <p class="note">
+              Pozn.: jde o velmi zjednodušený model založený na EPS. Nezohledňuje dluh, buybacky,
+              kapitálové výdaje ani cykličnost byznysu.
+            </p>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Ostatní sekce „Brzy“ jen jako design, bez funkce -->
+    <section class="sections" aria-label="Další nástroje (brzy)">
+      <div class="section-card">
+        <div class="left">
+          <div class="icon">📈</div>
+          <div>
+            <h3>Watchlist &amp; výsledky</h3>
+            <p>Sledování firem, odhad férové ceny a termíny výsledků.</p>
+          </div>
+        </div>
+        <div class="tag-soon">Brzy</div>
+      </div>
+
+      <div class="section-card">
+        <div class="left">
+          <div class="icon">💼</div>
+          <div>
+            <h3>Moje portfolio</h3>
+            <p>Přehled pozic, brokerů a celkové zhodnocení.</p>
+          </div>
+        </div>
+        <div class="tag-soon">Brzy</div>
+      </div>
+
+      <div class="section-card">
+        <div class="left">
+          <div class="icon">🌍</div>
+          <div>
+            <h3>Trhy &amp; indexy</h3>
+            <p>Hlavní indexy, komodity a kryptoměny na jednom místě.</p>
+          </div>
+        </div>
+        <div class="tag-soon">Brzy</div>
+      </div>
+
+      <div class="section-card">
+        <div class="left">
+          <div class="icon">📝</div>
+          <div>
+            <h3>Poznámkový blok</h3>
+            <p>Myšlenky k firmám, obchodní plány a shrnutí výsledků.</p>
+          </div>
+        </div>
+        <div class="tag-soon">Brzy</div>
+      </div>
+
+      <div class="section-card">
+        <div class="left">
+          <div class="icon">📜</div>
+          <div>
+            <h3>Aktivita &amp; historie</h3>
+            <p>Přehled nákupů, prodejů a důležitých změn v portfoliu.</p>
+          </div>
+        </div>
+        <div class="tag-soon">Brzy</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function formatUSD(value) {
+      return value.toLocaleString("cs-CZ", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2
+      });
+    }
+
+    document.getElementById("fair-value-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const eps = parseFloat(document.getElementById("eps").value.replace(",", ".")) || 0;
+      const growth = (parseFloat(document.getElementById("growth").value.replace(",", ".")) || 0) / 100;
+      const years = parseInt(document.getElementById("years").value, 10) || 0;
+      const discount = (parseFloat(document.getElementById("discount").value.replace(",", ".")) || 0) / 100;
+      const pe = parseFloat(document.getElementById("pe").value.replace(",", ".")) || 0;
+      const mos = (parseFloat(document.getElementById("mos").value.replace(",", ".")) || 0) / 100;
+      const ticker = document.getElementById("ticker").value.trim();
+
+      if (eps <= 0 || years <= 0 || discount <= 0) {
+        alert("Zkontroluj prosím vstupy – EPS, počet let a diskontní sazba musí být větší než nula.");
+        return;
+      }
+
+      let intrinsic = 0;
+      let currentEPS = eps;
+
+      for (let t = 1; t <= years; t++) {
+        currentEPS *= (1 + growth);
+        intrinsic += currentEPS / Math.pow(1 + discount, t);
+      }
+
+      const terminalEPS = currentEPS;
+      const terminalValue = terminalEPS * pe;
+      intrinsic += terminalValue / Math.pow(1 + discount, years);
+
+      const fairValue = intrinsic;
+      const buyPrice = fairValue * (1 - mos);
+
+      document.getElementById("fairValueText").textContent = formatUSD(fairValue);
+      document.getElementById("buyPriceText").textContent = formatUSD(buyPrice);
+      document.getElementById("results").style.display = "block";
+
+      const noteEl = document.getElementById("tickerNote");
+      if (ticker) {
+        noteEl.textContent = `Výpočet je orientační odhad pro titul ${ticker}. Skutečná hodnota se může výrazně lišit.`;
+      } else {
+        noteEl.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
