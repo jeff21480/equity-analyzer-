@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eqity Analyzér – Watchlist analyzovaných akcií</title>
+  <style>
+    :root {
+      --bg: #050516;
+      --bg-alt: #0b0b1f;
+      --card: #121227;
+      --card-soft: #181836;
+      --border: #2f2f4b;
+      --text: #f9fafb;
+      --muted: #a5b4fc;
+      --muted-soft: #9ca3af;
+      --accent1: #a855f7;
+      --accent2: #6366f1;
+      --danger: #f97373;
+      --success: #4ade80;
+      --radius-lg: 18px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.6);
+      --tr: 0.18s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #1e1b4b 0, #020617 50%, #020314 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px 32px;
+    }
+
+    .app-wrap {
+      width: 100%;
+      max-width: 1080px;
+      background:
+        linear-gradient(135deg, rgba(148, 27, 255, 0.32), transparent 45%),
+        radial-gradient(circle at bottom, rgba(37, 99, 235, 0.22), transparent 55%),
+        var(--bg-alt);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 255, 0.28);
+      box-shadow: var(--shadow-soft);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      background: conic-gradient(
+        from 220deg,
+        #6366f1,
+        #a855f7,
+        #22c55e,
+        #6366f1
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .brand-text h1 {
+      font-size: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: var(--muted-soft);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 11px;
+      border: 1px solid rgba(148, 163, 255, 0.45);
+      background: radial-gradient(
+          circle at top left,
+          rgba(148, 163, 255, 0.35),
+          transparent 55%
+        ),
+        rgba(15, 23, 42, 0.9);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .back-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 255, 0.7);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background var(--tr), color var(--tr), transform var(--tr);
+    }
+
+    .back-btn:hover {
+      background: rgba(30, 64, 175, 0.6);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, #111827, #020617 65%);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 255, 0.32);
+      padding: 14px 14px 16px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .card-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top left, #4f46e5, #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .card-title-main {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .card-title-sub {
+      font-size: 12px;
+      color: var(--muted-soft);
+    }
+
+    .form-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .field label {
+      color: var(--muted);
+    }
+
+    .field small {
+      color: var(--muted-soft);
+      font-size: 11px;
+    }
+
+    .field input,
+    .field select {
+      border-radius: 10px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border-color var(--tr), box-shadow var(--tr),
+        background var(--tr);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.6);
+      background: #020617;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform var(--tr), box-shadow var(--tr), opacity var(--tr),
+        background var(--tr);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      box-shadow: 0 14px 30px rgba(88, 28, 135, 0.8);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 38px rgba(88, 28, 135, 0.9);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 255, 0.4);
+      color: var(--muted);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(17, 24, 39, 1);
+    }
+
+    .table-wrap {
+      margin-top: 10px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, #020617, #020617 65%);
+      overflow: hidden;
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    thead {
+      background: rgba(15, 23, 42, 1);
+    }
+
+    th, td {
+      padding: 7px 9px;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(30, 64, 175, 0.25);
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 255, 0.6);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.95);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag-buy {
+      border-color: rgba(34, 197, 94, 0.7);
+      color: var(--success);
+    }
+
+    .tag-watch {
+      border-color: rgba(59, 130, 246, 0.8);
+      color: #93c5fd;
+    }
+
+    .tag-avoid {
+      border-color: rgba(248, 113, 113, 0.85);
+      color: #fecaca;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 255, 0.5);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--muted);
+    }
+
+    .badge-soft {
+      font-size: 11px;
+      color: var(--muted-soft);
+    }
+
+    .btn-link {
+      border: none;
+      background: none;
+      color: #93c5fd;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 0;
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrap">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">📋</div>
+        <div class="brand-text">
+          <h1>Eqity Analyzér</h1>
+          <span>Šuplík 2 – Watchlist analyzovaných akcií</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="back-btn" onclick="window.location.href='index.html'">
+          ← Zpět na hlavní menu
+        </button>
+        <div class="pill">📌 Ukládáno v prohlížeči (localStorage)</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- LEVÁ KARTA – PŘIDÁNÍ DO WATCHLISTU -->
+      <section class="card">
+        <div class="card-title">
+          <div class="card-icon">➕</div>
+          <div>
+            <div class="card-title-main">Přidat akcii do watchlistu</div>
+            <div class="card-title-sub">
+              Sem si ukládáš akcie, které jsi analyzoval v DCF nebo tě zaujaly a chceš je sledovat.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="wl_ticker">Ticker (povinné)</label>
+            <small>Např. AAPL, MSFT, SOFI, PLTR…</small>
+            <input id="wl_ticker" type="text" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="wl_name">Název firmy (volitelné)</label>
+            <small>Jen kvůli přehledu – název společnosti.</small>
+            <input id="wl_name" type="text" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="wl_price">Aktuální cena akcie (volitelné)</label>
+            <small>Pro porovnání s férovou cenou. Ve stejné měně.</small>
+            <input id="wl_price" type="text" inputmode="decimal" />
+          </div>
+
+          <div class="field">
+            <label for="wl_fair">Tvoje férová cena (volitelné)</label>
+            <small>Výstup z DCF nebo vlastního odhadu – na 1 akcii.</small>
+            <input id="wl_fair" type="text" inputmode="decimal" />
+          </div>
+
+          <div class="field">
+            <label for="wl_status">Status</label>
+            <small>Jak se na akcii díváš.</small>
+            <select id="wl_status">
+              <option value="watch">Sledovat</option>
+              <option value="buy">Potenciál k nákupu</option>
+              <option value="avoid">Spíš se vyhnout</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="wl_note">Poznámka (volitelné)</label>
+            <small>Krátky komentář – proč ji máš ve watchlistu.</small>
+            <input id="wl_note" type="text" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button id="wl_add" class="btn-primary" type="button">
+            💾 Přidat do watchlistu
+          </button>
+          <button id="wl_clear_form" class="btn-secondary" type="button">
+            🧹 Vymazat formulář
+          </button>
+        </div>
+
+        <p class="badge-soft" style="margin-top:10px;">
+          Watchlist se ukládá přímo v prohlížeči (localStorage). Po smazání historie prohlížeče se může vyčistit.
+        </p>
+      </section>
+
+      <!-- PRAVÁ KARTA – SEZNAM WATCHLISTU -->
+      <section class="card">
+        <div class="card-title">
+          <div class="card-icon">📊</div>
+          <div>
+            <div class="card-title-main">Můj watchlist</div>
+            <div class="card-title-sub">
+              Přehled akcií, které sleduješ. Později lze napojit na živá data z internetu.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:6px;">
+          <span class="badge" id="wl_count_badge">0 položek</span>
+          <button id="wl_clear_all" class="btn-secondary" type="button">
+            🗑️ Vymazat celý watchlist
+          </button>
+        </div>
+
+        <div class="table-wrap" id="wl_table_wrap" style="margin-top:10px;">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticker</th>
+                <th>Firma</th>
+                <th>Cena</th>
+                <th>Fér hodnota</th>
+                <th>Marže</th>
+                <th>Status</th>
+                <th>Poznámka</th>
+                <th>Akce</th>
+              </tr>
+            </thead>
+            <tbody id="wl_tbody">
+              <!-- řádky se doplní skriptem -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="wl_empty" class="empty-state">
+          Watchlist je zatím prázdný. Přidej první akcii vlevo.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "eq_watchlist_v1";
+
+    function parseNumber(value) {
+      if (!value) return null;
+      const v = value.replace(",", ".").trim();
+      if (v === "") return null;
+      const n = parseFloat(v);
+      return isNaN(n) ? null : n;
+    }
+
+    function formatNumber(n, decimals = 2) {
+      return n
+        .toFixed(decimals)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+        .replace(".", ",");
+    }
+
+    function loadWatchlist() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.warn("Nepodařilo se načíst watchlist:", e);
+        return [];
+      }
+    }
+
+    function saveWatchlist(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.warn("Nepodařilo se uložit watchlist:", e);
+      }
+    }
+
+    function renderWatchlist() {
+      const tbody = document.getElementById("wl_tbody");
+      const empty = document.getElementById("wl_empty");
+      const badge = document.getElementById("wl_count_badge");
+      const list = loadWatchlist();
+
+      tbody.innerHTML = "";
+
+      if (!list.length) {
+        empty.style.display = "block";
+      } else {
+        empty.style.display = "none";
+      }
+
+      badge.textContent = list.length === 1 ? "1 položka" : list.length + " položek";
+
+      list.forEach((item, index) => {
+        const tr = document.createElement("tr");
+
+        const marginText =
+          item.price != null && item.fair != null
+            ? (() => {
+                const diff = ((item.fair - item.price) / item.price) * 100;
+                return (diff >= 0 ? "+" : "") + diff.toFixed(1) + " %";
+              })()
+            : "";
+
+        const statusTag =
+          item.status === "buy"
+            ? '<span class="tag tag-buy">K nákupu</span>'
+            : item.status === "avoid"
+            ? '<span class="tag tag-avoid">Vyhnout se</span>'
+            : '<span class="tag tag-watch">Sledovat</span>';
+
+        tr.innerHTML = `
+          <td><strong>${item.ticker}</strong></td>
+          <td>${item.name || ""}</td>
+          <td>${item.price != null ? formatNumber(item.price) : ""}</td>
+          <td>${item.fair != null ? formatNumber(item.fair) : ""}</td>
+          <td>${marginText}</td>
+          <td>${statusTag}</td>
+          <td>${item.note || ""}</td>
+          <td>
+            <button class="btn-link" data-index="${index}">Smazat</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      // Akce smaž řádek
+      tbody.querySelectorAll(".btn-link").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt(btn.getAttribute("data-index"), 10);
+          const current = loadWatchlist();
+          current.splice(idx, 1);
+          saveWatchlist(current);
+          renderWatchlist();
+        });
+      });
+    }
+
+    function initWatchlist() {
+      const btnAdd = document.getElementById("wl_add");
+      const btnClearForm = document.getElementById("wl_clear_form");
+      const btnClearAll = document.getElementById("wl_clear_all");
+
+      btnAdd.addEventListener("click", () => {
+        const ticker = (document.getElementById("wl_ticker").value || "").trim().toUpperCase();
+        const name = (document.getElementById("wl_name").value || "").trim();
+        const price = parseNumber(document.getElementById("wl_price").value || "");
+        const fair = parseNumber(document.getElementById("wl_fair").value || "");
+        const status = document.getElementById("wl_status").value;
+        const note = (document.getElementById("wl_note").value || "").trim();
+
+        if (!ticker) {
+          alert("Ticker je povinný.");
+          return;
+        }
+
+        const list = loadWatchlist();
+
+        list.push({
+          ticker,
+          name,
+          price,
+          fair,
+          status,
+          note
+        });
+
+        saveWatchlist(list);
+        renderWatchlist();
+
+        // nechceme nutně čistit všechno – ale poznámku klidně
+        // tady jen lehký reset
+        // document.getElementById("wl_note").value = "";
+      });
+
+      btnClearForm.addEventListener("click", () => {
+        document.getElementById("wl_ticker").value = "";
+        document.getElementById("wl_name").value = "";
+        document.getElementById("wl_price").value = "";
+        document.getElementById("wl_fair").value = "";
+        document.getElementById("wl_status").value = "watch";
+        document.getElementById("wl_note").value = "";
+      });
+
+      btnClearAll.addEventListener("click", () => {
+        if (confirm("Opravdu chceš vymazat celý watchlist?")) {
+          saveWatchlist([]);
+          renderWatchlist();
+        }
+      });
+
+      renderWatchlist();
+    }
+
+    document.addEventListener("DOMContentLoaded", initWatchlist);
+  </script>
+</body>
+</html>
