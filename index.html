@@ -563,30 +563,17 @@
       body.style.maxHeight = body.scrollHeight + "px";
     });
 
-    // Klik na „kostku“ – zatím jen změní text v pravém panelu
-    const panelBox = document.getElementById("main-panel-box");
+          <!-- Klik na kostky – otevření nové stránky -->
+<script>
+document.querySelectorAll(".tile").forEach((tile) => {
+  tile.addEventListener("click", () => {
+    const url = tile.getAttribute("data-url");
+    if (url) {
+      window.location.href = url;
+    }
+  });
+});
+</script>
 
-    document.querySelectorAll(".tile[data-title]").forEach((tile) => {
-      tile.addEventListener("click", () => {
-        const title = tile.getAttribute("data-title");
-        const module = tile.getAttribute("data-module") || "modul";
-
-        panelBox.innerHTML = `
-          <div class="panel-selected">
-            Vybráno: <strong>${title}</strong>
-          </div>
-          <div>
-            Modul: <code>${module}</code><br/>
-            Tady později doplníme konkrétní funkci / formulář / tabulku nebo napojení na internetová data.
-            Struktura stránky a šuplíků se kvůli tomu nebude muset měnit – jen nahradíme obsah tohoto panelu
-            podle hodnoty <code>data-module</code>.
-          </div>
-        `;
-      });
-    });
-  </script>        
- 
-
-        <script src="modul_dcf_manual.js"></script>
 </body>
-</html>                                                                                                                                                                          
+</html>                                                                                                                                                                 
