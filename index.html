@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8" />
+    <title>Equity Analyzér – DCF, Watchlist, Earnings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f2933 0, #0b1015 55%, #05070a 100%);
+            color: #e5e7eb;
+        }
+
+        header {
+            padding: 24px 16px 8px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            letter-spacing: 0.03em;
+        }
+
+        header p {
+            margin: 6px 0 0;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 8px 12px 24px;
+        }
+
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            border: 1px solid #374151;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+        }
+
+        .tab-btn:hover {
+            background: #1f2937;
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #2563eb, #4c1d95);
+            border-color: transparent;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .modules {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        section.module {
+            display: none;
+            padding: 16px 14px 18px;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #243146;
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.45);
+        }
+
+        section.module.active {
+            display: block;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .module-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .module-header span {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.78rem;
+            color: #9ca3af;
+            margin-bottom: 3px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 7px 8px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+            background: #020617;
+            color: #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #6b7280;
+        }
+
+        button.primary,
+        button.secondary,
+        button.danger,
+        button.ghost {
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 0.85rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            white-space: nowrap;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #f9fafb;
+        }
+
+        button.primary:hover {
+            box-shadow: 0 0 0 1px #3b82f6, 0 14px 25px rgba(37, 99, 235, 0.35);
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #020617;
+            border-color: #374151;
+            color: #e5e7eb;
+        }
+
+        button.secondary:hover {
+            background: #111827;
+        }
+
+        button.danger {
+            background: #7f1d1d;
+            color: #fee2e2;
+        }
+
+        button.danger:hover {
+            background: #991b1b;
+        }
+
+        button.ghost {
+            background: transparent;
+            border-color: #374151;
+            color: #9ca3af;
+        }
+
+        button.ghost:hover {
+            background: #020617;
+            color: #e5e7eb;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        th,
+        td {
+            padding: 6px 6px;
+            border-bottom: 1px solid #1f2937;
+            text-align: right;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        th {
+            background: #020617;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .pill.green {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+        }
+
+        .pill.red {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fecaca;
+        }
+
+        .pill.neutral {
+            background: rgba(107, 114, 128, 0.3);
+            color: #e5e7eb;
+        }
+
+        .note {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .split {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .card {
+            padding: 10px 10px 8px;
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            background: rgba(15, 23, 42, 0.85);
+        }
+
+        .card h3 {
+            margin: 0 0 6px;
+            font-size: 0.95rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6b7280;
+            padding-bottom: 12px;
+        }
+
+        a {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Equity Analyzér</h1>
+    <p>DCF, správa watchlistu, earnings kalendář a poznámky – vše lokálně v prohlížeči (localStorage).</p>
+</header>
+
+<main>
+    <div class="top-bar">
+        <button class="tab-btn active" data-target="mod-watchlist">Watchlist &amp; pozice</button>
+        <button class="tab-btn" data-target="mod-dcf">DCF &amp; férová hodnota</button>
+        <button class="tab-btn" data-target="mod-earnings">Earnings kalendář</button>
+        <button class="tab-btn" data-target="mod-notes">Poznámky</button>
+        <button class="tab-btn" data-target="mod-settings">Nastavení</button>
+    </div>
+
+    <div class="modules">
+        <!-- LEFT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <!-- WATCHLIST -->
+            <section id="mod-watchlist" class="module active">
+                <div class="module-header">
+                    <h2>Watchlist &amp; pozice</h2>
+                    <span>Ukládá se automaticky do localStorage</span>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <label for="wl-ticker">Ticker*</label>
+                        <input id="wl-ticker" type="text" placeholder="AAPL, PLTR…" />
+                    </div>
+                    <div>
+                        <label for="wl-name">Název</label>
+                        <input id="wl-name" type="text" placeholder="Apple, Palantir…" />
+                    </div>
+                    <div>
+                        <label for="wl-price">Nákupní cena</label>
+                        <input id="wl-price" type="number" step="0.01" placeholder="150" />
+                    </div>
+                    <div>
+                        <label for="wl-shares">Kusy</label>
+                        <input id="wl-shares" type="number" step="0.01" placeholder="10" />
+                    </div>
+                    <div>
+                        <label for="wl-current">Aktuální cena</label>
+                        <input id="wl-current" type="number" step="0.01" placeholder="např. poslední close" />
+                    </div>
+                    <div>
+                        <label for="wl-tag">Tag</label>
+                        <input id="wl-tag" type="text" placeholder="tech, zdravotnictví…" />
+                    </div>
+                </div>
+
+                <label for="wl-note">Poznámka</label>
+                <textarea id="wl-note" placeholder="Důvod nákupu, teze, rizika…"></textarea>
+
+                <div class="btn-row">
+                    <button class="primary" id="wl-add">Přidat / aktualizovat pozici</button>
+                    <button class="secondary" id="wl-clear-form">Vyčistit formulář</button>
+                    <button class="ghost" id="wl-reset-prices">Vynulovat aktuální ceny</button>
+                </div>
+
+                <table id="wl-table">
+                    <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Název</th>
+                        <th>Kusy</th>
+                        <th>Nákup</th>
+                        <th>Aktuální</th>
+                        <th>Zisk</th>
+                        <th>Zisk %</th>
+                        <th>Hodnota</th>
+                        <th>Tag</th>
+                        <th>Akce</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <p class="note">
+                    Zisk se počítá z rozdílu mezi nákupní a aktuální cenou (bez daní a poplatků).
+                    Data zůstávají jen ve tvém prohlížeči.
+                </p>
+            </section>
+
+            <!-- DCF -->
+            <section id="mod-dcf" class="module">
+                <div class="module-header">
+                    <h2>DCF kalkulačka</h2>
+                    <span>Jednoduchý model se třemi scénáři</span>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <label for="dcf-ticker">Ticker / firma</label>
+                        <input id="dcf-ticker" type="text" placeholder="PLTR" />
+                    </div>
+                    <div>
+                        <label for="dcf-eps">Aktuální EPS (TTM)</label>
+                        <input id="dcf-eps" type="number" step="0.01" placeholder="např. 1.25" />
+                    </div>
+                    <div>
+                        <label for="dcf-years">Počet let předpovědi</label>
+                        <input id="dcf-years" type="number" step="1" value="10" />
+                    </div>
+                    <div>
+                        <label for="dcf-discount">Diskontní sazba (%)</label>
+                        <input id="dcf-discount" type="number" step="0.1" value="9" />
+                    </div>
+                    <div>
+                        <label for="dcf-price">Aktuální cena</label>
+                        <input id="dcf-price" type="number" step="0.01" placeholder="pro porovnání" />
+                    </div>
+                </div>
+
+                <div class="split">
+                    <div class="card">
+                        <h3>Růst EPS (%) a cílový P/E</h3>
+                        <div class="grid">
+                            <div>
+                                <label for="dcf-g1">Růst konzervativní</label>
+                                <input id="dcf-g1" type="number" step="0.1" value="5" />
+                            </div>
+                            <div>
+                                <label for="dcf-g2">Růst základní</label>
+                                <input id="dcf-g2" type="number" step="0.1" value="10" />
+                            </div>
+                            <div>
+                                <label for="dcf-g3">Růst optimistický</label>
+                                <input id="dcf-g3" type="number" step="0.1" value="15" />
+                            </div>
+                            <div>
+                                <label for="dcf-pe1">P/E konzervativní</label>
+                                <input id="dcf-pe1" type="number" step="0.1" value="12" />
+                            </div>
+                            <div>
+                                <label for="dcf-pe2">P/E základní</label>
+                                <input id="dcf-pe2" type="number" step="0.1" value="18" />
+                            </div>
+                            <div>
+                                <label for="dcf-pe3">P/E optimistický</label>
+                                <input id="dcf-pe3" type="number" step="0.1" value="25" />
+                            </div>
+                        </div>
+
+                        <div class="btn-row">
+                            <button class="primary" id="dcf-run">Spočítat DCF</button>
+                            <button class="secondary" id="dcf-clear">Vymazat vstupy</button>
+                        </div>
+
+                        <p class="note">
+                            Jednoduchý DCF: suma diskontovaných EPS + terminální hodnota EPS<sub>n</sub> × P/E.
+                            Vše na akcii, bez dluhu a hotovosti.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Výsledek</h3>
+                        <table id="dcf-table">
+                            <thead>
+                            <tr>
+                                <th>Scénář</th>
+                                <th>Růst</th>
+                                <th>P/E</th>
+                                <th>Férová cena</th>
+                                <th>Rozdíl</th>
+                                <th>Rozdíl %</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                        <div class="tag-row" id="dcf-summary-tags"></div>
+
+                        <p class="note">
+                            Výpočet je orientační – výsledek silně závisí na zadaném růstu a P/E.
+                            Nepředstavuje investiční doporučení.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SETTINGS (left column, for layout) -->
+            <section id="mod-settings" class="module">
+                <div class="module-header">
+                    <h2>Nastavení &amp; export</h2>
+                    <span>Práce s localStorage</span>
+                </div>
+
+                <div class="card">
+                    <h3>LocalStorage</h3>
+                    <div class="btn-row">
+                        <button class="secondary" id="set-export">Exportovat všechna data (JSON)</button>
+                        <button class="danger" id="set-wipe">Smazat všechna data</button>
+                    </div>
+                    <p class="note">
+                        Export si můžeš uložit bokem (např. do souboru). Import zatím není,
+                        ale můžeme ho kdykoliv doprogramovat – JSON si stačí ručně vložit do konzole.
+                    </p>
+                    <label for="set-export-area">Exportovaný JSON</label>
+                    <textarea id="set-export-area" placeholder="Po kliknutí na Export se sem vloží JSON…"></textarea>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+            <!-- EARNINGS -->
+            <section id="mod-earnings" class="module">
+                <div class="module-header">
+                    <h2>Earnings kalendář</h2>
+                    <span>Reporty, konference, další události</span>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <label for="er-ticker">Ticker*</label>
+                        <input id="er-ticker" type="text" placeholder="MSFT" />
+                    </div>
+                    <div>
+                        <label for="er-date">Datum*</label>
+                        <input id="er-date" type="date" />
+                    </div>
+                    <div>
+                        <label for="er-type">Typ</label>
+                        <select id="er-type">
+                            <option value="Earnings">Earnings</option>
+                            <option value="Guidance">Guidance</option>
+                            <option value="Dividend">Dividend</option>
+                            <option value="Jiné">Jiné</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label for="er-note">Poznámka</label>
+                <textarea id="er-note" placeholder="Q4 2025, důležité pro tezi, očekávaný růst…"></textarea>
+
+                <div class="btn-row">
+                    <button class="primary" id="er-add">Přidat událost</button>
+                    <button class="secondary" id="er-clear-form">Vyčistit formulář</button>
+                </div>
+
+                <table id="er-table">
+                    <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Ticker</th>
+                        <th>Typ</th>
+                        <th>Poznámka</th>
+                        <th>Akce</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <p class="note">
+                    Události se ukládají lokálně. Řádků můžeš mít kolik chceš – seřazeno podle data.
+                </p>
+            </section>
+
+            <!-- NOTES -->
+        <section id="mod-notes" class="module">
+            <div class="module-header">
+                <h2>Poznámky k akciím</h2>
+                <span>Rychlý textový notýsek</span>
+            </div>
+
+            <label for="note-title">Nadpis / ticker</label>
+            <input id="note-title" type="text" placeholder="PLTR – dlouhodobá teze" />
+
+            <label for="note-body">Text poznámky</label>
+            <textarea id="note-body" placeholder="Shrnutí, katalyzátory, rizika, co sledovat…"></textarea>
+
+            <div class="btn-row">
+                <button class="primary" id="note-save">Uložit poznámku</button>
+                <button class="secondary" id="note-clear">Vyčistit</button>
+            </div>
+
+            <table id="note-table">
+                <thead>
+                <tr>
+                    <th>Nadpis</th>
+                    <th>Datum</th>
+                    <th>Akce</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <p class="note">
+                Poznámky slouží jako jednoduchý přehled – můžeš je libovolně mazat nebo přepisovat.
+            </p>
+        </section>
+    </div>
+</div>
+</main>
+
+<footer>
+    Vytvořeno pro osobní analýzu akcií – žádná data neopouští tvůj prohlížeč.
+</footer>
+
+<script>
+    // --- Pomocné funkce ---
+    function toNum(val) {
+        if (val === null || val === undefined || val === "") return NaN;
+        return parseFloat(String(val).replace(",", "."));
+    }
+
+    function formatMoney(num) {
+        if (isNaN(num)) return "-";
+        return num.toFixed(2);
+    }
+
+    function formatPct(num) {
+        if (isNaN(num)) return "-";
+        return (num * 100).toFixed(1) + " %";
+    }
+
+    function todayISO() {
+        return new Date().toISOString().slice(0, 10);
+    }
+
+    // --- Přepínání modulů (taby) ---
+    (function initTabs() {
+        var buttons = document.querySelectorAll(".tab-btn");
+        buttons.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                buttons.forEach(function (b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+
+                var target = btn.getAttribute("data-target");
+                document.querySelectorAll("section.module").forEach(function (mod) {
+                    if (mod.id === target) mod.classList.add("active");
+                    else mod.classList.remove("active");
+                });
+            });
+        });
+    })();
+
+    // --- WATCHLIST ---
+    var wlData = [];
+    var wlEditIndex = null;
+
+    function wlSave() {
+        try {
+            localStorage.setItem("ea_watchlist", JSON.stringify(wlData));
+        } catch (e) {
+            console.warn("Nelze uložit watchlist:", e);
+        }
+    }
+
+    function wlLoad() {
+        try {
+            var raw = localStorage.getItem("ea_watchlist");
+            wlData = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            wlData = [];
+        }
+        wlRender();
+    }
+
+    function wlRender() {
+        var tbody = document.querySelector("#wl-table tbody");
+        tbody.innerHTML = "";
+
+        var totalValue = 0;
+
+        wlData.forEach(function (row, idx) {
+            var tr = document.createElement("tr");
+
+            var qty = toNum(row.shares);
+            var buy = toNum(row.price);
+            var cur = toNum(row.current);
+
+            var value = (!isNaN(qty) && !isNaN(cur)) ? qty * cur : NaN;
+            var profit = (!isNaN(qty) && !isNaN(buy) && !isNaN(cur)) ? qty * (cur - buy) : NaN;
+            var profitPct = (!isNaN(buy) && buy !== 0 && !isNaN(cur)) ? (cur - buy) / buy : NaN;
+
+            if (!isNaN(value)) totalValue += value;
+
+            var pillClass = "neutral";
+            if (!isNaN(profit)) {
+                if (profit > 0) pillClass = "green";
+                else if (profit < 0) pillClass = "red";
+            }
+
+            tr.innerHTML =
+                "<td>" + (row.ticker || "") + "</td>" +
+                "<td>" + (row.name || "") + "</td>" +
+                "<td>" + (qty ? qty.toFixed(2) : "") + "</td>" +
+                "<td>" + (isNaN(buy) ? "" : formatMoney(buy)) + "</td>" +
+                "<td>" + (isNaN(cur) ? "" : formatMoney(cur)) + "</td>" +
+                "<td>" + (isNaN(profit) ? "" :
+                    "<span class='pill " + pillClass + "'>" + formatMoney(profit) + "</span>") + "</td>" +
+                "<td>" + (isNaN(profitPct) ? "" : formatPct(profitPct)) + "</td>" +
+                "<td>" + (isNaN(value) ? "" : formatMoney(value)) + "</td>" +
+                "<td>" + (row.tag || "") + "</td>" +
+                "<td>" +
+                    "<button class='secondary' data-edit='" + idx + "'>✏️</button> " +
+                    "<button class='danger' data-del='" + idx + "'>🗑️</button>" +
+                "</td>";
+
+            tbody.appendChild(tr);
+        });
+
+        if (wlData.length) {
+            var trTotal = document.createElement("tr");
+            trTotal.innerHTML =
+                "<td colspan='7'><strong>Celková hodnota portfolia</strong></td>" +
+                "<td><strong>" + formatMoney(totalValue) + "</strong></td>" +
+                "<td></td><td></td>";
+            tbody.appendChild(trTotal);
+        }
+
+        tbody.querySelectorAll("button[data-del]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var i = parseInt(btn.getAttribute("data-del"), 10);
+                if (!isNaN(i)) {
+                    wlData.splice(i, 1);
+                    wlSave();
+                    wlRender();
+                }
+            });
+        });
+
+        tbody.querySelectorAll("button[data-edit]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var i = parseInt(btn.getAttribute("data-edit"), 10);
+                if (!isNaN(i)) {
+                    wlEditIndex = i;
+                    var row = wlData[i];
+                    document.getElementById("wl-ticker").value = row.ticker || "";
+                    document.getElementById("wl-name").value = row.name || "";
+                    document.getElementById("wl-price").value = row.price || "";
+                    document.getElementById("wl-shares").value = row.shares || "";
+                    document.getElementById("wl-current").value = row.current || "";
+                    document.getElementById("wl-tag").value = row.tag || "";
+                    document.getElementById("wl-note").value = row.note || "";
+                }
+            });
+        });
+    }
+
+    function wlClearForm() {
+        wlEditIndex = null;
+        document.getElementById("wl-ticker").value = "";
+        document.getElementById("wl-name").value = "";
+        document.getElementById("wl-price").value = "";
+        document.getElementById("wl-shares").value = "";
+        document.getElementById("wl-current").value = "";
+        document.getElementById("wl-tag").value = "";
+        document.getElementById("wl-note").value = "";
+    }
+
+    document.getElementById("wl-add").addEventListener("click", function () {
+        var ticker = document.getElementById("wl-ticker").value.trim().toUpperCase();
+        var name = document.getElementById("wl-name").value.trim();
+        var price = document.getElementById("wl-price").value.trim();
+        var shares = document.getElementById("wl-shares").value.trim();
+        var current = document.getElementById("wl-current").value.trim();
+        var tag = document.getElementById("wl-tag").value.trim();
+        var note = document.getElementById("wl-note").value.trim();
+
+        if (!ticker) {
+            alert("Vyplň prosím alespoň ticker.");
+            return;
+        }
+
+        var row = { ticker, name, price, shares, current, tag, note };
+
+        if (wlEditIndex !== null && wlEditIndex >= 0 && wlEditIndex < wlData.length) {
+            wlData[wlEditIndex] = row;
+        } else {
+            wlData.push(row);
+        }
+
+        wlSave();
+        wlRender();
+        wlClearForm();
+    });
+
+    document.getElementById("wl-clear-form").addEventListener("click", wlClearForm);
+
+    document.getElementById("wl-reset-prices").addEventListener("click", function () {
+        wlData.forEach(function (row) { row.current = ""; });
+        wlSave();
+        wlRender();
+    });
+
+    // --- DCF ---
+    function dcfRun() {
+        var eps = toNum(document.getElementById("dcf-eps").value);
+        var years = parseInt(document.getElementById("dcf-years").value, 10);
+        var discPct = toNum(document.getElementById("dcf-discount").value);
+        var price = toNum(document.getElementById("dcf-price").value);
+
+        if (!eps || isNaN(eps)) {
+            alert("Zadej prosím EPS.");
+            return;
+        }
+        if (!years || years <= 0 || isNaN(years)) {
+            alert("Počet let musí být kladné číslo.");
+            return;
+        }
+        if (isNaN(discPct) || discPct <= 0) {
+            alert("Diskontní sazba musí být kladná.");
+            return;
+        }
+
+        var discount = discPct / 100;
+
+        var scenarios = [
+            {
+                label: "Konzervativní",
+                growth: toNum(document.getElementById("dcf-g1").value) / 100,
+                pe: toNum(document.getElementById("dcf-pe1").value)
+            },
+            {
+                label: "Základní",
+                growth: toNum(document.getElementById("dcf-g2").value) / 100,
+                pe: toNum(document.getElementById("dcf-pe2").value)
+            },
+            {
+                label: "Optimistický",
+                growth: toNum(document.getElementById("dcf-g3").value) / 100,
+                pe: toNum(document.getElementById("dcf-pe3").value)
+            }
+        ];
+
+        var tbody = document.querySelector("#dcf-table tbody");
+        tbody.innerHTML = "";
+        var summaryTags = document.getElementById("dcf-summary-tags");
+        summaryTags.innerHTML = "";
+
+        scenarios.forEach(function (sc) {
+            if (isNaN(sc.growth) || isNaN(sc.pe) || sc.pe <= 0) return;
+
+            var epsT = eps;
+            var sum = 0;
+            for (var i = 1; i <= years; i++) {
+                epsT = epsT * (1 + sc.growth);
+                var discFactor = Math.pow(1 + discount, i);
+                sum += epsT / discFactor;
+            }
+            var terminal = (epsT * sc.pe) / Math.pow(1 + discount, years);
+            var fair = sum + terminal;
+
+            var diff = NaN;
+            var diffPct = NaN;
+            if (!isNaN(price) && price > 0) {
+                diff = fair - price;
+                diffPct = (fair - price) / price;
+            }
+
+            var pillClass = "neutral";
+            if (!isNaN(diffPct)) {
+                if (diffPct > 0.15) pillClass = "green";
+                else if (diffPct < -0.15) pillClass = "red";
+            }
+
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+                "<td>" + sc.label + "</td>" +
+                "<td>" + (sc.growth * 100).toFixed(1) + " %</td>" +
+                "<td>" + sc.pe.toFixed(1) + "</td>" +
+                "<td>" + formatMoney(fair) + "</td>" +
+                "<td>" + (isNaN(diff) ? "-" : formatMoney(diff)) + "</td>" +
+                "<td>" + (isNaN(diffPct) ? "-" : formatPct(diffPct)) + "</td>";
+            tbody.appendChild(tr);
+
+            if (!isNaN(diffPct)) {
+                var div = document.createElement("div");
+                div.className = "pill " + pillClass;
+                div.textContent = sc.label + ": " + formatPct(diffPct);
+                summaryTags.appendChild(div);
+            }
+        });
+    }
+
+    document.getElementById("dcf-run").addEventListener("click", dcfRun);
+
+    document.getElementById("dcf-clear").addEventListener("click", function () {
+        [
+            "dcf-ticker", "dcf-eps", "dcf-years", "dcf-discount", "dcf-price",
+            "dcf-g1", "dcf-g2", "dcf-g3", "dcf-pe1", "dcf-pe2", "dcf-pe3"
+        ].forEach(function (id) {
+            document.getElementById(id).value = "";
+        });
+        document.querySelector("#dcf-table tbody").innerHTML = "";
+        document.getElementById("dcf-summary-tags").innerHTML = "";
+    });
+
+    // --- EARNINGS ---
+    var earnings = [];
+
+    function erSave() {
+        try {
+            localStorage.setItem("ea_earnings", JSON.stringify(earnings));
+        } catch (e) {
+            console.warn("Nelze uložit earnings:", e);
+        }
+    }
+
+    function erLoad() {
+        try {
+            var raw = localStorage.getItem("ea_earnings");
+            earnings = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            earnings = [];
+        }
+        erRender();
+    }
+
+    function erRender() {
+        var tbody = document.querySelector("#er-table tbody");
+        tbody.innerHTML = "";
+
+        earnings.sort(function (a, b) {
+            return (a.date || "").localeCompare(b.date || "");
+        });
+
+        earnings.forEach(function (row, idx) {
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+                "<td>" + (row.date || "") + "</td>" +
+                "<td>" + (row.ticker || "") + "</td>" +
+                "<td>" + (row.type || "") + "</td>" +
+                "<td>" + (row.note || "") + "</td>" +
+                "<td><button class='danger' data-del='" + idx + "'>🗑️</button></td>";
+            tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll("button[data-del]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var i = parseInt(btn.getAttribute("data-del"), 10);
+                if (!isNaN(i)) {
+                    earnings.splice(i, 1);
+                    erSave();
+                    erRender();
+                }
+            });
+        });
+    }
+
+    function erClearForm() {
+        document.getElementById("er-ticker").value = "";
+        document.getElementById("er-date").value = "";
+        document.getElementById("er-type").value = "Earnings";
+        document.getElementById("er-note").value = "";
+    }
+
+    document.getElementById("er-add").addEventListener("click", function () {
+        var t = document.getElementById("er-ticker").value.trim().toUpperCase();
+        var d = document.getElementById("er-date").value;
+        var type = document.getElementById("er-type").value;
+        var n = document.getElementById("er-note").value.trim();
+
+        if (!t || !d) {
+            alert("Vyplň prosím alespoň ticker a datum.");
+            return;
+        }
+
+        earnings.push({ ticker: t, date: d, type: type, note: n });
+        erSave();
+        erRender();
+        erClearForm();
+    });
+
+    document.getElementById("er-clear-form").addEventListener("click", erClearForm);
+
+    // --- POZNÁMKY ---
+    var notes = [];
+
+    function noteSaveStore() {
+        try {
+            localStorage.setItem("ea_notes", JSON.stringify(notes));
+        } catch (e) {
+            console.warn("Nelze uložit notes:", e);
+        }
+    }
+
+    function noteLoad() {
+        try {
+            var raw = localStorage.getItem("ea_notes");
+            notes = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            notes = [];
+        }
+        noteRender();
+    }
+
+    function noteRender() {
+        var tbody = document.querySelector("#note-table tbody");
+        tbody.innerHTML = "";
+
+        notes.forEach(function (n, idx) {
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+                "<td>" + (n.title || "") + "</td>" +
+                "<td>" + (n.date || "") + "</td>" +
+                "<td>" +
+                    "<button class='secondary' data-load='" + idx + "'>Načíst</button> " +
+                    "<button class='danger' data-del='" + idx + "'>🗑️</button>" +
+                "</td>";
+            tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll("button[data-del]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var i = parseInt(btn.getAttribute("data-del"), 10);
+                if (!isNaN(i)) {
+                    notes.splice(i, 1);
+                    noteSaveStore();
+                    noteRender();
+                }
+            });
+        });
+
+        tbody.querySelectorAll("button[data-load]").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var i = parseInt(btn.getAttribute("data-load"), 10);
+                if (!isNaN(i)) {
+                    var n = notes[i];
+                    document.getElementById("note-title").value = n.title || "";
+                    document.getElementById("note-body").value = n.body || "";
+                }
+            });
+        });
+    }
+
+    document.getElementById("note-save").addEventListener("click", function () {
+        var title = document.getElementById("note-title").value.trim();
+        var body = document.getElementById("note-body").value.trim();
+        if (!title && !body) {
+            alert("Prázdnou poznámku nemá cenu ukládat.");
+            return;
+        }
+        notes.push({ title: title || "(bez názvu)", body: body, date: todayISO() });
+        noteSaveStore();
+        noteRender();
+        document.getElementById("note-title").value = "";
+        document.getElementById("note-body").value = "";
+    });
+
+    document.getElementById("note-clear").addEventListener("click", function () {
+        document.getElementById("note-title").value = "";
+        document.getElementById("note-body").value = "";
+    });
+
+    // --- SETTINGS / EXPORT ---
+    document.getElementById("set-export").addEventListener("click", function () {
+        var payload = {
+            watchlist: wlData,
+            earnings: earnings,
+            notes: notes
+        };
+        var text = JSON.stringify(payload, null, 2);
+        document.getElementById("set-export-area").value = text;
+    });
+
+    document.getElementById("set-wipe").addEventListener("click", function () {
+        if (!confirm("Opravdu smazat všechna data z tohoto nástroje (watchlist, earnings, poznámky)?")) return;
+        wlData = [];
+        earnings = [];
+        notes = [];
+        wlSave();
+        erSave();
+        noteSaveStore();
+        wlRender();
+        erRender();
+        noteRender();
+        document.getElementById("set-export-area").value = "";
+    });
+
+    // --- INIT ---
+    wlLoad();
+    erLoad();
+    noteLoad();
+</script>
+</body>
+</html>
