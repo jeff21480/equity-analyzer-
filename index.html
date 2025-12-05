@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Equity Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg1: #220045;
+      --bg2: #090016;
+      --accent: #8e5bff;
+      --accent-strong: #c89bff;
+      --accent-green: #00e676;
+      --danger: #ff4b6a;
+      --card-bg: rgba(10, 8, 25, 0.92);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #c6c4ff;
+      --input-bg: rgba(9, 7, 20, 0.95);
+      --input-border: rgba(255, 255, 255, 0.22);
+      --shadow-main: 0 20px 45px rgba(0, 0, 0, 0.8);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top, #5e35b1 0, transparent 55%),
+        radial-gradient(circle at bottom, #1a237e 0, transparent 60%),
+        linear-gradient(150deg, var(--bg1), var(--bg2));
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px 40px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1040px;
+      border-radius: 32px;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, #6a1b9a 0, transparent 40%),
+        radial-gradient(circle at bottom right, #1a237e 0, transparent 50%),
+        rgba(6, 4, 20, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow-main);
+    }
+
+    /* HLAVIČKA */
+
+    .app-header {
+      padding: 30px 20px 18px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 10% 0%, #ffb300 0, transparent 50%),
+        radial-gradient(circle at 90% 0%, #00e5ff 0, transparent 55%),
+        linear-gradient(135deg, #3f1fa2, #6a1b9a);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .app-title {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: linear-gradient(120deg, #ffea00, #ff9100, #00e676);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .app-subtitle {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .app-body {
+      padding: 20px 16px 24px;
+    }
+
+    @media (min-width: 720px) {
+      .app-header {
+        padding: 32px 32px 22px;
+      }
+      .app-body {
+        padding: 24px 30px 28px;
+      }
+    }
+
+    /* HLAVNÍ MENU – ŠUPLÍKY */
+
+    .screen {
+      display: none;
+    }
+    .screen-active {
+      display: block;
+    }
+
+    .drawer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .drawer-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 18px 18px 20px;
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.09) 0, transparent 45%),
+        radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.8) 0, transparent 50%),
+        rgba(9, 6, 30, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      cursor: pointer;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.7);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease,
+        background 0.16s ease;
+    }
+
+    .drawer-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.32);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.9);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.14) 0, transparent 45%),
+        radial-gradient(circle at bottom right, rgba(0, 0, 0, 0.9) 0, transparent 55%),
+        rgba(6, 4, 24, 0.98);
+    }
+
+    .drawer-main {
+      padding: 22px 22px 22px 24px;
+      border-width: 2px;
+      border-color: var(--accent-strong);
+      transform-origin: center;
+    }
+
+    .drawer-text {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .drawer-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-strong);
+      margin-bottom: 4px;
+    }
+
+    .drawer-title {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .drawer-sub {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .drawer-cta {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .btn-pill {
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #00e676 0, #00c853 40%, #009624 100%);
+      color: #020308;
+      box-shadow: 0 10px 24px rgba(0, 230, 118, 0.65);
+      white-space: nowrap;
+    }
+
+    .btn-pill.secondary {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .drawer-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ffffff;
+      background: rgba(7, 5, 22, 0.9);
+    }
+
+    /* VNITŘNÍ STRÁNKY (OKNA) */
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .page-sub {
+      margin: 0 0 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .page-card {
+      border-radius: var(--radius-xl);
+      padding: 18px 16px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-main);
+    }
+
+    .btn-back {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(5, 4, 20, 0.9);
+      color: var(--text-main);
+      font-size: 12px;
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+
+    .section-block {
+      margin-bottom: 14px;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px 16px;
+    }
+
+    @media (min-width: 720px) {
+      .form-grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--input-border);
+      padding: 8px 11px;
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text-main);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(0, 230, 118, 0.7);
+      box-shadow: 0 0 0 1px rgba(0, 230, 118, 0.4);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border-radius: var(--radius-pill);
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at 0 0, #00e676 0, #00c853 40%, #009624 100%);
+      color: #020304;
+    }
+
+    .btn-secondary {
+      background: rgba(15, 12, 40, 0.95);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-danger {
+      background: rgba(255, 75, 106, 0.16);
+      color: #ffb3c0;
+      border: 1px solid rgba(255, 75, 106, 0.8);
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* TABULKY */
+
+    .table-wrap {
+      margin-top: 14px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(3, 4, 18, 0.98);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      min-width: 520px;
+    }
+
+    thead {
+      background: radial-gradient(circle at 0 0, rgba(142, 91, 255, 0.7) 0, transparent 60%),
+        rgba(4, 5, 22, 0.98);
+    }
+
+    th, td {
+      padding: 7px 9px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    th {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(9, 8, 30, 0.96);
+    }
+    tbody tr:nth-child(odd) {
+      background: rgba(5, 5, 20, 0.96);
+    }
+
+    .empty-row {
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    /* DCF výsledek */
+
+    .result-card {
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 230, 118, 0.7);
+      background:
+        radial-gradient(circle at 0 0, rgba(0, 230, 118, 0.14) 0, transparent 60%),
+        rgba(6, 10, 24, 0.98);
+      font-size: 13px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border-radius: var(--radius-pill);
+      padding: 3px 9px;
+      font-size: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(9, 8, 30, 0.9);
+    }
+
+    .pill-green {
+      border-color: rgba(0, 230, 118, 0.7);
+      color: #b9f6ca;
+    }
+
+    .pill-red {
+      border-color: rgba(255, 75, 106, 0.8);
+      color: #ffcdd2;
+    }
+
+    .footer {
+      padding: 8px 18px 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1 class="app-title">Equity Analyzer</h1>
+      <p class="app-subtitle">
+        DCF, watchlist, earnings a složené úročení – vše v jedné fialové aplikaci, lokálně v prohlížeči.
+      </p>
+    </header>
+
+    <main class="app-body">
+      <!-- HLAVNÍ MENU – ŠUPLÍKY -->
+      <section id="screen-home" class="screen screen-active">
+        <div class="drawer-list">
+          <!-- Hlavní velký šuplík DCF -->
+          <article class="drawer-card drawer-main" data-target="screen-dcf">
+            <div class="drawer-text">
+              <div class="drawer-badge">Hlavní šuplík</div>
+              <h2 class="drawer-title">Výpočet vnitřní hodnoty (DCF – 3 scénáře)</h2>
+              <p class="drawer-sub">
+                Základní nástroj – EPS, růst, P/E a tři scénáře férové ceny akcie.
+              </p>
+            </div>
+            <div class="drawer-cta">
+              <button class="btn-pill">Otevřít</button>
+              <span class="drawer-arrow">›</span>
+            </div>
+          </article>
+
+          <!-- Watchlist -->
+          <article class="drawer-card" data-target="screen-watchlist">
+            <div class="drawer-text">
+              <h2 class="drawer-title">Watchlist vyhodnocených akcií</h2>
+              <p class="drawer-sub">
+                Přehled pozic – nákup, aktuální cena, zisk a poznámka. Ukládá se lokálně.
+              </p>
+            </div>
+            <div class="drawer-cta">
+              <button class="btn-pill secondary">Otevřít</button>
+              <span class="drawer-arrow">›</span>
+            </div>
+          </article>
+
+          <!-- Earnings -->
+          <article class="drawer-card" data-target="screen-earnings">
+            <div class="drawer-text">
+              <h2 class="drawer-title">Earnings kalendář</h2>
+              <p class="drawer-sub">
+                Jednoduchý seznam firem a dat výsledků – jako A4 přehled, seřazený podle data.
+              </p>
+            </div>
+            <div class="drawer-cta">
+              <button class="btn-pill secondary">Otevřít</button>
+              <span class="drawer-arrow">›</span>
+            </div>
+          </article>
+
+          <!-- Složené úročení -->
+          <article class="drawer-card" data-target="screen-ci">
+            <div class="drawer-text">
+              <h2 class="drawer-title">Kalkulačka složeného úročení</h2>
+              <p class="drawer-sub">
+                Počáteční částka, roční vklad, úrok a počet let – uvidíš, co umí čas.
+              </p>
+            </div>
+            <div class="drawer-cta">
+              <button class="btn-pill secondary">Otevřít</button>
+              <span class="drawer-arrow">›</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- STRÁNKA DCF -->
+      <section id="screen-dcf" class="screen">
+        <div class="page-header">
+          <button class="btn-back" data-back>&larr; Zpět na šuplíky</button>
+          <h2 class="page-title">DCF – vnitřní hodnota akcie</h2>
+        </div>
+        <p class="page-sub">
+          Jednoduchý DCF model: na základě EPS, růstu a cílového P/E spočítá férovou cenu ve třech scénářích.
+          Výpočet je orientační, nejedná se o investiční doporučení.
+        </p>
+
+        <div class="page-card">
+          <div class="section-block">
+            <div class="form-grid-2">
+              <div>
+                <label for="dcf-name">Název / ticker akcie</label>
+                <input id="dcf-name" type="text" placeholder="Např. SOFI, AAPL, MSFT">
+              </div>
+              <div>
+                <label for="dcf-eps">Současný zisk na akcii (EPS)</label>
+                <input id="dcf-eps" type="number" step="0.01" placeholder="např. 2.50">
+              </div>
+              <div>
+                <label for="dcf-years">Počet let projekce</label>
+                <input id="dcf-years" type="number" value="10" min="1">
+              </div>
+              <div>
+                <label for="dcf-disc">Diskontní sazba (%)</label>
+                <input id="dcf-disc" type="number" value="9" step="0.1">
+              </div>
+              <div>
+                <label for="dcf-price">Aktuální cena akcie (pro porovnání)</label>
+                <input id="dcf-price" type="number" step="0.01" placeholder="volitelné">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3 style="font-size:14px;margin:0 0 4px;">Parametry scénářů</h3>
+            <div class="form-grid-2">
+              <div>
+                <label for="dcf-g1">Růst EPS konzervativní (%)</label>
+                <input id="dcf-g1" type="number" value="5">
+              </div>
+              <div>
+                <label for="dcf-pe1">P/E konzervativní</label>
+                <input id="dcf-pe1" type="number" value="12">
+              </div>
+              <div>
+                <label for="dcf-g2">Růst EPS základní (%)</label>
+                <input id="dcf-g2" type="number" value="10">
+              </div>
+              <div>
+                <label for="dcf-pe2">P/E základní</label>
+                <input id="dcf-pe2" type="number" value="18">
+              </div>
+              <div>
+                <label for="dcf-g3">Růst EPS optimistický (%)</label>
+                <input id="dcf-g3" type="number" value="15">
+              </div>
+              <div>
+                <label for="dcf-pe3">P/E optimistický</label>
+                <input id="dcf-pe3" type="number" value="25">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" id="dcf-run">Spočítat DCF</button>
+            <button class="btn btn-secondary" id="dcf-clear">Vymazat vstupy</button>
+          </div>
+
+          <div id="dcf-results"></div>
+          <div id="dcf-tags" class="pill-row"></div>
+        </div>
+      </section>
+
+      <!-- STRÁNKA WATCHLIST -->
+      <section id="screen-watchlist" class="screen">
+        <div class="page-header">
+          <button class="btn-back" data-back>&larr; Zpět na šuplíky</button>
+          <h2 class="page-title">Watchlist vyhodnocených akcií</h2>
+        </div>
+        <p class="page-sub">
+          Seznam akcií, které máš v hledáčku – nákup, aktuální cena, zisk a základní poznámka.
+          Data se ukládají lokálně v prohlížeči (localStorage).
+        </p>
+
+        <div class="page-card">
+          <div class="section-block">
+            <div class="form-grid-2">
+              <div>
+                <label for="wl-ticker">Ticker*</label>
+                <input id="wl-ticker" type="text" placeholder="PLTR, SOFI…">
+              </div>
+              <div>
+                <label for="wl-name">Název firmy</label>
+                <input id="wl-name" type="text" placeholder="Palantir Technologies">
+              </div>
+              <div>
+                <label for="wl-buy">Nákupní cena</label>
+                <input id="wl-buy" type="number" step="0.01" placeholder="např. 15.50">
+              </div>
+              <div>
+                <label for="wl-shares">Kusy</label>
+                <input id="wl-shares" type="number" step="1" placeholder="např. 50">
+              </div>
+              <div>
+                <label for="wl-current">Aktuální cena</label>
+                <input id="wl-current" type="number" step="0.01" placeholder="poslední close">
+              </div>
+              <div>
+                <label for="wl-note">Poznámka / teze</label>
+                <input id="wl-note" type="text" placeholder="Proč držím, cílovka, rizika…">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" id="wl-save">Přidat / uložit pozici</button>
+            <button class="btn btn-secondary" id="wl-clear">Vyčistit formulář</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ticker</th>
+                  <th>Název</th>
+                  <th>Kusy</th>
+                  <th>Nákup</th>
+                  <th>Aktuální</th>
+                  <th>Zisk</th>
+                  <th>Zisk %</th>
+                  <th>Hodnota</th>
+                  <th>Poznámka</th>
+                  <th>Akce</th>
+                </tr>
+              </thead>
+              <tbody id="wl-table"></tbody>
+            </table>
+          </div>
+
+          <div class="helper-text">
+            Zisk se počítá z rozdílu nákup vs. aktuální (bez daní a poplatků).
+            Data zůstávají pouze v tomto prohlížeči.
+          </div>
+        </div>
+      </section>
+
+      <!-- STRÁNKA EARNINGS -->
+<section id="screen-earnings" class="screen hidden">
+    <div class="page-header">
+        <button class="btn-back" data-back="main">←</button>
+        <h2 class="page-title">Earnings kalendář</h2>
+    </div>
+
+    <p class="page-sub">
+        Vlastní kalendář kvartálních výsledků, konferencí a událostí.
+    </p>
+
+    <div class="page-card">
+        <div class="section-block">
+            <div class="form-grid-2">
+
+                <div>
+                    <label for="er-ticker">Ticker</label>
+                    <input id="er-ticker" type="text" placeholder="MSFT, AAPL…">
+                </div>
+
+                <div>
+                    <label for="er-date">Datum</label>
+                    <input id="er-date" type="date">
+                </div>
+
+                <div>
+                    <label for="er-type">Typ události</label>
+                    <select id="er-type">
+                        <option value="Earnings">Earnings</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Investor Day">Investor Day</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="er-note">Poznámka</label>
+                    <input id="er-note" type="text" placeholder="např. Q4 report, sledovat tržby…">
+                </div>
+
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" id="er-add">Přidat událost</button>
+                <button class="btn btn-secondary" id="er-clear">Vyčistit formulář</button>
+                <button class="btn btn-danger" id="er-clear-all">Smazat vše</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Datum</th>
+                    <th>Typ</th>
+                    <th>Poznámka</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody id="er-table"></tbody>
+        </table>
+    </div>
+
+</section>
+
+<!-- ========== SCRIPT ========== -->
+
+<script>
+/* ---------------------------------------------------------
+   NAVIGACE — otevírání obrazovek
+--------------------------------------------------------- */
+document.querySelectorAll('[data-open]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.open;
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(target).classList.remove('hidden');
+        window.scrollTo(0, 0);
+    });
+});
+
+document.querySelectorAll('[data-back]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.back;
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(target).classList.remove('hidden');
+        window.scrollTo(0, 0);
+    });
+});
+
+/* ---------------------------------------------------------
+   SECTION: EARNINGS
+--------------------------------------------------------- */
+
+let earnings = [];
+
+function erLoad() {
+    try {
+        const raw = localStorage.getItem("ea_earnings");
+        earnings = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        earnings = [];
+    }
+    erRender();
+}
+
+function erSave() {
+    localStorage.setItem("ea_earnings", JSON.stringify(earnings));
+}
+
+function erRender() {
+    const tbody = document.getElementById("er-table");
+    tbody.innerHTML = "";
+    earnings.sort((a, b) => a.date.localeCompare(b.date));
+
+    earnings.forEach((er, idx) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${er.ticker}</td>
+            <td>${er.date}</td>
+            <td>${er.type}</td>
+            <td>${er.note}</td>
+            <td>
+                <button class="btn-small btn-danger" onclick="erDelete(${idx})">Smazat</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function erDelete(i) {
+    if (!confirm("Smazat tuto událost?")) return;
+    earnings.splice(i, 1);
+    erSave();
+    erRender();
+}
+
+document.getElementById("er-add").addEventListener("click", () => {
+    const ticker = document.getElementById("er-ticker").value.trim();
+    const date = document.getElementById("er-date").value;
+    const type = document.getElementById("er-type").value;
+    const note = document.getElementById("er-note").value.trim();
+
+    if (!ticker || !date) {
+        alert("Ticker a datum jsou povinné.");
+        return;
+    }
+
+    earnings.push({ ticker, date, type, note });
+    erSave();
+    erRender();
+});
+
+document.getElementById("er-clear").addEventListener("click", () => {
+    document.getElementById("er-ticker").value = "";
+    document.getElementById("er-date").value = "";
+    document.getElementById("er-note").value = "";
+});
+
+document.getElementById("er-clear-all").addEventListener("click", () => {
+    if (!confirm("Opravdu smazat všechny události?")) return;
+    earnings = [];
+    erSave();
+    erRender();
+});
+
+/* Start */
+erLoad();
+</script>
+
+</body>
+    </html>
