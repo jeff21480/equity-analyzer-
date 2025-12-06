@@ -1036,12 +1036,55 @@
       if (el) el.innerHTML = '';
     }
 
-    // Inicializace
-    document.addEventListener('DOMContentLoaded', () => {
-      wlRender();
-      erRender();
-    });
-  </script>
+    // Inicializace – spouští watchlist a earnings po načtení stránky
+  document.addEventListener('DOMContentLoaded', () => {
+    wlRender();
+    erRender();
+  });
+</script>
+
+<!-- ================= MOJE PORTFOLIO ================= -->
+<div id="portfolio" class="page" style="display:none; padding:20px;">
+
+  <h2 style="color:#a66bff; margin-bottom:10px;">Moje portfolio</h2>
+  <p style="color:#c9c4ff; margin-bottom:20px;">
+    Sem můžeš přidávat akcie, ETF i kryptoměny – ručně nebo přes CSV.
+  </p>
+
+  <!-- Tlačítko pro přidání nové pozice -->
+  <button
+    style="background:#00e676; padding:10px 20px; border-radius:10px; font-size:16px; border:none; cursor:pointer; margin-bottom:20px;"
+    onclick="addPortfolioRow()"
+  >
+    ➕ Přidat pozici
+  </button>
+
+  <!-- Tabulka portfolia -->
+  <table id="portfolio-table" border="0" cellpadding="8"
+         style="width:100%; margin-top:20px; color:white; border-collapse:collapse;">
+    <thead>
+      <tr style="color:#e5c0ff; text-align:left;">
+        <th>Název</th>
+        <th>Množství</th>
+        <th>Měna</th>
+        <th>Nákupní cena</th>
+        <th>Aktuální cena</th>
+        <th>Průměrná cena</th>
+        <th>Sektor</th>
+        <th>Typ</th>
+        <th>Akce</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Koláč sektorů -->
+  <div style="margin-top:30px;">
+    <h3 style="color:#e5c0ff;">Rozložení portfolia podle sektorů</h3>
+    <canvas id="sectorChart" style="width:100%; height:300px;"></canvas>
+  </div>
+</div>
+<!-- ================ KONEC PORTFOLIA ================ -->
+
 </body>
 </html>
-         
