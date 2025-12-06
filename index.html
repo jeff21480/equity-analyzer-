@@ -737,24 +737,33 @@
       return isNaN(x) ? 0 : x;
     }
 
-    // Navigace mezi šuplíky a stránkami
-    function showPage(id) {
-      const home = document.getElementById('home');
-      if (home) home.style.display = 'none';
+    // ---------------- Navigace mezi šuplíky a stránkami ----------------
 
-      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-      const page = document.getElementById(id);
-      if (page) page.style.display = 'block';
+function showPage(id) {
+    // Skryje HOME
+    const home = document.getElementById('home');
+    if (home) home.style.display = 'none';
 
-      window.scrollTo(0, 0);
-    }
+    // Skryje všechny stránky
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
 
-    function goHome() {
-      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-      const home = document.getElementById('home');
-      if (home) home.style.display = 'block';
-      window.scrollTo(0, 0);
-    }
+    // Zobrazí požadovanou stránku
+    const page = document.getElementById(id);
+    if (page) page.style.display = 'block';
+
+    window.scrollTo(0, 0);
+}
+
+function goHome() {
+    // Skryje všechny stránky
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+
+    // Zobrazí HOME
+    const home = document.getElementById('home');
+    if (home) home.style.display = 'block';
+
+    window.scrollTo(0, 0);
+}
 
     // ---------- DCF ----------
     function dcfScenario(eps, years, discPct, growthPct, peTarget) {
