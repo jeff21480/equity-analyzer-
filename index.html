@@ -428,314 +428,80 @@
 
     <main>
       <!-- HOME – ŠUPLÍKY -->
-      <section id="home">
-        <div class="drawer-list">
-          <!-- Hlavní šuplík DCF -->
-          <article class="drawer drawer-main" onclick="showPage('page-dcf')">
-            <div class="drawer-text">
-              <div class="drawer-badge">Hlavní šuplík</div>
-              <h2 class="drawer-title">Výpočet vnitřní hodnoty (DCF – 3 scénáře)</h2>
-              <p class="drawer-sub">
-                EPS, růst, P/E a tři scénáře férové ceny – konzervativní, základní, optimistický.
-              </p><!-- Portfolio -->
-<article class="drawer" onclick="showPage('portfolio')">
-    <div class="drawer-text">
-        <h2 class="drawer-title">Moje portfolio</h2>
-        <p class="drawer-sub">
-            Akcie, ETF a kryptoměny – ručně nebo přes CSV.
-        </p>
-    </div>
-    <div class="drawer-cta">
-        <button class="btn-pill">Otevřít</button>
-        <span class="drawer-arrow"></span>
-    </div>
-</article>
-            </div>
-            <div class="drawer-cta">
-              <button class="btn-pill">Otevřít</button>
-              <span class="drawer-arrow">›</span>
-            </div>
-          </article>
+    <section id="home" class="drawer-list">
 
-          <!-- Watchlist -->
-          <article class="drawer" onclick="showPage('page-watchlist')">
-            <div class="drawer-text">
-              <h2 class="drawer-title">Watchlist vyhodnocených akcií</h2>
-              <p class="drawer-sub">
-                Ticker, nákup, aktuální cena a zisk %. Jednoduchý přehled pozic.
-              </p>
-            </div>
-            <div class="drawer-cta">
-              <button class="btn-pill">Otevřít</button>
-              <span class="drawer-arrow">›</span>
-            </div>
-          </article>
-
-          <!-- Earnings -->
-          <article class="drawer" onclick="showPage('page-earnings')">
-            <div class="drawer-text">
-              <h2 class="drawer-title">Earnings kalendář</h2>
-              <p class="drawer-sub">
-                Přehled firem a dat výsledků – přehled jako na A4.
-              </p>
-            </div>
-            <div class="drawer-cta">
-              <button class="btn-pill">Otevřít</button>
-              <span class="drawer-arrow">›</span>
-            </div>
-          </article>
-
-          <!-- Složené úročení -->
-          <article class="drawer" onclick="showPage('page-ci')">
-            <div class="drawer-text">
-              <h2 class="drawer-title">Kalkulačka složeného úročení</h2>
-              <p class="drawer-sub">
-                Počáteční částka, roční vklad, úrok a počet let – uvidíš, co s tebou udělá čas.
-              </p>
-            </div>
-            <div class="drawer-cta">
-              <button class="btn-pill">Otevřít</button>
-              <span class="drawer-arrow">›</span>
-            </div>
-          </article>
+    <!-- Hlavní šuplík DCF -->
+    <article class="drawer drawer-main" onclick="showPage('dcf')">
+        <div class="drawer-text">
+            <div class="drawer-badge">Hlavní šuplík</div>
+            <h2 class="drawer-title">Výpočet vnitřní hodnoty (DCF)</h2>
+            <p class="drawer-sub">
+                EPS, růst, P/E a tři scénáře férové ceny.
+            </p>
         </div>
-      </section>
-
-      <!-- PAGE DCF -->
-      <section id="page-dcf" class="page">
-        <div class="page-header">
-          <button class="btn-back" onclick="goHome()">&larr; Zpět na šuplíky</button>
-          <h2 class="page-title">DCF – vnitřní hodnota akcie</h2>
+        <div class="drawer-cta">
+            <button class="btn-pill">Otevřít</button>
+            <span class="drawer-arrow"></span>
         </div>
-        <p class="page-sub">
-          Orientační DCF model se třemi scénáři – konzervativní, základní a optimistický.
-        </p>
+    </article>
 
-        <div class="page-card">
-          <div class="form-grid-2">
-            <div>
-              <label for="dcf-name">Název / ticker akcie</label>
-              <input id="dcf-name" type="text" placeholder="SOFI, AAPL, MSFT…">
-            </div>
-            <div>
-              <label for="dcf-eps">Současný zisk na akcii (EPS)</label>
-              <input id="dcf-eps" type="number" step="0.01" placeholder="např. 2.50">
-            </div>
-            <div>
-              <label for="dcf-years">Počet let projekce</label>
-              <input id="dcf-years" type="number" value="10" min="1">
-            </div>
-            <div>
-              <label for="dcf-disc">Diskontní sazba (%)</label>
-              <input id="dcf-disc" type="number" value="9" step="0.1">
-            </div>
-            <div>
-              <label for="dcf-price">Aktuální cena akcie (volitelné)</label>
-              <input id="dcf-price" type="number" step="0.01" placeholder="pro porovnání">
-            </div>
-          </div>
-
-          <h3 style="font-size:14px;margin-top:14px;margin-bottom:6px;">Parametry scénářů</h3>
-          <div class="form-grid-2">
-            <div>
-              <label for="dcf-g1">Růst EPS konzervativní (%)</label>
-              <input id="dcf-g1" type="number" value="5">
-            </div>
-            <div>
-              <label for="dcf-pe1">P/E konzervativní</label>
-              <input id="dcf-pe1" type="number" value="12">
-            </div>
-            <div>
-              <label for="dcf-g2">Růst EPS základní (%)</label>
-              <input id="dcf-g2" type="number" value="10">
-            </div>
-            <div>
-              <label for="dcf-pe2">P/E základní</label>
-              <input id="dcf-pe2" type="number" value="18">
-            </div>
-            <div>
-              <label for="dcf-g3">Růst EPS optimistický (%)</label>
-              <input id="dcf-g3" type="number" value="15">
-            </div>
-            <div>
-              <label for="dcf-pe3">P/E optimistický</label>
-              <input id="dcf-pe3" type="number" value="25">
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="runDCF()">Spočítat DCF</button>
-            <button class="btn btn-secondary" onclick="clearDCF()">Vymazat</button>
-          </div>
-
-          <div id="dcf-results"></div>
-          <div id="dcf-tags" class="pill-row"></div>
+    <!-- Watchlist -->
+    <article class="drawer" onclick="showPage('watchlist')">
+        <div class="drawer-text">
+            <h2 class="drawer-title">Watchlist vyhodnocení</h2>
+            <p class="drawer-sub">
+                Ticker, nákup, aktuální cena a zisk %.
+            </p>
         </div>
-      </section>
-
-      <!-- PAGE WATCHLIST -->
-      <section id="page-watchlist" class="page">
-        <div class="page-header">
-          <button class="btn-back" onclick="goHome()">&larr; Zpět na šuplíky</button>
-          <h2 class="page-title">Watchlist vyhodnocených akcií</h2>
+        <div class="drawer-cta">
+            <button class="btn-pill">Otevřít</button>
+            <span class="drawer-arrow"></span>
         </div>
-        <p class="page-sub">
-          Jednoduchý přehled pozic – ticker, nákup, aktuální cena a zisk %.
-        </p>
+    </article>
 
-        <div class="page-card">
-          <div class="form-grid-2">
-            <div>
-              <label for="wl-ticker">Ticker*</label>
-              <input id="wl-ticker" type="text" placeholder="PLTR, SOFI…">
-            </div>
-            <div>
-              <label for="wl-buy">Nákupní cena</label>
-              <input id="wl-buy" type="number" step="0.01" placeholder="např. 15.50">
-            </div>
-            <div>
-              <label for="wl-now">Aktuální cena</label>
-              <input id="wl-now" type="number" step="0.01" placeholder="poslední close">
-            </div>
-            <div>
-              <label for="wl-note">Poznámka</label>
-              <input id="wl-note" type="text" placeholder="dlouhodobě, swing…">
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="wlAdd()">Přidat / aktualizovat</button>
-            <button class="btn btn-secondary" onclick="wlClearForm()">Vymazat formulář</button>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Ticker</th>
-                  <th>Nákup</th>
-                  <th>Aktuální</th>
-                  <th>Rozdíl</th>
-                  <th>Rozdíl %</th>
-                  <th>Poznámka</th>
-                  <th>Akce</th>
-                </tr>
-              </thead>
-              <tbody id="wl-table"></tbody>
-            </table>
-          </div>
+    <!-- Earnings kalendář -->
+    <article class="drawer" onclick="showPage('earnings')">
+        <div class="drawer-text">
+            <h2 class="drawer-title">Earnings kalendář</h2>
+            <p class="drawer-sub">
+                Přehled firem a dat výsledků – přehled jasně a rychle.
+            </p>
         </div>
-      </section>
-
-      <!-- PAGE EARNINGS -->
-      <section id="page-earnings" class="page">
-        <div class="page-header">
-          <button class="btn-back" onclick="goHome()">&larr; Zpět na šuplíky</button>
-          <h2 class="page-title">Earnings kalendář</h2>
+        <div class="drawer-cta">
+            <button class="btn-pill">Otevřít</button>
+            <span class="drawer-arrow"></span>
         </div>
-        <p class="page-sub">
-          Vlastní seznam firem a dat kvartálních výsledků a dalších událostí.
-        </p>
+    </article>
 
-        <div class="page-card">
-          <div class="form-grid-2">
-            <div>
-              <label for="er-ticker">Ticker*</label>
-              <input id="er-ticker" type="text" placeholder="MSFT, UNH…">
-            </div>
-            <div>
-              <label for="er-date">Datum*</label>
-              <input id="er-date" type="date">
-            </div>
-            <div>
-              <label for="er-type">Typ události</label>
-              <select id="er-type">
-                <option value="Earnings">Earnings</option>
-                <option value="Conference">Conference</option>
-                <option value="Investor Day">Investor Day</option>
-                <option value="Other">Jiné</option>
-              </select>
-            </div>
-            <div>
-              <label for="er-note">Poznámka</label>
-              <input id="er-note" type="text" placeholder="Q4 2025, guidance, marže…">
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="erAdd()">Přidat událost</button>
-            <button class="btn btn-secondary" onclick="erClearForm()">Vymazat formulář</button>
-            <button class="btn btn-danger" onclick="erClearAll()">Smazat všechny</button>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Datum</th>
-                  <th>Ticker</th>
-                  <th>Typ</th>
-                  <th>Poznámka</th>
-                  <th>Akce</th>
-                </tr>
-              </thead>
-              <tbody id="er-table"></tbody>
-            </table>
-          </div>
+    <!-- Kalkulačka složeného úročení -->
+    <article class="drawer" onclick="showPage('calc')">
+        <div class="drawer-text">
+            <h2 class="drawer-title">Kalkulačka složeného úročení</h2>
+            <p class="drawer-sub">
+                Počáteční částka, roční vklad, úrok a poplatek.
+            </p>
         </div>
-      </section>
-
-      <!-- PAGE SLOŽENÉ ÚROČENÍ -->
-      <section id="page-ci" class="page">
-        <div class="page-header">
-          <button class="btn-back" onclick="goHome()">&larr; Zpět na šuplíky</button>
-          <h2 class="page-title">Kalkulačka složeného úročení</h2>
+        <div class="drawer-cta">
+            <button class="btn-pill">Otevřít</button>
+            <span class="drawer-arrow"></span>
         </div>
-        <p class="page-sub">
-          Počáteční částka, roční vklad, roční úrok a počet let – orientační budoucí hodnota.
-        </p>
+    </article>
 
-        <div class="page-card">
-          <div class="form-grid-2">
-            <div>
-              <label for="ci-start">Počáteční částka</label>
-              <input id="ci-start" type="number" step="0.01" value="10000">
-            </div>
-            <div>
-              <label for="ci-yearly">Roční vklad</label>
-              <input id="ci-yearly" type="number" step="0.01" value="1200">
-            </div>
-            <div>
-              <label for="ci-rate">Roční úrok (%)</label>
-              <input id="ci-rate" type="number" step="0.1" value="8">
-            </div>
-            <div>
-              <label for="ci-years">Počet let</label>
-              <input id="ci-years" type="number" value="15">
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="btn btn-primary" onclick="runCI()">Spočítat</button>
-            <button class="btn btn-secondary" onclick="clearCI()">Vymazat</button>
-          </div>
-
-          <div id="ci-result" class="helper-text" style="margin-top:10px;"></div>
+    <!-- Moje portfolio (na konci, jak chceš) -->
+    <article class="drawer" onclick="showPage('portfolio')">
+        <div class="drawer-text">
+            <h2 class="drawer-title">Moje portfolio</h2>
+            <p class="drawer-sub">
+                Akcie, ETF a kryptoměny – ručně nebo přes CSV.
+            </p>
         </div>
-      </section>
-    </main>
+        <div class="drawer-cta">
+            <button class="btn-pill">Otevřít</button>
+            <span class="drawer-arrow"></span>
+        </div>
+    </article>
 
-    <footer>
-      Všechna data jsou pouze v tomto prohlížeči. Appka je jen pro osobní analýzu – nejedná se o investiční doporučení.
-    </footer>
-  </div>
-
-  <script>
-    // Pomocná funkce – převod na číslo
-    function toNum(v) {
-      const x = parseFloat(v);
-      return isNaN(x) ? 0 : x;
-    }
+    </section>
 
     // ---------------- Navigace mezi šuplíky a stránkami ----------------
 
