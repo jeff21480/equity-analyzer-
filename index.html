@@ -469,7 +469,164 @@
 </div>
 </section>
 
+<!-- WATCHLIST SCREEN (A4) -->
+    <section id="screen-watchlist" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back>
+          <span>←</span> Zpět
+        </button>
+        <h2 class="page-title">Watchlist – A4 přehled</h2>
+      </div>
 
+      <p class="page-sub">
+        Jednoduchý A4 přehled sledovaných akcií. Ideální na vytištění nebo
+        vlastní poznámky z analýzy.
+      </p>
+
+      <div class="page-card">
+        <div class="section-block">
+          <p>
+            Můžeš si sem zapisovat shrnutí watchlistu – např. tickery, hlavní
+            čísla, poznámky a investiční tezi. Zatím je to čistě „papír na
+            obrazovce“ bez výpočtů.
+          </p>
+
+          <textarea
+            style="width:100%; min-height:420px; margin-top:12px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.25); color:#fff; resize:vertical;"
+            placeholder="Místo pro tvoje poznámky k watchlistu (A4 stránka)…"
+          ></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- EARNINGS SCREEN (A4 KALENDÁŘ) -->
+    <section id="screen-earnings" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back>
+          <span>←</span> Zpět
+        </button>
+        <h2 class="page-title">Earnings kalendář – A4 přehled</h2>
+      </div>
+
+      <p class="page-sub">
+        Přehled výsledků podle měsíců. Jednoduchá A4 tabulka, do které si můžeš
+        ručně zapisovat, kdy které firmy reportují.
+      </p>
+
+      <div class="page-card">
+        <div class="section-block">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Měsíc</th>
+                  <th>Firmy / tickery</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Leden</td><td></td></tr>
+                <tr><td>Únor</td><td></td></tr>
+                <tr><td>Březen</td><td></td></tr>
+                <tr><td>Duben</td><td></td></tr>
+                <tr><td>Květen</td><td></td></tr>
+                <tr><td>Červen</td><td></td></tr>
+                <tr><td>Červenec</td><td></td></tr>
+                <tr><td>Srpen</td><td></td></tr>
+                <tr><td>Září</td><td></td></tr>
+                <tr><td>Říjen</td><td></td></tr>
+                <tr><td>Listopad</td><td></td></tr>
+                <tr><td>Prosinec</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="helper-text" style="margin-top:10px;">
+            Tip: můžeš si do každého řádku psát třeba
+            „MSFT 23.1., GOOG 1.2., NVDA 15.2.“ – prostě rychlý přehled, co kdy
+            reportuje.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLOŽENÉ ÚROČENÍ (KALKULAČKA) -->
+    <section id="screen-ci" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back>
+          <span>←</span> Zpět
+        </button>
+        <h2 class="page-title">Kalkulačka složeného úročení</h2>
+      </div>
+
+      <p class="page-sub">
+        Zadej počáteční částku, roční zhodnocení, počet let a případný
+        pravidelný roční vklad. Dostaneš tabulku, jak se majetek vyvíjí v čase.
+      </p>
+
+      <div class="page-card">
+        <div class="section-block">
+          <div class="form-grid-3">
+            <div>
+              <label for="ci-start">Počáteční částka</label>
+              <input
+                id="ci-start"
+                type="number"
+                inputmode="decimal"
+                placeholder="např. 100000"
+              />
+            </div>
+            <div>
+              <label for="ci-rate">Roční zhodnocení (%)</label>
+              <input
+                id="ci-rate"
+                type="number"
+                inputmode="decimal"
+                step="0.1"
+                placeholder="např. 8"
+              />
+            </div>
+            <div>
+              <label for="ci-years">Počet let</label>
+              <input
+                id="ci-years"
+                type="number"
+                inputmode="numeric"
+                placeholder="např. 20"
+              />
+            </div>
+            <div>
+              <label for="ci-add">Roční vklad</label>
+              <input
+                id="ci-add"
+                type="number"
+                inputmode="decimal"
+                placeholder="např. 50000"
+              />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" id="ci-run">Spočítat</button>
+            <button class="btn btn-secondary" id="ci-clear">Vymazat</button>
+          </div>
+
+          <div class="table-wrap" style="margin-top:16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rok</th>
+                  <th>Stav na začátku</th>
+                  <th>Úrok za rok</th>
+                  <th>Vklad</th>
+                  <th>Stav na konci</th>
+                </tr>
+              </thead>
+              <tbody id="ci-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
     <!-- DCF SCREEN -->
     <section id="screen-dcf" class="screen">
       <div class="page-header">
