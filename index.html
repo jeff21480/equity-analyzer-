@@ -449,15 +449,67 @@
   <div class="drawer-chevron"></div>
 </article>
 
-<!-- Přidat firmu -->
-<article class="drawer" data-open="screen-addstock">
-  <div class="drawer-text">
-    <div class="drawer-label">Firmy</div>
-    <h2 class="drawer-title">Přidat novou firmu</h2>
-    <p class="drawer-desc">Zapisuj firmy, které sleduješ.</p>
+<!-- ADD FIRM SCREEN (PŘIDAT NOVOU FIRMU) -->
+<section id="screen-add-firm" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back>
+      <span>←</span> Zpět
+    </button>
+    <h2 class="page-title">Přidat novou firmu</h2>
   </div>
-  <div class="drawer-chevron"></div>
-</article>
+
+  <p class="page-sub">
+    Zadej základní údaje firmy a porovnej aktuální a férovou cenu.
+  </p>
+
+  <div class="page-card">
+    <div class="section-block">
+      <div class="form-grid-2">
+        <div>
+          <label for="af-ticker">Ticker*</label>
+          <input id="af-ticker" type="text" placeholder="PLTR, SOFI…" />
+        </div>
+        <div>
+          <label for="af-name">Název firmy</label>
+          <input id="af-name" type="text" placeholder="Palantir Technologies" />
+        </div>
+      </div>
+
+      <div class="form-grid-2" style="margin-top:14px">
+        <div>
+          <label for="af-current">Aktuální cena</label>
+          <input id="af-current" type="number" step="0.01" placeholder="např. 18.50" />
+        </div>
+        <div>
+          <label for="af-fair">Férová cena</label>
+          <input id="af-fair" type="number" step="0.01" placeholder="např. 24.00" />
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <label for="af-note">Stručný popis firmy</label>
+        <textarea id="af-note" rows="3" placeholder="Co firma dělá, proč ji sleduješ…"></textarea>
+      </div>
+    </div>
+
+    <div class="section-block" style="margin-top:16px">
+      <h3 style="font-size:0.95rem;margin:0 0 8px 0;">Porovnání ceny</h3>
+      <div class="form-grid-2">
+        <div class="compare-box">
+          <div class="compare-label">Aktuální cena</div>
+          <div class="compare-value" id="af-current-display">–</div>
+        </div>
+        <div class="compare-box">
+          <div class="compare-label">Férová cena</div>
+          <div class="compare-value" id="af-fair-display">–</div>
+        </div>
+      </div>
+      <p id="af-diff" class="helper-text" style="margin-top:8px;">
+        Vyplň ceny, rozdíl se ukáže tady.
+      </p>
+    </div>
+  </div>
+</section>
 
 <!-- Přehled portfolia -->
 <article class="drawer" data-open="screen-portfolio">
