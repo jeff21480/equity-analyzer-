@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Equity Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #2b1450;          /* hlavní fialová */
+      --bg-light: #3a1f6b;         /* světlejší fialová pro karty */
+      --bg-hero: #3f1d75;
+      --accent: #c68cff;
+      --accent-soft: rgba(198,140,255,0.25);
+      --text-main: #ffffff;
+      --text-muted: #d3c7ff;
+      --btn-bg: #f5f1ff;
+      --btn-text: #301650;
+      --shadow-soft: 0 18px 40px rgba(0,0,0,0.45);
+      --radius-xl: 26px;
+      --radius-lg: 22px;
+      --transition-fast: 0.18s ease-out;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #5f33b5 0, #1b0633 55%, #090010 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 20px 14px 32px;
+    }
+
+    /* Obecné rozvržení obrazovek */
+    .screen {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero / hlavička na Home */
+    .hero {
+      background: radial-gradient(circle at top left, #7e4bff 0, var(--bg-hero) 35%, #1b0633 100%);
+      padding: 22px 22px 26px;
+      border-radius: 32px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 26px;
+    }
+
+    .hero-title {
+      letter-spacing: 0.16em;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero-sub {
+      font-size: 0.96rem;
+      color: var(--text-muted);
+    }
+
+    /* Seznam šuplíků */
+    .drawer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .drawer {
+      background: radial-gradient(circle at top left, #5e35b1 0, var(--bg-light) 50%, #261148 100%);
+      border-radius: var(--radius-xl);
+      padding: 18px 18px 18px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .drawer:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.55);
+      background: radial-gradient(circle at top left, #7142d9 0, #3b1c73 55%, #221043 100%);
+    }
+
+    .drawer-text {
+      max-width: calc(100% - 60px);
+    }
+
+    .drawer-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .drawer-title {
+      font-size: 1.08rem;
+      margin-bottom: 4px;
+    }
+
+    .drawer-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .drawer-chevron {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-chevron span {
+      font-size: 1.15rem;
+    }
+
+    /* Hlavičky vnitřních obrazovek */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      margin-top: 6px;
+    }
+
+    .btn-back {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.24);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-back span {
+      font-size: 1.1rem;
+    }
+
+    .page-title {
+      font-size: 1.16rem;
+    }
+
+    .page-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .page-card {
+      background: rgba(33, 9, 77, 0.85);
+      border-radius: var(--radius-lg);
+      padding: 18px 16px 18px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+      margin-bottom: 18px;
+    }
+
+    .page-card h3 {
+      font-size: 0.98rem;
+      margin-bottom: 6px;
+    }
+
+    /* Formulář – společné styly */
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 4px;
+    }
+
+    .field input {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 14px;
+      font-size: 0.94rem;
+      background: rgba(4, 1, 17, 0.9);
+      color: var(--text-main);
+      outline: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .field input::placeholder {
+      color: rgba(209, 197, 255, 0.5);
+    }
+
+    .btn-primary {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      padding: 12px 14px;
+      font-weight: 600;
+      font-size: 0.98rem;
+      cursor: pointer;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.45);
+      margin: 4px 0 2px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+      background: #ffffff;
+    }
+
+    .result-box {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(14, 3, 40, 0.9);
+      display: grid;
+      row-gap: 6px;
+      font-size: 0.9rem;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .result-label {
+      color: var(--text-muted);
+    }
+
+    .result-value {
+      font-weight: 600;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    @media (min-width: 480px) {
+      .app {
+        padding-top: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <!-- HOME / NÁHLED -->
+    <section id="screen-home" class="screen active">
+      <header class="hero">
+        <h1 class="hero-title">EQUITY ANALYZER</h1>
+        <p class="hero-sub">
+          Apka na analýzu akcií. Šuplíky na watchlist, portfolio, úročení i poznámky.
+        </p>
+      </header>
+
+      <div class="drawer-list">
+        <!-- 1) Rychlý výpočet hodnoty -->
+        <article class="drawer" data-open="analysis">
+          <div class="drawer-text">
+            <div class="drawer-label">Analýza</div>
+            <h2 class="drawer-title">Rychlý výpočet hodnoty</h2>
+            <p class="drawer-desc">Jednoduchý odhad férové ceny akcie (připravujeme).</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+
+        <!-- 2) Watchlist -->
+        <article class="drawer" data-open="watchlist">
+          <div class="drawer-text">
+            <div class="drawer-label">Watchlist</div>
+            <h2 class="drawer-title">Můj watchlist</h2>
+            <p class="drawer-desc">Seznam akcií, které sleduješ (připravujeme).</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+
+        <!-- 3) Firmy / detailní poznámky k firmám -->
+        <article class="drawer" data-open="firms">
+          <div class="drawer-text">
+            <div class="drawer-label">Firmy</div>
+            <h2 class="drawer-title">Moje firmy</h2>
+            <p class="drawer-desc">Detailnější poznámky k jednotlivým firmám (připravujeme).</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+
+        <!-- 4) Portfolio -->
+        <article class="drawer" data-open="portfolio">
+          <div class="drawer-text">
+            <div class="drawer-label">Portfolia</div>
+            <h2 class="drawer-title">Moje portfolio</h2>
+            <p class="drawer-desc">Akcie, ETF, krypto a případně komodity (připravujeme).</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+
+        <!-- 5) Složené úročení -->
+        <article class="drawer" data-open="interest">
+          <div class="drawer-text">
+            <div class="drawer-label">Úročení</div>
+            <h2 class="drawer-title">Složené úročení</h2>
+            <p class="drawer-desc">Spočítej, jak poroste tvoje investice v čase.</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+
+        <!-- 6) Poznámky -->
+        <article class="drawer" data-open="notes">
+          <div class="drawer-text">
+            <div class="drawer-label">Poznámky</div>
+            <h2 class="drawer-title">Moje zápisky</h2>
+            <p class="drawer-desc">Jednoduchý textový sešit k analýzám (připravujeme).</p>
+          </div>
+          <div class="drawer-chevron"><span>→</span></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ ANALÝZA – placeholder ============ -->
+    <section id="screen-analysis" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+      </div>
+      <p class="page-sub">
+        Tady později uděláme rychlý výpočet férové ceny akcie (DCF light).
+      </p>
+      <div class="page-card">
+        <p>Zatím jen placeholder. Až doděláme ostatní šuplíky, vrátíme se sem.</p>
+      </div>
+    </section>
+
+    <!-- ============ WATCHLIST – placeholder ============ -->
+    <section id="screen-watchlist" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Můj watchlist</h2>
+      </div>
+      <p class="page-sub">
+        Seznam akcií, které chceš mít na očích. Napojíme na jednoduchý formulář a ukládání do prohlížeče.
+      </p>
+      <div class="page-card">
+        <p>Zatím připravujeme strukturu – funkce doděláme postupně.</p>
+      </div>
+    </section>
+
+    <!-- ============ FIRMY – placeholder ============ -->
+    <section id="screen-firms" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Moje firmy</h2>
+      </div>
+      <p class="page-sub">
+        Místo pro detailnější poznámky ke konkrétním firmám.
+      </p>
+      <div class="page-card">
+        <p>Zatím jen text, aby šlo přepínat obrazovky. Později doplníme formulář a ukládání.</p>
+      </div>
+    </section>
+
+    <!-- ============ PORTFOLIO – placeholder ============ -->
+    <section id="screen-portfolio" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Moje portfolio</h2>
+      </div>
+      <p class="page-sub">
+        Jednoduchý přehled držených pozic – akcie, ETF, krypto, případně komodity.
+      </p>
+      <div class="page-card">
+        <p>Stránku připravíme tak, aby byly řádky: Ticker, název, nákupní cena, aktuální cena, % zisk/ztráta.</p>
+      </div>
+    </section>
+
+    <!-- ============ SLOŽENÉ ÚROČENÍ – hotová kalkulačka ============ -->
+    <section id="screen-interest" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Složené úročení</h2>
+      </div>
+      <p class="page-sub">
+        Spočítej si, jak může růst tvoje investice v čase. Vše zůstává jen v tvém prohlížeči.
+      </p>
+
+      <div class="page-card">
+        <h3>Zadání parametrů</h3>
+
+        <div class="field">
+          <label for="ci-start">Počáteční částka (Kč)</label>
+          <input id="ci-start" type="number" min="0" step="100" placeholder="např. 50&nbsp;000" />
+        </div>
+
+        <div class="field">
+          <label for="ci-monthly">Měsíční vklad (Kč)</label>
+          <input id="ci-monthly" type="number" min="0" step="100" placeholder="např. 2&nbsp;000" />
+        </div>
+
+        <div class="field">
+          <label for="ci-rate">Roční zhodnocení (%)</label>
+          <input id="ci-rate" type="number" step="0.1" placeholder="např. 8" />
+        </div>
+
+        <div class="field">
+          <label for="ci-years">Doba investice (roky)</label>
+          <input id="ci-years" type="number" min="1" step="1" placeholder="např. 10" />
+        </div>
+
+        <button id="ci-calc" class="btn-primary">Spočítat složené úročení</button>
+
+        <div id="ci-result" class="result-box">
+          <div class="result-row">
+            <span class="result-label">Cílová částka</span>
+            <span id="ci-final" class="result-value">–</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Celkem vloženo</span>
+            <span id="ci-invested" class="result-value">–</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Celkový výnos</span>
+            <span id="ci-profit" class="result-value">–</span>
+          </div>
+        </div>
+
+        <p class="hint">
+          Výpočet počítá s měsíčním připisováním úroků a s měsíčními vklady.
+          Je to orientační kalkulačka – poplatky, daně a inflaci neřeší.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ POZNÁMKY – placeholder ============ -->
+    <section id="screen-notes" class="screen">
+      <div class="page-header">
+        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+        <h2 class="page-title">Moje zápisky</h2>
+      </div>
+      <p class="page-sub">
+        Jednoduchý textový sešit k analýzám a nápadům – později doplníme editor a ukládání.
+      </p>
+      <div class="page-card">
+        <p>Zatím jen placeholder, aby fungovalo přepínání šuplíků.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      function qsa(sel) {
+        return document.querySelectorAll(sel);
+      }
+
+      function showScreen(name) {
+        var id = name.indexOf("screen-") === 0 ? name : "screen-" + name;
+        var screens = qsa(".screen");
+        for (var i = 0; i < screens.length; i++) {
+          screens[i].classList.remove("active");
+        }
+        var target = document.getElementById(id);
+        if (target) {
+          target.classList.add("active");
+          window.scrollTo({ top: 0, behavior: "instant" });
+        }
+      }
+
+      /* Navigace – šuplíky */
+      var drawers = qsa("[data-open]");
+      for (var i = 0; i < drawers.length; i++) {
+        drawers[i].addEventListener("click", function () {
+          var target = this.getAttribute("data-open");
+          showScreen(target);
+        });
+      }
+
+      /* Zpět tlačítka */
+      var backs = qsa("[data-back]");
+      for (var j = 0; j < backs.length; j++) {
+        backs[j].addEventListener("click", function () {
+          var target = this.getAttribute("data-back");
+          showScreen(target);
+        });
+      }
+
+      /* Kalkulačka složeného úročení */
+      var ciBtn = document.getElementById("ci-calc");
+      if (ciBtn) {
+        ciBtn.addEventListener("click", function () {
+          var start = parseFloat(document.getElementById("ci-start").value.replace(/\s/g, "")) || 0;
+          var monthly = parseFloat(document.getElementById("ci-monthly").value.replace(/\s/g, "")) || 0;
+          var rate = parseFloat(document.getElementById("ci-rate").value.replace(",", ".")) || 0;
+          var years = parseFloat(document.getElementById("ci-years").value) || 0;
+
+          if (years <= 0 || rate <= 0 && monthly === 0 && start === 0) {
+            alert("Zadej prosím aspoň nějaké smysluplné hodnoty.");
+            return;
+          }
+
+          var r = rate / 100;
+          var n = 12; // měsíční připisování
+          var periods = n * years;
+
+          // FV pro počáteční částku
+          var fvStart = start * Math.pow(1 + r / n, periods);
+
+          // FV pro měsíční vklady (pokud jsou)
+          var fvMonthly = 0;
+          if (monthly > 0 && r > 0) {
+            fvMonthly = monthly * ((Math.pow(1 + r / n, periods) - 1) / (r / n));
+          } else if (monthly > 0 && r === 0) {
+            fvMonthly = monthly * periods;
+          }
+
+          var finalAmount = fvStart + fvMonthly;
+          var invested = start + monthly * periods;
+          var profit = finalAmount - invested;
+
+          function fmt(num) {
+            return num.toLocaleString("cs-CZ", {
+              maximumFractionDigits: 0
+            }) + " Kč";
+          }
+
+          document.getElementById("ci-final").textContent = fmt(finalAmount);
+          document.getElementById("ci-invested").textContent = fmt(invested);
+          document.getElementById("ci-profit").textContent = fmt(profit);
+        });
+      }
+    })();
+  </script>
+</body>
+          </html>
