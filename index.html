@@ -791,35 +791,46 @@ if (notesArea) {
 </article>
 </section>
 
-<!-- WATCHLIST SCREEN (A4) -->
-    <section id="screen-watchlist" class="screen">
-      <div class="page-header">
-        <button class="btn-back" data-back>
-          <span>←</span> Zpět
-        </button>
-        <h2 class="page-title">Watchlist – A4 přehled</h2>
-      </div>
+<!-- ===================== WATCHLIST SCREEN (A4) ===================== -->
+<section id="screen-watchlist" class="screen hidden">
 
-      <p class="page-sub">
-        Jednoduchý A4 přehled sledovaných akcií. Ideální na vytištění nebo
-        vlastní poznámky z analýzy.
-      </p>
+    <div class="page-header">
+        <button class="btn-back" data-back>←</button>
+        <h2 class="page-title">Sledované akcie</h2>
+    </div>
 
-      <div class="page-card">
-        <div class="section-block">
-          <p>
-            Můžeš si sem zapisovat shrnutí watchlistu – např. tickery, hlavní
-            čísla, poznámky a investiční tezi. Zatím je to čistě „papír na
-            obrazovce“ bez výpočtů.
-          </p>
+    <p class="page-sub">Seznam firem, které chceš sledovat</p>
 
-          <textarea
-            style="width:100%; min-height:420px; margin-top:12px; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,0.25); background:rgba(0,0,0,0.25); color:#fff; resize:vertical;"
-            placeholder="Místo pro tvoje poznámky k watchlistu (A4 stránka)…"
-          ></textarea>
+    <div class="page-card">
+        <h3>Přidat firmu</h3>
+        <div class="form-row">
+            <div>
+                <label>Název firmy</label>
+                <input id="wl-name" type="text" placeholder="Název">
+            </div>
+            <div>
+                <label>Ticker</label>
+                <input id="wl-ticker" type="text" placeholder="AAPL">
+            </div>
+            <button id="wl-add" class="btn-primary">Přidat</button>
         </div>
-      </div>
-    </section>
+    </div>
+
+    <div class="page-card" style="margin-top: 15px;">
+        <h3>Sledované firmy</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Název</th>
+                    <th>Ticker</th>
+                    <th>Akce</th>
+                </tr>
+            </thead>
+            <tbody id="watchlist-table"></tbody>
+        </table>
+    </div>
+
+</section>
 
     <!-- EARNINGS SCREEN (A4 KALENDÁŘ) -->
     <section id="screen-earnings" class="screen">
