@@ -345,19 +345,147 @@
       </div>
     </section>
 
-    <!-- ============ ANALÝZA – placeholder ============ -->
-    <section id="screen-analysis" class="screen">
-      <div class="page-header">
-        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
-        <h2 class="page-title">Rychlý výpočet hodnoty</h2>
-      </div>
-      <p class="page-sub">
-        Tady později uděláme rychlý výpočet férové ceny akcie (DCF light).
-      </p>
-      <div class="page-card">
-        <p>Zatím jen placeholder. Až doděláme ostatní šuplíky, vrátíme se sem.</p>
-      </div>
-    </section>
+    <!-- =========== ANALÝZA – RYCHLÝ VÝPOČET =========== -->
+<section id="screen-analysis" class="screen">
+    <div class="page-header">
+        <button class="btn-back" data-back="home">← Zpět</button>
+        <h2 class="page-title">Rychlý výpočet férové ceny</h2>
+    </div>
+
+    <p class="page-sub">
+        Jednoduchý výpočet férové ceny akcie podle růstových scénářů.
+    </p>
+
+    <!-- === FORMULÁŘ === -->
+    <div class="page-card">
+
+        <!-- Aktuální cena -->
+        <label class="field-label" for="curPrice">Aktuální cena akcie</label>
+        <input id="curPrice" type="number" step="0.01" class="field-input big-input" placeholder="např. 25.40" />
+
+        <!-- OPTIMISTICKÝ -->
+        <h3 class="scenario-title">Optimistický scénář</h3>
+        <label class="field-label">Roční růst (%)</label>
+        <input id="optGrowth" type="number" step="0.1" class="field-input" placeholder="např. 15" />
+
+        <label class="field-label">Férová cena (výsledek)</label>
+        <p id="optResult" class="result-box">—</p>
+
+        <p id="optDiff" class="result-diff">—</p>
+
+        <hr />
+
+        <!-- REALISTICKÝ -->
+        <h3 class="scenario-title">Realistický scénář</h3>
+        <label class="field-label">Roční růst (%)</label>
+        <input id="realGrowth" type="number" step="0.1" class="field-input" placeholder="např. 10" />
+
+        <label class="field-label">Férová cena (výsledek)</label>
+        <p id="realResult" class="result-box">—</p>
+
+        <p id="realDiff" class="result-diff">—</p>
+
+        <hr />
+
+        <!-- PESIMISTICKÝ -->
+        <h3 class="scenario-title">Pesimistický scénář</h3>
+        <label class="field-label">Roční růst (%)</label>
+        <input id="pessGrowth" type="number" step="0.1" class="field-input" placeholder="např. 5" />
+
+        <label class="field-label">Férová cena (výsledek)</label>
+        <p id="pessResult" class="result-box">—</p>
+
+        <p id="pessDiff" class="result-diff">—</p>
+
+    </div>
+
+    <div style="text-align:center; margin-top:20px;">
+        <button id="calcBtn" class="btn-primary">Spočítat férové ceny</button>
+    </div>
+</section>
+
+<!-- ====== SCRIPT – výpočty ====== -->
+<script>
+    function computeFairPrice(growthPercent, currentPrice) {
+        const g = growthPercent / 100;
+        return currentPrice * (1 + g);
+    }
+
+    function diffText(fair, current) {
+        if (!fair || !current) return "—";
+        const diff = ((fair - current) / current) * 100;
+        const rounded = diff.toFixed(2);
+
+        if (diff > 0) return `📈 Podhodnocená +${rounded}%`;
+        if (diff < 0) return `📉 Nadhodnocená ${rounded}%`;
+        return "—";
+    }
+
+    document.getElementById("calcBtn").addEventListener("click", function () {
+        const cur = parseFloat(document.getElementById("curPrice").value);
+
+        const opt = parseFloat(document.getElementById("optGrowth").value);
+        const real = parseFloat(document.getElementById("realGrowth").value);
+        const pess = parseFloat(document.getElementById("pessGrowth").value);
+
+        if (isNaN(cur)) {
+            alert("Zadej aktuální cenu.");
+            return;
+        }
+
+        // OPT
+        if (!isNaN(opt)) {
+            const f = computeFairPrice(opt, cur);
+            document.getElementById("optResult").innerText = f.toFixed(2) + " USD";
+            document.getElementById("optDiff").innerText = diffText(f, cur);
+        }
+
+        // REAL
+        if (!isNaN(real)) {
+            const f = computeFairPrice(real, cur);
+            document.getElementById("realResult").innerText = f.toFixed(2) + " USD";
+            document.getElementById("realDiff").innerText = diffText(f, cur);
+        }
+
+        // PESS
+        if (!isNaN(pess)) {
+            const f = computeFairPrice(pess, cur);
+            document.getElementById("pessResult").innerText = f.toFixed(2) + " USD";
+            document.getElementById("pessDiff").innerText = diffText(f, cur);
+        }
+    });
+</script>
+
+<!-- ====== STYLING (světle fialový elegantní) ====== -->
+<style>
+    .scenario-title {
+        margin-top: 25px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #e7d2ff;
+    }
+
+    .result-box {
+        background: rgba(255,255,255,0.08);
+        padding: 10px 12px;
+        border-radius: 12px;
+        margin-top: 6px;
+        font-size: 1rem;
+        color: #fff;
+    }
+
+    .result-diff {
+        margin-top: 4px;
+        font-size: 0.95rem;
+        color: #bba7ff;
+    }
+
+    hr {
+        margin: 25px 0;
+        border: 0;
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+</style>
 
     <!-- ============ WATCHLIST – placeholder ============ -->
     <section id="screen-watchlist" class="screen">
