@@ -831,7 +831,110 @@ if (notesArea) {
     </div>
 
 </section>
+<script>
+  // === WATCHLIST – sledované firmy (localStorage) ===
+  const wlNameInput   = document.getElementById("wl-name");
+  const wlTickerInput = document.getElementById("wl-ticker");
+  const wlAddBtn      = document.getElementById("wl-add");
+  const wlTableBody   = document.getElementById("watchlist-table");
+  const WL_KEY        = "ea-watchlist";
 
+  // Načtení dat z localStorage
+  function loadWatchlist() {
+    try {
+      const raw = localStorage.getItem(WL_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Chyba při načítání watchlistu", e);
+      return [];
+    }
+  }
+
+  // Uložení dat do localStorage
+  function saveWatchlist(list) {
+    try {
+      localStorage.setItem(WL_KEY, JSON.stringify(list));
+    } catch (e) {
+      console.error("Chyba při ukládání watchlistu", e);
+    }
+  }
+
+  // Vykreslení tabulky
+  function renderWatchlist() {
+    if (!wlTableBody) return;
+
+    const list = loadWatchlist();
+    wlTableBody.innerHTML = "";
+
+    list.forEach((item, index) => {
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${item.name}</td>
+        <td>${item.ticker}</td>
+        <td>
+          <button 
+            class="btn-secondary btn-sm wl-delete" 
+            data-index="${index}"
+          >
+            Smazat
+          </button>
+        </td>
+      `;
+
+      wlTableBody.appendChild(tr);
+    });
+  }
+
+  // Přidání nové firmy
+  function addWatchlistItem() {
+    if (!wlNameInput || !wlTickerInput) return;
+
+    const name   = wlNameInput.value.trim();
+    const ticker = wlTickerInput.value.trim().toUpperCase();
+
+    if (!name || !ticker) {
+      alert("Vyplň název firmy i ticker.");
+      return;
+    }
+
+    const list = loadWatchlist();
+    list.push({ name, ticker });
+    saveWatchlist(list);
+    renderWatchlist();
+
+    wlNameInput.value = "";
+    wlTickerInput.value = "";
+    wlNameInput.focus();
+  }
+
+  if (wlAddBtn) {
+    wlAddBtn.addEventListener("click", addWatchlistItem);
+  }
+
+  // Smazání řádku po kliknutí na „Smazat“
+  if (wlTableBody) {
+    wlTableBody.addEventListener("click", (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      if (target.classList.contains("wl-delete")) {
+        const index = Number(target.getAttribute("data-index"));
+        const list = loadWatchlist();
+        if (!Number.isNaN(index) && index >= 0 && index < list.length) {
+          list.splice(index, 1);
+          saveWatchlist(list);
+          renderWatchlist();
+        }
+      }
+    });
+  }
+
+  // První vykreslení při načtení stránky
+  renderWatchlist();
+</script>
     <!-- EARNINGS SCREEN (A4 KALENDÁŘ) -->
     <section id="screen-earnings" class="screen">
       <div class="page-header">
