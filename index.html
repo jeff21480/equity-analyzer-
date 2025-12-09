@@ -511,14 +511,201 @@
   </div>
 </section>
 
-<!-- Přehled portfolia -->
-<article class="drawer" data-open="screen-portfolio">
-  <div class="drawer-text">
-    <div class="drawer-label">Portfolio</div>
-    <h2 class="drawer-title">Přehled portfolia</h2>
-    <p class="drawer-desc">Souhrn pozic a výkon.</p>
+<!-- ==================== PORTFOLIO HOME (VÝBĚR 4 DRUHŮ) ==================== -->
+<section id="screen-portfolio-home" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back><span>←</span> Zpět</button>
+    <h2 class="page-title">Moje portfolia</h2>
   </div>
-  <div class="drawer-chevron"></div>
+
+  <p class="page-sub">Vyber typ portfolia, který chceš spravovat.</p>
+
+  <div class="drawer-stack">
+    <article class="drawer" data-open="screen-portfolio-stocks">
+      <div class="drawer-title">Akciové portfolio</div>
+      <div class="drawer-desc">Přikupy, průměrná cena, sektorové rozložení.</div>
+    </article>
+
+    <article class="drawer" data-open="screen-portfolio-etf">
+      <div class="drawer-title">ETF portfolio</div>
+      <div class="drawer-desc">ETF fondy, váhy, výnosy a sektory.</div>
+    </article>
+
+    <article class="drawer" data-open="screen-portfolio-crypto">
+      <div class="drawer-title">Krypto portfolio</div>
+      <div class="drawer-desc">Bitcoin, altcoiny, přikupy a výkon.</div>
+    </article>
+
+    <article class="drawer" data-open="screen-portfolio-commodities">
+      <div class="drawer-title">Komoditní portfolio</div>
+      <div class="drawer-desc">Zlato, stříbro, ropa, plyn, kovy…</div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== AKCIE ==================== -->
+<section id="screen-portfolio-stocks" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back><span>←</span> Zpět</button>
+    <h2 class="page-title">Akciové portfolio</h2>
+  </div>
+
+  <div class="page-card">
+    <h3>Přidat akcii</h3>
+    <div class="form-grid-3">
+      <div><label>Ticker</label><input id="s-ticker" type="text" /></div>
+      <div><label>Název</label><input id="s-name" type="text" /></div>
+      <div><label>Kusy</label><input id="s-shares" type="number" /></div>
+      <div><label>Cena</label><input id="s-price" type="number" step="0.01" /></div>
+      <div><label>Měna</label>
+        <select id="s-currency">
+          <option value="USD">$</option><option value="EUR">€</option><option value="CZK">Kč</option>
+        </select>
+      </div>
+      <div><label>Sektor</label>
+        <select id="s-sector">
+          <option>Technology</option><option>Finance</option><option>Energy</option>
+          <option>Healthcare</option><option>Consumer</option><option>Industry</option>
+          <option>Communication</option></select>
+      </div>
+      <button id="s-add" class="btn-primary">Přidat</button>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Moje akcie</h3>
+    <table class="table">
+      <thead><tr>
+        <th>Ticker</th><th>Název</th><th>Kusy</th><th>Průměr</th>
+        <th>Aktuální</th><th>Zisk %</th><th>Měna</th><th>Sektor</th><th>Přikoupit</th>
+      </tr></thead>
+      <tbody id="stocks-table"></tbody>
+    </table>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Rozložení sektorů</h3>
+    <canvas id="stockSectorChart" height="180"></canvas>
+  </div>
+</section>
+
+<!-- ==================== ETF ==================== -->
+<section id="screen-portfolio-etf" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back><span>←</span> Zpět</button>
+    <h2 class="page-title">ETF portfolio</h2>
+  </div>
+
+  <div class="page-card">
+    <h3>Přidat ETF</h3>
+    <div class="form-grid-3">
+      <div><label>Ticker</label><input id="e-ticker" type="text" /></div>
+      <div><label>Název</label><input id="e-name" type="text" /></div>
+      <div><label>Kusy</label><input id="e-shares" type="number" /></div>
+      <div><label>Cena</label><input id="e-price" type="number" step="0.01" /></div>
+      <div><label>Měna</label>
+        <select id="e-currency"><option value="USD">$</option><option value="EUR">€</option><option value="CZK">Kč</option></select>
+      </div>
+      <div><label>Kategorie</label>
+        <select id="e-category"><option>Equity</option><option>Bond</option><option>Commodity</option><option>Sektorový</option></select>
+      </div>
+      <button id="e-add" class="btn-primary">Přidat</button>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Moje ETF</h3>
+    <table class="table">
+      <thead><tr>
+        <th>Ticker</th><th>Název</th><th>Kusy</th><th>Průměr</th>
+        <th>Aktuální</th><th>Zisk %</th><th>Měna</th><th>Kategorie</th><th>Přikoupit</th>
+      </tr></thead>
+      <tbody id="etf-table"></tbody>
+    </table>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Rozložení kategorií</h3>
+    <canvas id="etfChart" height="180"></canvas>
+  </div>
+</section>
+
+<!-- ==================== CRYPTO ==================== -->
+<section id="screen-portfolio-crypto" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back><span>←</span> Zpět</button>
+    <h2 class="page-title">Krypto portfolio</h2>
+  </div>
+
+  <div class="page-card">
+    <h3>Přidat krypto</h3>
+    <div class="form-grid-3">
+      <div><label>Symbol</label><input id="c-symbol" type="text" /></div>
+      <div><label>Název</label><input id="c-name" type="text" /></div>
+      <div><label>Kusy</label><input id="c-shares" type="number" /></div>
+      <div><label>Cena</label><input id="c-price" type="number" step="0.01" /></div>
+      <div><label>Kategorie</label>
+        <select id="c-category">
+          <option>Layer 1</option><option>AI</option><option>Gaming</option>
+          <option>DeFi</option><option>Meme</option>
+        </select>
+      </div>
+      <button id="c-add" class="btn-primary">Přidat</button>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Moje krypto</h3>
+    <table class="table">
+      <thead><tr>
+        <th>Symbol</th><th>Název</th><th>Kusy</th>
+        <th>Průměr</th><th>Aktuální</th><th>Zisk %</th><th>Kategorie</th><th>Přikoupit</th>
+      </tr></thead>
+      <tbody id="crypto-table"></tbody>
+    </table>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Rozložení krypta</h3>
+    <canvas id="cryptoChart" height="180"></canvas>
+  </div>
+</section>
+
+<!-- ==================== COMMODITIES ==================== -->
+<section id="screen-portfolio-commodities" class="screen">
+  <div class="page-header">
+    <button class="btn-back" data-back><span>←</span> Zpět</button>
+    <h2 class="page-title">Komoditní portfolio</h2>
+  </div>
+
+  <div class="page-card">
+    <h3>Přidat komoditu</h3>
+    <div class="form-grid-3">
+      <div><label>Název</label><input id="k-name" type="text" placeholder="Zlato, Ropa…" /></div>
+      <div><label>Kusy / Unce</label><input id="k-shares" type="number" /></div>
+      <div><label>Cena</label><input id="k-price" type="number" step="0.01" /></div>
+      <div><label>Měna</label>
+        <select id="k-currency"><option value="USD">$</option><option value="EUR">€</option><option value="CZK">Kč</option></select>
+      </div>
+      <button id="k-add" class="btn-primary">Přidat</button>
+    </div>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Moje komodity</h3>
+    <table class="table">
+      <thead><tr>
+        <th>Název</th><th>Kusy</th><th>Průměr</th>
+        <th>Aktuální</th><th>Zisk %</th><th>Měna</th><th>Přikoupit</th>
+      </tr></thead>
+      <tbody id="commodities-table"></tbody>
+    </table>
+  </div>
+
+  <div class="page-card" style="margin-top:18px">
+    <h3>Rozložení komodit</h3>
+    <canvas id="commoditiesChart" height="180"></canvas>
+  </div>
 </article>
 
 <!-- Kalkulačka složeného úročení -->
