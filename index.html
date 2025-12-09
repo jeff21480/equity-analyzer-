@@ -601,7 +601,7 @@
       try {
         localStorage.setItem(storageKey, JSON.stringify(list));
       } catch (e) {
-        // nic, když to nejde uložit
+        
       }
     }
 
@@ -748,23 +748,43 @@
       renderList();
     }
 
-    // Script je na konci <body>, takže DOM už existuje
+  
     initWatchlist();
   })();
 </script>
 
-    <!-- ============ FIRMY – placeholder ============ -->
     <section id="screen-firms" class="screen">
-      <div class="page-header">
-        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
+    <div class="page-header">
+        <button class="btn-back" data-back="home">← Zpět</button>
         <h2 class="page-title">Moje firmy</h2>
-      </div>
-      <p class="page-sub">
-        Místo pro detailnější poznámky ke konkrétním firmám.
-      </p>
-      <div class="page-card">
-        <p>Zatím jen text, aby šlo přepínat obrazovky. Později doplníme formulář a ukládání.</p>
-      </div>
+    </div>
+
+    <p class="page-sub">Základní seznam firem a jejich klíčových údajů.</p>
+
+    <div class="page-card">
+        <!-- Formulář pro přidání firmy -->
+        <label class="field-label">Název firmy</label>
+        <input id="fName" type="text" placeholder="Nvidia">
+
+        <label class="field-label">Ticker</label>
+        <input id="fTicker" type="text" placeholder="NVDA">
+
+        <label class="field-label">EPS</label>
+        <input id="fEPS" type="number" step="0.01" placeholder="2.97">
+
+        <label class="field-label">Růst (%)</label>
+        <input id="fGrowth" type="number" step="0.1" placeholder="10">
+
+        <label class="field-label">P/E</label>
+        <input id="fPE" type="number" step="0.1" placeholder="35">
+
+        <button id="saveFirmBtn" class="btn-primary">Uložit firmu</button>
+    </div>
+
+    <hr>
+
+    <h3 class="scenario-title">Uložené firmy</h3>
+    <div id="firmList"></div>
     </section>
 
     <!-- ============ PORTFOLIO – placeholder ============ -->
