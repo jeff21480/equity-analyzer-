@@ -429,89 +429,106 @@
           </div>
           <div class="drawer-chevron"></div>
         </article>
-<!-- ==================== ANALÝZA – RYCHLÝ VÝPOČET ==================== -->
-<section id="screen-analysis" class="screen">
-  <div class="page-header">
-    <!-- ŠIPKA ZPĚT NA HLAVNÍ OBRAZOVKU -->
-    <button class="btn-back" data-back="home">
-      ← Zpět
-    </button>
-    <h2 class="page-title">Rychlý výpočet hodnoty</h2>
-  </div>
-
-  <p class="page-sub">
-    Zadej ticker akcie, stáhni si data (později z&nbsp;API) a porovnej tři scénáře férové ceny.
-  </p>
-
-  <!-- VSTUP: TICKER / NÁZEV -->
-  <div class="page-card">
-    <label for="q-ticker" class="field-label">Ticker nebo název akcie</label>
-    <div class="field-row">
-      <input id="q-ticker" type="text" placeholder="např. AAPL, PLTR, SOFI…" />
-      <button id="q-load" class="btn-primary">
-        Načíst data
-      </button>
+<!-- 1) ANALÝZA – Rychlý výpočet hodnoty -->
+<article class="drawer main" data-open="screen-analysis">
+    <div class="drawer-text">
+        <div class="drawer-label">Analýza</div>
+        <h2 class="drawer-title">Rychlý výpočet hodnoty</h2>
+        <p class="drawer-desc">DCF odhad férové ceny akcie.</p>
     </div>
-    <p id="q-status" class="helper-text">
-      Data zatím používají demo hodnoty. Později se tu napojíme na Yahoo Finance / jiný zdroj.
-    </p>
-  </div>
+    <div class="drawer-chevron">➜</div>
+</article>
 
-  <!-- TŘI SCÉNÁŘE: OPTIMISTICKÝ / REÁLNÝ / PESIMISTICKÝ -->
-  <div class="page-card">
-    <h3 style="margin-bottom: 12px;">Scénáře férové ceny</h3>
+<!-- ==================== SCREEN – ANALÝZA ==================== -->
+<section id="screen-analysis" class="screen">
+
+    <!-- Zpětná šipka -->
+    <div class="page-header">
+        <button class="btn-back" data-back="home">← Zpět</button>
+        <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+    </div>
+
+    <p class="page-sub">
+        Zadej ticker akcie nebo název firmy a zvol scénáře.
+    </p>
+
+    <!-- Vstup pro název / ticker -->
+    <div class="page-card">
+        <label for="q-ticker" class="field-label">Ticker nebo název*</label>
+        <input id="q-ticker" type="text" class="field-input" placeholder="AAPL, TSLA, MSFT…">
+    </div>
+
+    <!-- Tři scénáře vedle sebe -->
+    <h3 class="page-sub">Scénáře</h3>
 
     <div class="scenario-grid">
-      <!-- Optimistický -->
-      <div class="scenario-card">
-        <div class="scenario-label">Optimistický</div>
-        <div class="scenario-value" id="val-optimistic">–</div>
-        <div class="scenario-row">
-          <label>Růst tržeb</label>
-          <input id="g-optimistic" type="number" value="18" /> %
-        </div>
-        <div class="scenario-row">
-          <label>Diskont</label>
-          <input id="d-optimistic" type="number" value="8" /> %
-        </div>
-      </div>
 
-      <!-- Reálný -->
-      <div class="scenario-card">
-        <div class="scenario-label">Reálný</div>
-        <div class="scenario-value" id="val-base">–</div>
-        <div class="scenario-row">
-          <label>Růst tržeb</label>
-          <input id="g-base" type="number" value="12" /> %
+        <div class="scenario-card">
+            <h3>Pesimistický</h3>
+            <label>Růst tržeb (%)</label>
+            <input id="s-bear-rev" type="number" class="field-input" placeholder="např. 3">
+            <label>Margin (%)</label>
+            <input id="s-bear-margin" type="number" class="field-input" placeholder="např. 15">
         </div>
-        <div class="scenario-row">
-          <label>Diskont</label>
-          <input id="d-base" type="number" value="9" /> %
-        </div>
-      </div>
 
-      <!-- Pesimistický / Podhodnocený -->
-      <div class="scenario-card">
-        <div class="scenario-label">Pesimistický</div>
-        <div class="scenario-value" id="val-bear">–</div>
-        <div class="scenario-row">
-          <label>Růst tržeb</label>
-          <input id="g-bear" type="number" value="6" /> %
+        <div class="scenario-card">
+            <h3>Realistický</h3>
+            <label>Růst tržeb (%)</label>
+            <input id="s-base-rev" type="number" class="field-input" placeholder="např. 6">
+            <label>Margin (%)</label>
+            <input id="s-base-margin" type="number" class="field-input" placeholder="např. 20">
         </div>
-        <div class="scenario-row">
-          <label>Diskont</label>
-          <input id="d-bear" type="number" value="10" /> %
+
+        <div class="scenario-card">
+            <h3>Optimistický</h3>
+            <label>Růst tržeb (%)</label>
+            <input id="s-bull-rev" type="number" class="field-input" placeholder="např. 10">
+            <label>Margin (%)</label>
+            <input id="s-bull-margin" type="number" class="field-input" placeholder="např. 25">
         </div>
-      </div>
+
     </div>
 
-    <div style="margin-top: 16px; text-align: right;">
-      <button id="q-calc" class="btn-primary">
-        Spočítat férové ceny
-      </button>
+    <!-- Výpočet -->
+    <div style="margin-top:16px; text-align:center;">
+        <button id="q-calc" class="btn-primary">Spočítat férovou cenu</button>
     </div>
-  </div>
+
+    <!-- Výsledek -->
+    <div id="q-result" class="page-card" style="margin-top:20px; display:none;">
+        <h3>Výsledky</h3>
+        <p><strong>Pesimistický:</strong> <span id="res-bear">–</span></p>
+        <p><strong>Realistický:</strong> <span id="res-base">–</span></p>
+        <p><strong>Optimistický:</strong> <span id="res-bull">–</span></p>
+        <p><strong>Průměrná férová cena:</strong> <span id="res-final">–</span></p>
+    </div>
+
 </section>
+
+<!-- =========== STYL PRO SCÉNÁŘE =========== -->
+<style>
+.scenario-grid {
+   display: flex;
+   gap: 16px;
+   flex-wrap: wrap;
+}
+
+.scenario-card {
+   flex: 1 1 220px;
+   padding: 14px 16px;
+   background: rgba(255,255,255,0.05);
+   border-radius: 16px;
+   border: 1px solid rgba(255,255,255,0.08);
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+}
+
+.scenario-card h3 {
+   margin: 0 0 6px;
+   font-size: 1.1rem;
+}
+</style>
         <!-- 2) WATCHLIST -->
         <article class="drawer" data-open="screen-watchlist">
           <div class="drawer-text">
