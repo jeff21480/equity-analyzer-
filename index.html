@@ -708,15 +708,76 @@
   </div>
 </article>
 
-<!-- Kalkulačka složeného úročení -->
-<article class="drawer" data-open="screen-ci">
-  <div class="drawer-text">
-    <div class="drawer-label">Úročení</div>
-    <h2 class="drawer-title">Složené úročení</h2>
-    <p class="drawer-desc">Výpočet růstu investice.</p>
-  </div>
-  <div class="drawer-chevron"></div>
-</article>
+<script>
+// === Kalkulačka složeného úročení ===
+function formatMoney(value) {
+  return value.toLocaleString("cs-CZ", {
+    maximumFractionDigits: 0
+  }) + " Kč";
+}
+
+function calcCompoundInterest() {
+  const start = parseFloat(document.getElementById("ci-start").value) || 0;
+  const monthly = parseFloat(document.getElementById("ci-monthly").value) || 0;
+  const years = parseFloat(document.getElementById("ci-years").value) || 0;
+  const rate = parseFloat(document.getElementById("ci-rate").value) || 0;
+
+  const months = years * 12;
+  const r = rate / 100;
+
+  let balance = start;
+  for (let i = 0; i < months; i++) {
+    balance *= 1 + r / 12;
+    balance += monthly;
+  }
+
+  const invested = start + monthly * months;
+  const profit = balance - invested;
+
+  document.getElementById("ci-invested").textContent = formatMoney(invested);
+  document.getElementById("ci-final").textContent = formatMoney(balance);
+  document.getElementById("ci-profit").textContent = formatMoney(profit);
+  document.getElementById("ci-rate-out").textContent = rate.toFixed(1) + " % p.a.";
+
+  document.getElementById("ci-summary").textContent =
+    "Za " +
+    years +
+    " let z vkladů " +
+    formatMoney(invested) +
+    " můžeš mít přibližně " +
+    formatMoney(balance) +
+    ".";
+}
+
+const ciBtn = document.getElementById("ci-calc");
+if (ciBtn) {
+  ciBtn.addEventListener("click", calcCompoundInterest);
+}
+
+// === Poznámky – ukládání do localStorage ===
+const notesArea = document.getElementById("notes-text");
+const notesStatus = document.getElementById("notes-status");
+const notesKey = "ea-notes-text";
+
+if (notesArea) {
+  // načíst při startu
+  const saved = localStorage.getItem(notesKey);
+  if (saved) {
+    notesArea.value = saved;
+  }
+
+  const saveBtn = document.getElementById("notes-save");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", function () {
+      localStorage.setItem(notesKey, notesArea.value || "");
+      if (notesStatus) {
+        notesStatus.textContent = "Poznámky uložené v prohlížeči.";
+        setTimeout(() => (notesStatus.textContent = ""), 2000);
+      }
+    });
+  }
+}
+</script>
 
 <!-- Moje poznámky -->
 <article class="drawer" data-open="screen-notes">
