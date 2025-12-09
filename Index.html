@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Equity Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg-main: #13052b;
+      --bg-card: #2b1255;
+      --bg-card-soft: #3a1870;
+      --bg-chip: #4a1f8b;
+      --accent: #cfb2ff;
+      --accent-strong: #f1dcff;
+      --text-main: #ffffff;
+      --text-muted: #c7b6ea;
+      --danger: #ff7b9c;
+      --success: #7cfc9a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #402080 0, #13052b 55%);
+      color: var(--text-main);
+    }
+
+    .app {
+      min-height: 100vh;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #4b1d93, #2a0c55);
+      border-radius: 26px;
+      padding: 20px 20px 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: 1.5rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+    .hero-sub {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Drawery */
+    .drawer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .drawer {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background 0.12s ease;
+    }
+    .drawer:hover {
+      transform: translateY(-1px);
+      background: var(--bg-card-soft);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.85);
+    }
+    .drawer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .drawer-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+    .drawer-title { font-size: 1.05rem; }
+    .drawer-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .drawer-chevron {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--bg-chip);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    /* Hlavičky obrazovek */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .btn-back {
+      border: none;
+      background: var(--bg-card);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .page-title { font-size: 1.2rem; margin: 0; }
+    .page-sub {
+      margin: 4px 0 14px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .page-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
+      margin-bottom: 16px;
+    }
+
+    /* Form prvky */
+    .field-label {
+      font-size: 0.8rem;
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+    }
+    .field-input,
+    .field-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #1b0738;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .field-input:focus,
+    .field-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(207, 178, 255, 0.45);
+    }
+    .field-textarea {
+      resize: vertical;
+      min-height: 180px;
+      max-height: 420px;
+    }
+
+    .btn-primary {
+      border: none;
+      background: var(--accent);
+      color: #1a0837;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.75);
+    }
+    .btn-secondary {
+      border: none;
+      background: var(--bg-chip);
+      color: var(--accent-strong);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* Tabulky */
+    .table-wrapper { width: 100%; overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 600;
+      color: var(--accent-strong);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    tr td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
+
+    .gain  { color: var(--success); font-weight: 600; }
+    .loss  { color: var(--danger);  font-weight: 600; }
+    .cell-actions { text-align: right; }
+    .btn-delete {
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .hint { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+    .status { font-size: 0.8rem; margin-top: 6px; color: var(--accent-strong); }
+
+    @media (max-width: 360px) {
+      .hero-title { font-size: 1.35rem; }
+      .drawer-title { font-size: 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- DOMŮ -->
+  <main id="screen-home" class="app screen active">
+    <section class="hero">
+      <h1 class="hero-title">EQUITY ANALYZER</h1>
+      <p class="hero-sub">Apka na analýzu akcií.</p>
+    </section>
+
+    <div class="drawer-list">
+      <!-- 1) Rychlý výpočet (placeholder) -->
+      <article class="drawer" data-open="analysis">
+        <div class="drawer-left">
+          <div class="drawer-label">Analýza</div>
+          <h2 class="drawer-title">Rychlý výpočet hodnoty</h2>
+          <p class="drawer-desc">Jednoduchý odhad férové ceny (připravujeme).</p>
+        </div>
+        <div class="drawer-chevron">→</div>
+      </article>
+
+      <!-- 2) Watchlist -->
+      <article class="drawer" data-open="watchlist">
+        <div class="drawer-left">
+          <div class="drawer-label">Watchlist</div>
+          <h2 class="drawer-title">Sledované akcie</h2>
+          <p class="drawer-desc">Firmy, které máš v hledáčku.</p>
+        </div>
+        <div class="drawer-chevron">→</div>
+      </article>
+
+      <!-- 3) Moje portfolio -->
+      <article class="drawer" data-open="portfolio">
+        <div class="drawer-left">
+          <div class="drawer-label">Portfolia</div>
+          <h2 class="drawer-title">Moje portfolio</h2>
+          <p class="drawer-desc">Ticker, nákupní a aktuální cena, změna v %.</p>
+        </div>
+        <div class="drawer-chevron">→</div>
+      </article>
+
+      <!-- 4) Složené úročení -->
+      <article class="drawer" data-open="compound">
+        <div class="drawer-left">
+          <div class="drawer-label">Úročení</div>
+          <h2 class="drawer-title">Složené úročení</h2>
+          <p class="drawer-desc">Jak poroste tvoje investice v čase.</p>
+        </div>
+        <div class="drawer-chevron">→</div>
+      </article>
+
+      <!-- 5) Poznámky -->
+      <article class="drawer" data-open="notes">
+        <div class="drawer-left">
+          <div class="drawer-label">Poznámky</div>
+          <h2 class="drawer-title">Moje zápisky</h2>
+          <p class="drawer-desc">Textový sešit k analýzám a nápadům.</p>
+        </div>
+        <div class="drawer-chevron">→</div>
+      </article>
+    </div>
+  </main>
+
+  <!-- ========== 1) ANALÝZA – placeholder ========== -->
+  <section id="screen-analysis" class="app screen">
+    <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+    </div>
+    <p class="page-sub">
+      Tady později přidáme rychlý výpočet férové ceny podle DCF a vlastních scénářů.
+    </p>
+    <div class="page-card">
+      <p class="hint">Zatím jen informační stránka.</p>
+    </div>
+  </section>
+
+  <!-- ========== 2) WATCHLIST ========== -->
+  <section id="screen-watchlist" class="app screen">
+    <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Sledované akcie</h2>
+    </div>
+    <p class="page-sub">
+      Jednoduchý seznam firem, které sleduješ (ticker, název, stručná poznámka).
+    </p>
+
+    <div class="page-card">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; gap:8px;">
+          <div style="flex:0 0 35%;">
+            <label class="field-label" for="wl-ticker">Ticker*</label>
+            <input id="wl-ticker" class="field-input" placeholder="např. PLTR" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="wl-name">Název firmy*</label>
+            <input id="wl-name" class="field-input" placeholder="Palantir Technologies" />
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="wl-note">Krátká poznámka</label>
+          <input id="wl-note" class="field-input" placeholder="Proč mě zajímá, co sleduji…" />
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <button id="wl-add" class="btn-primary">+ Přidat do watchlistu</button>
+          <button id="wl-clear" class="btn-secondary">Vymazat celý watchlist</button>
+        </div>
+        <p class="hint">Všechno se ukládá lokálně v prohlížeči.</p>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <div class="table-wrapper">
+        <table id="wl-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Název</th>
+              <th>Poznámka</th>
+              <th class="cell-actions"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3) MOJE PORTFOLIO ========== -->
+  <section id="screen-portfolio" class="app screen">
+    <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Moje portfolio</h2>
+    </div>
+    <p class="page-sub">
+      Jednoduchý přehled akcií, ETF, krypta a komodit, které držíš.
+    </p>
+
+    <!-- formulář -->
+    <div class="page-card">
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:8px;">
+          <div style="flex:0 0 35%;">
+            <label class="field-label" for="pf-ticker">Ticker*</label>
+            <input id="pf-ticker" class="field-input" placeholder="např. PLTR" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="pf-name">Název akcie / ETF / coinu*</label>
+            <input id="pf-name" class="field-input" placeholder="Palantir Technologies" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:0 0 30%;">
+            <label class="field-label" for="pf-qty">Množství*</label>
+            <input id="pf-qty" class="field-input" type="number" step="0.0001" placeholder="např. 100" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="pf-buy">Nákupní cena (za kus)*</label>
+            <input id="pf-buy" class="field-input" type="number" step="0.01" placeholder="např. 18.50" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="pf-current">Aktuální cena (za kus)*</label>
+            <input id="pf-current" class="field-input" type="number" step="0.01" placeholder="např. 21.30" />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <button id="pf-add" class="btn-primary">+ Přidat do portfolia</button>
+          <button id="pf-clear" class="btn-secondary">Vymazat celé portfolio</button>
+        </div>
+
+        <p class="hint">
+          Nákupní hodnota = množství × nákupní cena. Změna v&nbsp;% je proti nákupní ceně.
+        </p>
+      </div>
+    </div>
+
+    <!-- tabulka -->
+    <div class="page-card">
+      <div class="table-wrapper">
+        <table id="pf-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Název</th>
+              <th>Množství</th>
+              <th>Nákupní hodnota</th>
+              <th>Nákupní cena</th>
+              <th>Aktuální cena</th>
+              <th>Změna %</th>
+              <th class="cell-actions"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="hint">Ukládá se lokálně (localStorage), nikam se neposílá.</p>
+    </div>
+  </section>
+
+  <!-- ========== 4) SLOŽENÉ ÚROČENÍ ========== -->
+  <section id="screen-compound" class="app screen">
+    <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Složené úročení</h2>
+    </div>
+    <p class="page-sub">
+      Spočítej si růst investice při pravidelných vkladech a daném zhodnocení.
+    </p>
+
+    <div class="page-card">
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1;">
+            <label class="field-label" for="ci-start">Počáteční vklad</label>
+            <input id="ci-start" class="field-input" type="number" step="100" placeholder="např. 50 000" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="ci-monthly">Měsíční vklad</label>
+            <input id="ci-monthly" class="field-input" type="number" step="100" placeholder="např. 2 000" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1;">
+            <label class="field-label" for="ci-years">Počet let</label>
+            <input id="ci-years" class="field-input" type="number" step="1" placeholder="např. 10" />
+          </div>
+          <div style="flex:1;">
+            <label class="field-label" for="ci-rate">Roční zhodnocení (%)</label>
+            <input id="ci-rate" class="field-input" type="number" step="0.1" placeholder="např. 8" />
+          </div>
+        </div>
+
+        <button id="ci-calc" class="btn-primary">Spočítat růst investice</button>
+        <p class="hint">Počítá se měsíční složené úročení z ročního zhodnocení.</p>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <div style="display:flex; flex-direction:column; gap:6px; font-size:0.9rem;">
+        <div><strong>Celkem investováno:</strong> <span id="ci-invested">–</span></div>
+        <div><strong>Konečná hodnota portfolia:</strong> <span id="ci-final">–</span></div>
+        <div><strong>Zisk díky zhodnocení:</strong> <span id="ci-profit">–</span></div>
+      </div>
+      <p id="ci-summary" class="hint" style="margin-top:10px;">
+        Zadej vstupní hodnoty a uvidíš shrnutí tady.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== 5) MOJE ZÁPISKY ========== -->
+  <section id="screen-notes" class="app screen">
+    <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Moje zápisky</h2>
+    </div>
+    <p class="page-sub">Jednoduchý textový sešit k analýzám.</p>
+
+    <div class="page-card">
+      <label class="field-label" for="notes-area">Text poznámek</label>
+      <textarea id="notes-area" class="field-textarea" placeholder="Sem si můžeš psát úplně cokoliv…"></textarea>
+
+      <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <button id="notes-save" class="btn-primary">💾 Uložit poznámky</button>
+        <button id="notes-clear" class="btn-secondary">Vymazat text</button>
+      </div>
+
+      <p id="notes-status" class="status"></p>
+      <p class="hint">Poznámky se ukládají jen do tvého prohlížeče.</p>
+    </div>
+  </section>
+
+  <!-- ========== SCRIPT – navigace + logika ========== -->
+  <script>
+    (function () {
+      function qsa(sel) { return document.querySelectorAll(sel); }
+
+      function showScreen(name) {
+        var id = name.indexOf("screen-") === 0 ? name : "screen-" + name;
+        var screens = qsa(".screen");
+        for (var i = 0; i < screens.length; i++) {
+          screens[i].classList.remove("active");
+        }
+        var target = document.getElementById(id);
+        if (target) { target.classList.add("active"); }
+      }
+
+      /* Navigace – šuplíky */
+      var drawers = qsa("[data-open]");
+      for (var i = 0; i < drawers.length; i++) {
+        drawers[i].addEventListener("click", function () {
+          var target = this.getAttribute("data-open");
+          showScreen(target);
+        });
+      }
+
+      /* Zpět */
+      var backs = qsa("[data-back]");
+      for (var j = 0; j < backs.length; j++) {
+        backs[j].addEventListener("click", function () {
+          var back = this.getAttribute("data-back") || "home";
+          showScreen(back);
+        });
+      }
+
+      /* Pomocné formátování čísel */
+      function formatNumber(value) {
+        if (!isFinite(value)) { return ""; }
+        return value.toLocaleString("cs-CZ", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      /* ===== POZNÁMKY ===== */
+      var notesKey = "ea-notes-text";
+      var notesArea = document.getElementById("notes-area");
+      var notesStatus = document.getElementById("notes-status");
+      var notesSave = document.getElementById("notes-save");
+      var notesClear = document.getElementById("notes-clear");
+
+      function setNotesStatus(text) {
+        if (!notesStatus) { return; }
+        notesStatus.textContent = text || "";
+        if (text) {
+          setTimeout(function () { notesStatus.textContent = ""; }, 2000);
+        }
+      }
+
+      try {
+        var savedNotes = localStorage.getItem(notesKey);
+        if (savedNotes && notesArea) { notesArea.value = savedNotes; }
+      } catch (e) {}
+
+      if (notesSave && notesArea) {
+        notesSave.addEventListener("click", function () {
+          try {
+            localStorage.setItem(notesKey, notesArea.value || "");
+            setNotesStatus("Poznámky uložené.");
+          } catch (e) {
+            setNotesStatus("Nepodařilo se uložit.");
+          }
+        });
+      }
+
+      if (notesClear && notesArea) {
+        notesClear.addEventListener("click", function () {
+          notesArea.value = "";
+          try { localStorage.removeItem(notesKey); } catch (e) {}
+          setNotesStatus("Text byl vymazán.");
+        });
+      }
+
+      /* ===== WATCHLIST ===== */
+      var wlKey = "ea-watchlist";
+      var wlTicker = document.getElementById("wl-ticker");
+      var wlName = document.getElementById("wl-name");
+      var wlNote = document.getElementById("wl-note");
+      var wlAdd = document.getElementById("wl-add");
+      var wlClear = document.getElementById("wl-clear");
+      var wlTableBody = document.querySelector("#wl-table tbody");
+
+      function loadWatchlist() {
+        try {
+          var raw = localStorage.getItem(wlKey);
+          if (!raw) { return []; }
+          var parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) { return []; }
+      }
+      function saveWatchlist(list) {
+        try { localStorage.setItem(wlKey, JSON.stringify(list || [])); } catch (e) {}
+      }
+      function renderWatchlist() {
+        if (!wlTableBody) { return; }
+        var list = loadWatchlist();
+        wlTableBody.function renderWatchlist() {
+          if (!wlTableBody) { return; }
+          var list = loadWatchlist();
+          wlTableBody.innerHTML = "";
+          for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td>" + (item.ticker || "") + "</td>" +
+              "<td>" + (item.name || "") + "</td>" +
+              "<td>" + (item.note || "") + "</td>" +
+              "<td class='cell-actions'><button class='btn-delete' data-index='" + i + "'>×</button></td>";
+            wlTableBody.appendChild(tr);
+          }
+        }
+
+        function clearWatchForm() {
+          if (wlTicker) { wlTicker.value = ""; }
+          if (wlName) { wlName.value = ""; }
+          if (wlNote) { wlNote.value = ""; }
+        }
+
+        if (wlAdd) {
+          wlAdd.addEventListener("click", function () {
+            var t = wlTicker ? wlTicker.value.trim().toUpperCase() : "";
+            var n = wlName ? wlName.value.trim() : "";
+            var note = wlNote ? wlNote.value.trim() : "";
+            if (!t || !n) {
+              alert("Vyplň prosím alespoň ticker a název.");
+              return;
+            }
+            var list = loadWatchlist();
+            list.push({ ticker: t, name: n, note: note });
+            saveWatchlist(list);
+            renderWatchlist();
+            clearWatchForm();
+          });
+        }
+
+        if (wlClear) {
+          wlClear.addEventListener("click", function () {
+            if (confirm("Opravdu chceš vymazat celý watchlist?")) {
+              saveWatchlist([]);
+              renderWatchlist();
+            }
+          });
+        }
+
+        if (wlTableBody) {
+          wlTableBody.addEventListener("click", function (e) {
+            var btn = e.target;
+            if (!btn.classList || !btn.classList.contains("btn-delete")) { return; }
+            var idx = parseInt(btn.getAttribute("data-index"), 10);
+            var list = loadWatchlist();
+            if (!isNaN(idx) && idx >= 0 && idx < list.length) {
+              list.splice(idx, 1);
+              saveWatchlist(list);
+              renderWatchlist();
+            }
+          });
+        }
+
+        /* ===== PORTFOLIO ===== */
+        var pfKey = "ea-portfolio";
+        var pfTicker = document.getElementById("pf-ticker");
+        var pfName = document.getElementById("pf-name");
+        var pfQty = document.getElementById("pf-qty");
+        var pfBuy = document.getElementById("pf-buy");
+        var pfCurrent = document.getElementById("pf-current");
+        var pfAdd = document.getElementById("pf-add");
+        var pfClear = document.getElementById("pf-clear");
+        var pfTableBody = document.querySelector("#pf-table tbody");
+
+        function loadPortfolio() {
+          try {
+            var raw = localStorage.getItem(pfKey);
+            if (!raw) { return []; }
+            var parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (e) { return []; }
+        }
+
+        function savePortfolio(list) {
+          try { localStorage.setItem(pfKey, JSON.stringify(list || [])); } catch (e) {}
+        }
+
+        function renderPortfolio() {
+          if (!pfTableBody) { return; }
+          var list = loadPortfolio();
+          pfTableBody.innerHTML = "";
+          for (var i = 0; i < list.length; i++) {
+            var item = list[i];
+            var purchaseValue = item.qty * item.buy;
+            var diff = item.buy > 0 ? ((item.current - item.buy) / item.buy) * 100 : 0;
+            var diffText = (diff >= 0 ? "+" : "") + diff.toFixed(2) + " %";
+            var diffClass = diff >= 0 ? "gain" : "loss";
+
+            var tr = document.createElement("tr");
+            tr.innerHTML =
+              "<td>" + (item.ticker || "") + "</td>" +
+              "<td>" + (item.name || "") + "</td>" +
+              "<td>" + formatNumber(item.qty) + "</td>" +
+              "<td>" + formatNumber(purchaseValue) + "</td>" +
+              "<td>" + formatNumber(item.buy) + "</td>" +
+              "<td>" + formatNumber(item.current) + "</td>" +
+              "<td class='" + diffClass + "'>" + diffText + "</td>" +
+              "<td class='cell-actions'><button class='btn-delete' data-index='" + i + "'>×</button></td>";
+            pfTableBody.appendChild(tr);
+          }
+        }
+
+        function clearPortfolioForm() {
+          if (pfTicker) { pfTicker.value = ""; }
+          if (pfName) { pfName.value = ""; }
+          if (pfQty) { pfQty.value = ""; }
+          if (pfBuy) { pfBuy.value = ""; }
+          if (pfCurrent) { pfCurrent.value = ""; }
+        }
+
+        if (pfAdd) {
+          pfAdd.addEventListener("click", function () {
+            var t = pfTicker ? pfTicker.value.trim().toUpperCase() : "";
+            var n = pfName ? pfName.value.trim() : "";
+            var qty = pfQty ? parseFloat(pfQty.value.toString().replace(",", ".")) : NaN;
+            var buy = pfBuy ? parseFloat(pfBuy.value.toString().replace(",", ".")) : NaN;
+            var current = pfCurrent ? parseFloat(pfCurrent.value.toString().replace(",", ".")) : NaN;
+
+            if (!t || !n || !isFinite(qty) || !isFinite(buy) || !isFinite(current)) {
+              alert("Vyplň prosím ticker, název, množství, nákupní a aktuální cenu.");
+              return;
+            }
+
+            var list = loadPortfolio();
+            list.push({ ticker: t, name: n, qty: qty, buy: buy, current: current });
+            savePortfolio(list);
+            renderPortfolio();
+            clearPortfolioForm();
+          });
+        }
+
+        if (pfClear) {
+          pfClear.addEventListener("click", function () {
+            if (confirm("Opravdu chceš vymazat celé portfolio?")) {
+              savePortfolio([]);
+              renderPortfolio();
+            }
+          });
+        }
+
+        if (pfTableBody) {
+          pfTableBody.addEventListener("click", function (e) {
+            var btn = e.target;
+            if (!btn.classList || !btn.classList.contains("btn-delete")) { return; }
+            var idx = parseInt(btn.getAttribute("data-index"), 10);
+            var list = loadPortfolio();
+            if (!isNaN(idx) && idx >= 0 && idx < list.length) {
+              list.splice(idx, 1);
+              savePortfolio(list);
+              renderPortfolio();
+            }
+          });
+        }
+
+        /* ===== SLOŽENÉ ÚROČENÍ ===== */
+        var ciStart = document.getElementById("ci-start");
+        var ciMonthly = document.getElementById("ci-monthly");
+        var ciYears = document.getElementById("ci-years");
+        var ciRate = document.getElementById("ci-rate");
+        var ciCalc = document.getElementById("ci-calc");
+        var ciInvested = document.getElementById("ci-invested");
+        var ciFinal = document.getElementById("ci-final");
+        var ciProfit = document.getElementById("ci-profit");
+        var ciSummary = document.getElementById("ci-summary");
+
+        function calcCompound() {
+          function num(el) {
+            if (!el) { return 0; }
+            var v = el.value.toString().replace(/\s/g, "").replace(",", ".");
+            var n = parseFloat(v);
+            return isFinite(n) ? n : 0;
+          }
+
+          var start = num(ciStart);
+          var monthly = num(ciMonthly);
+          var years = num(ciYears);
+          var rate = num(ciRate);
+
+          if (years < 0) { years = 0; }
+          var months = Math.round(years * 12);
+          var r = rate / 100;
+
+          var balance = start;
+          for (var m = 0; m < months; m++) {
+            balance = balance * (1 + r / 12) + monthly;
+          }
+
+          var invested = start + monthly * months;
+          var profit = balance - invested;
+
+          if (ciInvested) { ciInvested.textContent = formatNumber(invested) + " Kč"; }
+          if (ciFinal) { ciFinal.textContent = formatNumber(balance) + " Kč"; }
+          if (ciProfit) { ciProfit.textContent = formatNumber(profit) + " Kč"; }
+
+          if (ciSummary) {
+            if (months === 0) {
+              ciSummary.textContent = "Zadej vstupní hodnoty a uvidíš shrnutí tady.";
+            } else {
+              ciSummary.textContent =
+                "Při průměrném zhodnocení " + rate.toFixed(2).replace(".", ",") +
+                " % ročně můžeš z počáteční částky " + formatNumber(start) +
+                " Kč a měsíčního vkladu " + formatNumber(monthly) +
+                " Kč mít za " + years.toFixed(1).replace(".", ",") +
+                " let přibližně " + formatNumber(balance) + " Kč.";
+            }
+          }
+        }
+
+        if (ciCalc) {
+          ciCalc.addEventListener("click", function () { calcCompound(); });
+        }
+
+        /* Inicializace tabulek */
+        renderWatchlist();
+        renderPortfolio();
+      })();
+    </script>
+  </body>
+</html>
