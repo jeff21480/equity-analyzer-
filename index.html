@@ -429,7 +429,89 @@
           </div>
           <div class="drawer-chevron"></div>
         </article>
+<!-- ==================== ANALÝZA – RYCHLÝ VÝPOČET ==================== -->
+<section id="screen-analysis" class="screen">
+  <div class="page-header">
+    <!-- ŠIPKA ZPĚT NA HLAVNÍ OBRAZOVKU -->
+    <button class="btn-back" data-back="home">
+      ← Zpět
+    </button>
+    <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+  </div>
 
+  <p class="page-sub">
+    Zadej ticker akcie, stáhni si data (později z&nbsp;API) a porovnej tři scénáře férové ceny.
+  </p>
+
+  <!-- VSTUP: TICKER / NÁZEV -->
+  <div class="page-card">
+    <label for="q-ticker" class="field-label">Ticker nebo název akcie</label>
+    <div class="field-row">
+      <input id="q-ticker" type="text" placeholder="např. AAPL, PLTR, SOFI…" />
+      <button id="q-load" class="btn-primary">
+        Načíst data
+      </button>
+    </div>
+    <p id="q-status" class="helper-text">
+      Data zatím používají demo hodnoty. Později se tu napojíme na Yahoo Finance / jiný zdroj.
+    </p>
+  </div>
+
+  <!-- TŘI SCÉNÁŘE: OPTIMISTICKÝ / REÁLNÝ / PESIMISTICKÝ -->
+  <div class="page-card">
+    <h3 style="margin-bottom: 12px;">Scénáře férové ceny</h3>
+
+    <div class="scenario-grid">
+      <!-- Optimistický -->
+      <div class="scenario-card">
+        <div class="scenario-label">Optimistický</div>
+        <div class="scenario-value" id="val-optimistic">–</div>
+        <div class="scenario-row">
+          <label>Růst tržeb</label>
+          <input id="g-optimistic" type="number" value="18" /> %
+        </div>
+        <div class="scenario-row">
+          <label>Diskont</label>
+          <input id="d-optimistic" type="number" value="8" /> %
+        </div>
+      </div>
+
+      <!-- Reálný -->
+      <div class="scenario-card">
+        <div class="scenario-label">Reálný</div>
+        <div class="scenario-value" id="val-base">–</div>
+        <div class="scenario-row">
+          <label>Růst tržeb</label>
+          <input id="g-base" type="number" value="12" /> %
+        </div>
+        <div class="scenario-row">
+          <label>Diskont</label>
+          <input id="d-base" type="number" value="9" /> %
+        </div>
+      </div>
+
+      <!-- Pesimistický / Podhodnocený -->
+      <div class="scenario-card">
+        <div class="scenario-label">Pesimistický</div>
+        <div class="scenario-value" id="val-bear">–</div>
+        <div class="scenario-row">
+          <label>Růst tržeb</label>
+          <input id="g-bear" type="number" value="6" /> %
+        </div>
+        <div class="scenario-row">
+          <label>Diskont</label>
+          <input id="d-bear" type="number" value="10" /> %
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; text-align: right;">
+      <button id="q-calc" class="btn-primary">
+        Spočítat férové ceny
+      </button>
+    </div>
+  </div>
+</section>
         <!-- 2) WATCHLIST -->
         <article class="drawer" data-open="screen-watchlist">
           <div class="drawer-text">
