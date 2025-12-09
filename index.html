@@ -426,12 +426,78 @@
         </p>
       </header>
 
-      <div class="drawer-list">
-        
-  
-  
+      <!-- DOMOVSKÁ OBRAZOVKA -->
+      <section id="screen-home" class="screen active">
+        <header class="hero">
+          <h1 class="hero-title">Equity Analyzer</h1>
+          <p class="hero-sub">
+            DCF, watchlist, earnings a složené úročení – všechno v jedné fialové aplikaci,
+            která běží jen u tebe v prohlížeči. Data se ukládají lokálně, nic neopouští tvé zařízení.
+          </p>
+        </header>
 
+        <div class="drawer-list">
+          <!-- 1) ANALÝZA – Rychlý výpočet hodnoty -->
+          <article class="drawer" data-open="screen-add-firm">
+            <div class="drawer-text">
+              <div class="drawer-label">Analýza</div>
+              <h2 class="drawer-title">Rychlý výpočet hodnoty</h2>
+              <p class="drawer-desc">DCF výpočet férové ceny firmy.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
 
+          <!-- 2) WATCHLIST – sledované akcie -->
+          <article class="drawer" data-open="screen-watchlist">
+            <div class="drawer-text">
+              <div class="drawer-label">Watchlist</div>
+              <h2 class="drawer-title">Sledované akcie</h2>
+              <p class="drawer-desc">Seznam firem, ceny, zisky a popisy.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
+
+          <!-- 3) PORTFOLIA – Akcie -->
+          <article class="drawer" data-open="screen-portfolio-stocks">
+            <div class="drawer-text">
+              <div class="drawer-label">Portfolia</div>
+              <h2 class="drawer-title">Akciové portfolio</h2>
+              <p class="drawer-desc">Příkupy, prodeje, zisky a statistiky.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
+
+          <!-- 4) PORTFOLIA – ETF -->
+          <article class="drawer" data-open="screen-portfolio-etf">
+            <div class="drawer-text">
+              <div class="drawer-label">Portfolia</div>
+              <h2 class="drawer-title">ETF portfolio</h2>
+              <p class="drawer-desc">Přehled ETF fondů, nákupy a vývoj.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
+
+          <!-- 5) PORTFOLIA – Krypto -->
+          <article class="drawer" data-open="screen-portfolio-crypto">
+            <div class="drawer-text">
+              <div class="drawer-label">Portfolia</div>
+              <h2 class="drawer-title">Krypto portfolio</h2>
+              <p class="drawer-desc">Nákupy, změny cen a celková výkonnost.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
+
+          <!-- 6) PORTFOLIA – Komodity -->
+          <article class="drawer" data-open="screen-portfolio-commodities">
+            <div class="drawer-text">
+              <div class="drawer-label">Portfolia</div>
+              <h2 class="drawer-title">Komoditní portfolio</h2>
+              <p class="drawer-desc">Zlato, stříbro, ropa a další komodity.</p>
+            </div>
+            <div class="drawer-chevron"></div>
+          </article>
+        </div>
+      </section>
 
   <p class="page-sub">
     Zadej základní údaje firmy a porovnej aktuální a férovou cenu.
