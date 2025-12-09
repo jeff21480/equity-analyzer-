@@ -237,73 +237,328 @@
       </div>
     </section>
 
-    <!-- ================= ANALÝZA – RYCHLÝ VÝPOČET HODNOTY ================= -->
-
-<section id="screen-analysis" class="screen hidden">
-
+    <section id="screen-analysis" class="screen">
   <!-- HLAVIČKA -->
   <div class="page-header">
-      <button class="btn-back" data-back="home">← Zpět</button>
-      <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+    <button class="btn-back" data-back="home">
+      ← Zpět
+    </button>
+    <h2 class="page-title">Rychlý výpočet hodnoty</h2>
   </div>
 
-  <p class="page-sub">Zadej ticker akcie a tři scénáře růstu.</p>
+  <p class="page-sub">
+    Rychlý odhad férové ceny akcie na základě tří scénářů
+    (inspirováno DCF modelem).
+  </p>
 
-  <!-- FORMULÁŘ PRO TICKER -->
+  <!-- TICKER + AKTUÁLNÍ CENA -->
   <div class="page-card">
+    <div class="field-row">
       <label for="q-ticker" class="field-label">Ticker *</label>
-      <input id="q-ticker" type="text" placeholder="např. AAPL, TSLA, PLTR">
+      <input
+        id="q-ticker"
+        type="text"
+        class="field-input big-input"
+        placeholder="např. AAPL, TSLA, PLTR"
+      />
+    </div>
+
+    <div class="field-row">
+      <label for="q-price" class="field-label">Aktuální cena akcie *</label>
+      <input
+        id="q-price"
+        type="number"
+        step="0.01"
+        class="field-input big-input"
+        placeholder="např. 23.50"
+      />
+      <p class="helper-text">
+        Použij aktuální tržní cenu (v USD nebo jiné měně, jen dodrž stejnou měnu
+        i u férových cen).
+      </p>
+    </div>
   </div>
 
-  <!-- SCÉNÁŘE – GRID -->
-  <h3 class="page-sub">Scénáře růstu</h3>
+  <!-- SCÉNÁŘE -->
+  <h3 class="page-sub" style="margin-top: 16px;">Scénáře (férová cena dnes)</h3>
 
   <div class="scenario-grid">
+    <!-- Optimistický -->
+    <div class="scenario-card">
+      <h4>Optimistický</h4>
+      <p class="scenario-note">Jaká férová cena dává smysl, pokud firma poroste lépe než čekáš?</p>
 
-      <!-- Optimistický -->
-      <div class="scenario-card">
-          <h4>Optimistický</h4>
-          <label for="s-bull">Roční růst (%)</label>
-          <input id="s-bull" type="number" placeholder="např. 18">
+      <label for="p-bull" class="field-label">Férová cena (optimistický odhad)</label>
+      <input
+        id="p-bull"
+        type="number"
+        step="0.01"
+        class="field-input big-input"
+        placeholder="např. 24.00"
+      />
+    </div>
 
-          <label for="p-bull">Férová cena při tomto růstu</label>
-          <input id="p-bull" type="number" placeholder="např. 220">
-      </div>
+    <!-- Realistický -->
+    <div class="scenario-card">
+      <h4>Realistický</h4>
+      <p class="scenario-note">Nejpravděpodobnější férová cena podle tvého odhadu.</p>
 
-      <!-- Realistický -->
-      <div class="scenario-card">
-          <h4>Realistický</h4>
-          <label for="s-base">Roční růst (%)</label>
-          <input id="s-base" type="number" placeholder="např. 12">
+      <label for="p-base" class="field-label">Férová cena (realistický odhad)</label>
+      <input
+        id="p-base"
+        type="number"
+        step="0.01"
+        class="field-input big-input"
+        placeholder="např. 21.50"
+      />
+    </div>
 
-          <label for="p-base">Férová cena při tomto růstu</label>
-          <input id="p-base" type="number" placeholder="např. 180">
-      </div>
+    <!-- Pesimistický -->
+    <div class="scenario-card">
+      <h4>Pesimistický</h4>
+      <p class="scenario-note">Jaká férová cena dává smysl, pokud se firmě bude dařit hůř?</p>
 
-      <!-- Pesimistický -->
-      <div class="scenario-card">
-          <h4>Pesimistický</h4>
-          <label for="s-bear">Roční růst (%)</label>
-          <input id="s-bear" type="number" placeholder="např. 6">
-
-          <label for="p-bear">Férová cena při tomto růstu</label>
-          <input id="p-bear" type="number" placeholder="např. 140">
-      </div>
-
+      <label for="p-bear" class="field-label">Férová cena (pesimistický odhad)</label>
+      <input
+        id="p-bear"
+        type="number"
+        step="0.01"
+        class="field-input big-input"
+        placeholder="např. 18.00"
+      />
+    </div>
   </div>
 
   <!-- TLAČÍTKO SPOČÍTAT -->
-  <div style="margin-top: 18px; text-align: center;">
-      <button id="q-calc" class="btn-primary">Spočítat férovou hodnotu</button>
+  <div style="text-align: center; margin: 24px 0 8px;">
+    <button id="q-calc" class="btn-primary big-button">
+      Spočítat férovou hodnotu
+    </button>
   </div>
 
-  <!-- VÝSLEDEK -->
-  <div id="q-result" class="result-box hidden">
-      <h3>Odhad férové ceny</h3>
-      <p id="result-text">Zadej hodnoty a potvrď.</p>
-  </div>
+  <!-- VÝSLEDKY -->
+  <div class="page-card result-card">
+    <h3>Souhrnný odhad férové ceny</h3>
 
+    <div class="result-main">
+      <div class="result-block">
+        <div class="result-label">Odhad férové ceny (vážený průměr scénářů)</div>
+        <div id="q-fair" class="result-value">–</div>
+      </div>
+
+      <div class="result-block">
+        <div class="result-label">Rozdíl vs. aktuální cena</div>
+        <div id="q-diff" class="result-diff">–</div>
+        <div id="q-status" class="result-tag">–</div>
+      </div>
+    </div>
+
+    <p class="helper-text" style="margin-top: 12px;">
+      Výpočet: 25&nbsp;% optimistický + 50&nbsp;% realistický + 25&nbsp;% pesimistický.
+      Jde o rychlý scénářový odhad inspirovaný DCF, ne o investiční doporučení.
+    </p>
+  </div>
 </section>
+
+<!-- STYLY PRO TENTO ŠUPLÍK -->
+<style>
+  /* Celé pozadí obrazovky analýzy – fialové */
+  #screen-analysis {
+    background: radial-gradient(circle at top,
+      #7a4cf0 0,
+      #3a1d72 45%,
+      #150726 100%);
+  }
+
+  #screen-analysis .page-card {
+    background: rgba(18, 7, 38, 0.88);
+    border-radius: 22px;
+    padding: 16px 18px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  }
+
+  #screen-analysis .page-sub {
+    margin-bottom: 12px;
+  }
+
+  /* Větší vstupy */
+  .big-input {
+    font-size: 1rem;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  /* Grid pro scénáře */
+  .scenario-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .scenario-card {
+    flex: 1 1 260px;
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: rgba(120, 80, 220, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .scenario-card h4 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .scenario-note {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.9;
+  }
+
+  .scenario-card .field-label {
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+
+  .scenario-card .field-input {
+    margin-top: 4px;
+  }
+
+  /* Výsledkový box */
+  .result-card {
+    margin-top: 12px;
+    background: rgba(45, 20, 100, 0.9) !important;
+  }
+
+  .result-main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .result-block {
+    flex: 1 1 220px;
+  }
+
+  .result-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 4px;
+  }
+
+  .result-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .result-diff {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .result-tag {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .tag-undervalued {
+    background: rgba(0, 180, 120, 0.28);
+    color: #a9ffd9;
+  }
+
+  .tag-overvalued {
+    background: rgba(220, 70, 70, 0.3);
+    color: #ffd0d0;
+  }
+
+  .tag-fair {
+    background: rgba(200, 160, 40, 0.28);
+    color: #ffe9b0;
+  }
+
+  .big-button {
+    padding: 12px 22px;
+    font-size: 1rem;
+    border-radius: 999px;
+  }
+
+  @media (max-width: 600px) {
+    .result-main {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<!-- LOGIKA VÝPOČTU -->
+<script>
+  (function () {
+    const priceInput = document.getElementById("q-price");
+    const bullInput = document.getElementById("p-bull");
+    const baseInput = document.getElementById("p-base");
+    const bearInput = document.getElementById("p-bear");
+    const fairOut   = document.getElementById("q-fair");
+    const diffOut   = document.getElementById("q-diff");
+    const statusOut = document.getElementById("q-status");
+    const calcBtn   = document.getElementById("q-calc");
+
+    if (!calcBtn) return;
+
+    function toNum(el) {
+      if (!el) return NaN;
+      return parseFloat(String(el.value).replace(",", "."));
+    }
+
+    calcBtn.addEventListener("click", function () {
+      const price = toNum(priceInput);
+      const bull  = toNum(bullInput);
+      const base  = toNum(baseInput);
+      const bear  = toNum(bearInput);
+
+      if (!isFinite(price) || !isFinite(bull) || !isFinite(base) || !isFinite(bear)) {
+        alert("Vyplň prosím aktuální cenu i férové ceny pro všechny tři scénáře.");
+        return;
+      }
+
+      // vážený průměr scénářů – inspirace DCF přístupem
+      const fair = bull * 0.25 + base * 0.5 + bear * 0.25;
+      const diffPct = ((fair - price) / price) * 100;
+
+      const fmt = (v) =>
+        v.toLocaleString("cs-CZ", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+
+      fairOut.textContent = fmt(fair);
+      diffOut.textContent =
+        (diffPct > 0 ? "+" : "") +
+        diffPct.toFixed(1).replace(".", ",") +
+        " %";
+
+      let tagClass = "tag-fair";
+      let text = "Přibližně férově oceněná";
+
+      if (diffPct > 15) {
+        tagClass = "tag-undervalued";
+        text = "Podhodnocená (zajímavý potenciál)";
+      } else if (diffPct < -15) {
+        tagClass = "tag-overvalued";
+        text = "Nadhodnocená (spíš drahá)";
+      }
+
+      statusOut.textContent = text;
+      statusOut.className = "result-tag " + tagClass;
+    });
+  })();
+</script>
 
 <!-- ====== STYLY SCÉNÁŘŮ ====== -->
 <style>
