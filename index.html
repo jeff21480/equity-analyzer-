@@ -581,19 +581,177 @@
     }
 </style>
 
-    <!-- ============ WATCHLIST – placeholder ============ -->
-    <section id="screen-watchlist" class="screen">
-      <div class="page-header">
-        <button class="btn-back" data-back="home"><span>←</span> Zpět</button>
-        <h2 class="page-title">Můj watchlist</h2>
-      </div>
-      <p class="page-sub">
-        Seznam akcií, které chceš mít na očích. Napojíme na jednoduchý formulář a ukládání do prohlížeče.
-      </p>
-      <div class="page-card">
-        <p>Zatím připravujeme strukturu – funkce doděláme postupně.</p>
-      </div>
-    </section>
+    <!-- ======= SCRIPT – watchlist (uložení + článek) ======= -->
+<script>
+  (function () {
+    const storageKey = "ea-watchlist-v1";
+
+    function loadList() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveList(list) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(list));
+      } catch (e) {
+        // nic, když to nejde uložit
+      }
+    }
+
+    function setStatus(text) {
+      const el = document.getElementById("wlStatus");
+      if (!el) return;
+      el.textContent = text || "";
+      if (!text) return;
+      setTimeout(function () {
+        el.textContent = "";
+      }, 2500);
+    }
+
+    function openArticle(item) {
+      const card = document.getElementById("wlArticleCard");
+      const frame = document.getElementById("wlArticleFrame");
+      const link = document.getElementById("wlArticleLink");
+
+      if (!card || !frame || !link) return;
+
+      if (!item || !item.link) {
+        card.style.display = "none";
+        frame.src = "";
+        link.href = "#";
+        return;
+      }
+
+      frame.src = item.link;
+      link.href = item.link;
+      card.style.display = "block";
+    }
+
+    function renderList() {
+      const body = document.getElementById("wlTableBody");
+      const empty = document.getElementById("wlEmpty");
+      const wrapper = document.getElementById("wlTableWrapper");
+      if (!body) return;
+
+      const list = loadList();
+      body.innerHTML = "";
+
+      if (!list.length) {
+        if (empty) empty.style.display = "block";
+        if (wrapper) wrapper.style.display = "none";
+        openArticle(null);
+        return;
+      }
+
+      if (empty) empty.style.display = "none";
+      if (wrapper) wrapper.style.display = "block";
+
+      list.forEach(function (item, index) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${item.ticker || "—"}</td>
+          <td>${item.name || "—"}</td>
+          <td>${item.note || "—"}</td>
+          <td>
+            ${
+              item.link
+                ? '<button class="wl-link-btn" data-open="' +
+                  index +
+                  '">Článek</button>'
+                : "—"
+            }
+          </td>
+          <td>
+            <button class="wl-delete-btn" data-del="${index}">✕</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function initWatchlist() {
+      const addBtn = document.getElementById("wlAdd");
+      const clearBtn = document.getElementById("wlClear");
+      const body = document.getElementById("wlTableBody");
+
+      if (!addBtn || !body) return;
+
+      addBtn.addEventListener("click", function () {
+        const tickerInput = document.getElementById("wlTicker");
+        const nameInput = document.getElementById("wlName");
+        const linkInput = document.getElementById("wlLink");
+        const noteInput = document.getElementById("wlNote");
+
+        const ticker = tickerInput ? tickerInput.value.trim().toUpperCase() : "";
+        const name = nameInput ? nameInput.value.trim() : "";
+        const link = linkInput ? linkInput.value.trim() : "";
+        const note = noteInput ? noteInput.value.trim() : "";
+
+        if (!ticker && !name) {
+          alert("Zadej alespoň ticker nebo název.");
+          return;
+        }
+
+        const list = loadList();
+        list.push({ ticker: ticker, name: name, link: link, note: note });
+        saveList(list);
+        renderList();
+        setStatus("Položka byla přidána do watchlistu.");
+
+        if (tickerInput) tickerInput.value = "";
+        if (nameInput) nameInput.value = "";
+        if (linkInput) linkInput.value = "";
+        if (noteInput) noteInput.value = "";
+      });
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", function () {
+          if (!confirm("Opravdu chceš smazat celý watchlist?")) return;
+          saveList([]);
+          renderList();
+          setStatus("Watchlist byl vymazán.");
+        });
+      }
+
+      body.addEventListener("click", function (e) {
+        const target = e.target;
+        if (!target) return;
+
+        const openIdx = target.getAttribute("data-open");
+        const delIdx = target.getAttribute("data-del");
+        const list = loadList();
+
+        if (openIdx !== null && openIdx !== undefined) {
+          const idx = parseInt(openIdx, 10);
+          if (!isNaN(idx) && list[idx]) {
+            openArticle(list[idx]);
+          }
+        } else if (delIdx !== null && delIdx !== undefined) {
+          const idx = parseInt(delIdx, 10);
+          if (!isNaN(idx) && list[idx]) {
+            if (!confirm("Smazat tuto položku?")) return;
+            list.splice(idx, 1);
+            saveList(list);
+            renderList();
+            setStatus("Položka byla smazána.");
+          }
+        }
+      });
+
+      renderList();
+    }
+
+    // Script je na konci <body>, takže DOM už existuje
+    initWatchlist();
+  })();
+</script>
 
     <!-- ============ FIRMY – placeholder ============ -->
     <section id="screen-firms" class="screen">
