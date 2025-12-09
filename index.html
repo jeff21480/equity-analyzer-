@@ -345,116 +345,210 @@
       </div>
     </section>
 
-    <!-- =========== ANALÝZA – RYCHLÝ VÝPOČET =========== -->
+    <!-- =========== ANALÝZA - RYCHLÝ VÝPOČET (S-model) ========== -->
 <section id="screen-analysis" class="screen">
-    <div class="page-header">
-        <button class="btn-back" data-back="home">← Zpět</button>
-        <h2 class="page-title">Rychlý výpočet férové ceny</h2>
+  <div class="page-header">
+    <button class="btn-back" data-back="home">← Zpět</button>
+    <h2 class="page-title">Rychlý výpočet férové ceny</h2>
+  </div>
+
+  <p class="page-sub">
+    Okamžitý odhad férové hodnoty akcie podle S-modelu (EPS, růst, P/E) a porovnání s aktuální cenou.
+  </p>
+
+  <div class="page-card">
+
+    <h3 class="a-title">Základní údaje</h3>
+
+    <label class="field-label" for="sTicker">Ticker (jen pro přehled)</label>
+    <input
+      id="sTicker"
+      class="field-input big-input"
+      type="text"
+      placeholder="např. SOFI"
+    />
+
+    <div class="a-row">
+      <div class="a-col">
+        <label class="field-label" for="sEps">Zisk na akcii (EPS)</label>
+        <input
+          id="sEps"
+          class="field-input big-input"
+          type="number"
+          step="0.01"
+          placeholder="např. 0.75"
+        />
+      </div>
+
+      <div class="a-col">
+        <label class="field-label" for="sGrowth">Očekávaný roční růst zisku (%)</label>
+        <input
+          id="sGrowth"
+          class="field-input big-input"
+          type="number"
+          step="0.1"
+          placeholder="např. 12"
+        />
+      </div>
     </div>
 
-    <p class="page-sub">
-        Jednoduchý výpočet férové ceny akcie podle růstových scénářů.
+    <div class="a-row">
+      <div class="a-col">
+        <label class="field-label" for="sPE">Cílový P/E násobek</label>
+        <input
+          id="sPE"
+          class="field-input big-input"
+          type="number"
+          step="0.1"
+          placeholder="např. 18"
+        />
+      </div>
+
+      <div class="a-col">
+        <label class="field-label" for="sCurPrice">Aktuální cena akcie</label>
+        <input
+          id="sCurPrice"
+          class="field-input big-input"
+          type="number"
+          step="0.01"
+          placeholder="např. 25.40"
+        />
+      </div>
+    </div>
+
+    <div class="a-result-panel">
+      <div class="a-result-line">
+        <span class="a-result-label">Férová hodnota (S-model):</span>
+        <span id="sFairValue" class="a-result-value">—</span>
+      </div>
+      <div class="a-result-line">
+        <span class="a-result-label">Ocenění vs. aktuální cena:</span>
+        <span id="sFairDiff" class="a-result-value a-result-status">—</span>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top: 20px;">
+      <button id="sCalcBtn" class="btn-primary">
+        Spočítat férovou cenu
+      </button>
+    </div>
+
+    <p class="hint">
+      Tip: EPS, růst a P/E si vezmi z vlastní analýzy nebo finančních výkazů.
+      Výsledek je orientační odhad v měně, kterou zadáváš.
     </p>
 
-    <!-- === FORMULÁŘ === -->
-    <div class="page-card">
-
-        <!-- Aktuální cena -->
-        <label class="field-label" for="curPrice">Aktuální cena akcie</label>
-        <input id="curPrice" type="number" step="0.01" class="field-input big-input" placeholder="např. 25.40" />
-
-        <!-- OPTIMISTICKÝ -->
-        <h3 class="scenario-title">Optimistický scénář</h3>
-        <label class="field-label">Roční růst (%)</label>
-        <input id="optGrowth" type="number" step="0.1" class="field-input" placeholder="např. 15" />
-
-        <label class="field-label">Férová cena (výsledek)</label>
-        <p id="optResult" class="result-box">—</p>
-
-        <p id="optDiff" class="result-diff">—</p>
-
-        <hr />
-
-        <!-- REALISTICKÝ -->
-        <h3 class="scenario-title">Realistický scénář</h3>
-        <label class="field-label">Roční růst (%)</label>
-        <input id="realGrowth" type="number" step="0.1" class="field-input" placeholder="např. 10" />
-
-        <label class="field-label">Férová cena (výsledek)</label>
-        <p id="realResult" class="result-box">—</p>
-
-        <p id="realDiff" class="result-diff">—</p>
-
-        <hr />
-
-        <!-- PESIMISTICKÝ -->
-        <h3 class="scenario-title">Pesimistický scénář</h3>
-        <label class="field-label">Roční růst (%)</label>
-        <input id="pessGrowth" type="number" step="0.1" class="field-input" placeholder="např. 5" />
-
-        <label class="field-label">Férová cena (výsledek)</label>
-        <p id="pessResult" class="result-box">—</p>
-
-        <p id="pessDiff" class="result-diff">—</p>
-
-    </div>
-
-    <div style="text-align:center; margin-top:20px;">
-        <button id="calcBtn" class="btn-primary">Spočítat férové ceny</button>
-    </div>
+  </div>
 </section>
 
-<!-- ====== SCRIPT – výpočty ====== -->
+<!-- ====== SCRIPT - výpočet S-modelu ====== -->
 <script>
-    function computeFairPrice(growthPercent, currentPrice) {
-        const g = growthPercent / 100;
-        return currentPrice * (1 + g);
+  (function () {
+    function computeSFairValue(eps, growthPercent, pe) {
+      const g = growthPercent / 100;
+      const epsNext = eps * (1 + g);      // EPS za rok
+      return epsNext * pe;                // férová cena = EPS_next * P/E
     }
 
-    function diffText(fair, current) {
-        if (!fair || !current) return "—";
-        const diff = ((fair - current) / current) * 100;
-        const rounded = diff.toFixed(2);
+    function formatNumber(value) {
+      if (!isFinite(value)) return "—";
+      return value.toFixed(2);
+    }
 
-        if (diff > 0) return `📈 Podhodnocená +${rounded}%`;
-        if (diff < 0) return `📉 Nadhodnocená ${rounded}%`;
+    function buildDiffText(fair, current) {
+      if (!fair || !current || !isFinite(fair) || !isFinite(current) || current === 0) {
         return "—";
+      }
+
+      const diff = ((fair - current) / current) * 100;
+      const rounded = diff.toFixed(1);
+
+      if (diff > 0) {
+        return `✅ Podhodnocená přibližně o ${rounded} %`;
+      } else if (diff < 0) {
+        return `⚠️ Nadhodnocená přibližně o ${Math.abs(rounded)} %`;
+      } else {
+        return "≈ Zhruba férově oceněná";
+      }
     }
 
-    document.getElementById("calcBtn").addEventListener("click", function () {
-        const cur = parseFloat(document.getElementById("curPrice").value);
+    const btn = document.getElementById("sCalcBtn");
+    if (!btn) return;
 
-        const opt = parseFloat(document.getElementById("optGrowth").value);
-        const real = parseFloat(document.getElementById("realGrowth").value);
-        const pess = parseFloat(document.getElementById("pessGrowth").value);
+    btn.addEventListener("click", function () {
+      const eps = parseFloat(document.getElementById("sEps").value);
+      const growth = parseFloat(document.getElementById("sGrowth").value);
+      const pe = parseFloat(document.getElementById("sPE").value);
+      const cur = parseFloat(document.getElementById("sCurPrice").value);
 
-        if (isNaN(cur)) {
-            alert("Zadej aktuální cenu.");
-            return;
-        }
+      if (isNaN(eps) || isNaN(growth) || isNaN(pe) || isNaN(cur)) {
+        alert("Vyplň prosím EPS, růst, cílový P/E i aktuální cenu.");
+        return;
+      }
 
-        // OPT
-        if (!isNaN(opt)) {
-            const f = computeFairPrice(opt, cur);
-            document.getElementById("optResult").innerText = f.toFixed(2) + " USD";
-            document.getElementById("optDiff").innerText = diffText(f, cur);
-        }
+      const fair = computeSFairValue(eps, growth, pe);
 
-        // REAL
-        if (!isNaN(real)) {
-            const f = computeFairPrice(real, cur);
-            document.getElementById("realResult").innerText = f.toFixed(2) + " USD";
-            document.getElementById("realDiff").innerText = diffText(f, cur);
-        }
+      const fairEl = document.getElementById("sFairValue");
+      const diffEl = document.getElementById("sFairDiff");
 
-        // PESS
-        if (!isNaN(pess)) {
-            const f = computeFairPrice(pess, cur);
-            document.getElementById("pessResult").innerText = f.toFixed(2) + " USD";
-            document.getElementById("pessDiff").innerText = diffText(f, cur);
-        }
+      if (fairEl) fairEl.textContent = formatNumber(fair);
+      if (diffEl) diffEl.textContent = buildDiffText(fair, cur);
     });
+  })();
 </script>
+
+<!-- ====== STYLING pro S-model ====== -->
+<style>
+  #screen-analysis .page-card {
+    margin-top: 18px;
+  }
+
+  #screen-analysis .a-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e7d2ff;
+    margin-bottom: 10px;
+  }
+
+  #screen-analysis .a-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  #screen-analysis .a-col {
+    flex: 1 1 160px;
+  }
+
+  #screen-analysis .a-result-panel {
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  #screen-analysis .a-result-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  #screen-analysis .a-result-label {
+    opacity: 0.85;
+  }
+
+  #screen-analysis .a-result-value {
+    font-weight: 600;
+    text-align: right;
+  }
+
+  #screen-analysis .a-result-status {
+    white-space: nowrap;
+  }
+</style>
 
 <!-- ====== STYLING (světle fialový elegantní) ====== -->
 <style>
