@@ -237,21 +237,109 @@
       </div>
     </section>
 
-    <!-- ====================== 1) ANALÝZA – OBRAZOVKA ====================== -->
-    <section id="screen-analysis" class="screen">
-      <div class="page-header">
-        <button class="btn-back" data-back="home">← Zpět</button>
-        <h2 class="page-title">Rychlý výpočet hodnoty</h2>
-      </div>
-      <p class="page-sub">
-        Tady bude nový rychlý DCF nástroj (optimistický / realistický / pesimistický scénář).
-        Za chvíli ho sem společně doplníme.
-      </p>
+    <!-- ================= ANALÝZA – RYCHLÝ VÝPOČET HODNOTY ================= -->
 
-      <div class="page-card">
-        Zatím jen placeholder, abychom viděli, že se šuplík správně otevírá.
+<section id="screen-analysis" class="screen hidden">
+
+  <!-- HLAVIČKA -->
+  <div class="page-header">
+      <button class="btn-back" data-back="home">← Zpět</button>
+      <h2 class="page-title">Rychlý výpočet hodnoty</h2>
+  </div>
+
+  <p class="page-sub">Zadej ticker akcie a tři scénáře růstu.</p>
+
+  <!-- FORMULÁŘ PRO TICKER -->
+  <div class="page-card">
+      <label for="q-ticker" class="field-label">Ticker *</label>
+      <input id="q-ticker" type="text" placeholder="např. AAPL, TSLA, PLTR">
+  </div>
+
+  <!-- SCÉNÁŘE – GRID -->
+  <h3 class="page-sub">Scénáře růstu</h3>
+
+  <div class="scenario-grid">
+
+      <!-- Optimistický -->
+      <div class="scenario-card">
+          <h4>Optimistický</h4>
+          <label for="s-bull">Roční růst (%)</label>
+          <input id="s-bull" type="number" placeholder="např. 18">
+
+          <label for="p-bull">Férová cena při tomto růstu</label>
+          <input id="p-bull" type="number" placeholder="např. 220">
       </div>
-    </section>
+
+      <!-- Realistický -->
+      <div class="scenario-card">
+          <h4>Realistický</h4>
+          <label for="s-base">Roční růst (%)</label>
+          <input id="s-base" type="number" placeholder="např. 12">
+
+          <label for="p-base">Férová cena při tomto růstu</label>
+          <input id="p-base" type="number" placeholder="např. 180">
+      </div>
+
+      <!-- Pesimistický -->
+      <div class="scenario-card">
+          <h4>Pesimistický</h4>
+          <label for="s-bear">Roční růst (%)</label>
+          <input id="s-bear" type="number" placeholder="např. 6">
+
+          <label for="p-bear">Férová cena při tomto růstu</label>
+          <input id="p-bear" type="number" placeholder="např. 140">
+      </div>
+
+  </div>
+
+  <!-- TLAČÍTKO SPOČÍTAT -->
+  <div style="margin-top: 18px; text-align: center;">
+      <button id="q-calc" class="btn-primary">Spočítat férovou hodnotu</button>
+  </div>
+
+  <!-- VÝSLEDEK -->
+  <div id="q-result" class="result-box hidden">
+      <h3>Odhad férové ceny</h3>
+      <p id="result-text">Zadej hodnoty a potvrď.</p>
+  </div>
+
+</section>
+
+<!-- ====== STYLY SCÉNÁŘŮ ====== -->
+<style>
+.scenario-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.scenario-card {
+    flex: 1 1 230px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scenario-card h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.result-box {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+}
+</style>
 
     <!-- ====================== 2) WATCHLIST – placeholder ====================== -->
     <section id="screen-watchlist" class="screen">
