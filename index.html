@@ -573,36 +573,7 @@
     </div>
   </section>
 
-  <!-- ANALYZÁTOR – zatím jen UI -->
-  <section id="screen-analyzer" class="screen">
-    <div class="inner-topbar">
-      <button class="back-btn" data-back="home">←</button>
-      <div class="inner-title-block">
-        <span class="main">Analyzátor</span>
-        <span class="sub">Odhad vnitřní hodnoty (DCF) – přijde později</span>
-      </div>
-    </div>
-
-    <div class="card-panel">
-      <div class="panel-header">
-        <div class="panel-title">Vstupní parametry (návrh)</div>
-        <span class="panel-pill">DCF</span>
-      </div>
-      <div class="panel-sub">
-        Tady později doplníme konkrétní formulář pro výpočet vnitřní hodnoty a napojení na watchlist.
-      </div>
-
-      <div class="placeholder-panel">
-        • Ticker, cena akcie<br>
-        • FCF na akcii (poslední rok)<br>
-        • Růst FCF (prvních 10 let)<br>
-        • Diskontní sazba<br>
-        • Terminální růst<br>
-        • Výsledná fair value + možnost uložit do watchlistu<br><br>
-        Funkční logiku doplníme, až bude UI celé hotové.
-      </div>
-    </div>
-  </section>
+  
 
   <!-- WATCHLIST – FUNKČNÍ (lokální verze) -->
   <section id="screen-watchlist" class="screen">
@@ -863,7 +834,71 @@
 
   document.querySelectorAll(".back-btn").forEach(btn => {
     btn.addEventListener("click", () => showScreen("home"));
-  });
+  });// ---------- ANALYZÁTOR DCF (PROMPT) ----------
+function calculateDCF() {
+  const price = parseFloat(document.getElementById("dcf-price").value);
+  const fcf = parseFloat(document.getElementById("dcf-fcf").value);
+  const growth = parseFloat(document.getElementById("dcf-growth").value) / 100;
+  const discount = parseFloat(document.getElementById("dcf-discount").value) / 100;
+  const terminal = parseFloat(document.getElementById("dcf-terminal").value) / 100;
+
+  const resultEl = document.getElementById("dcf-result");
+  const noteEl = document.getElementById("dcf-note");
+
+  if (isNaN(fcf) || isNaN(growth) || isNaN(discount) || isNaN(terminal) || discount <= 0) {
+    resultEl.innerHTML = "--,-- Kč <span>vnitřní hodnota na akcii</span>";
+    noteEl.textContent = "Vyplň prosím FCF, růst, diskont a terminální růst.";
+    return;
+  }
+
+  const years = 10;
+  let presentValue = 0;
+  let cashFlow = fcf;
+
+  for (let t = 1; t <= years; t++) {
+    cashFlow *= (1 + growth);
+    const df = Math.pow(1 + discount, t);
+    presentValue += cashFlow / df;
+  }
+
+  let terminalPV = 0;
+  if (discount > terminal) {
+    const lastCF = cashFlow * (1 + terminal);
+    const terminalValue = lastCF / (discount - terminal);
+    terminalPV = terminalValue / Math.pow(1 + discount, years);
+  }
+
+  const intrinsic = presentValue + terminalPV;
+
+  resultEl.innerHTML = `${formatCZK(intrinsic)} <span>vnitřní hodnota na akcii</span>`;
+
+  if (!isNaN(price) && price > 0) {
+    const diffPct = ((intrinsic - price) / price) * 100;
+    const diffText = (diffPct > 0 ? "+" : "") + diffPct.toFixed(1).replace(".", ",") + " %";
+
+    let status =
+      diffPct > 20 ? "Akcie se zdá podhodnocená." :
+      diffPct < -20 ? "Akcie se zdá nadhodnocená." :
+      "Akcie je blízko odhadované hodnotě.";
+
+    noteEl.textContent = `Rozdíl oproti tržní ceně: ${diffText}. ${status}`;
+  } else {
+    noteEl.textContent = "Zadej i cenu akcie, aby se ukázal rozdíl v procentech.";
+  }
+}
+
+// tlačítka
+document.getElementById("dcf-calc").addEventListener("click", calculateDCF);
+
+document.getElementById("dcf-example").addEventListener("click", () => {
+  document.getElementById("dcf-ticker").value = "SOFI";
+  document.getElementById("dcf-price").value = "8.50";
+  document.getElementById("dcf-fcf").value = "0.65";
+  document.getElementById("dcf-growth").value = "18";
+  document.getElementById("dcf-discount").value = "9";
+  document.getElementById("dcf-terminal").value = "2.5";
+  calculateDCF();
+});
 
   // ---------- KALKULAČKA SLOŽENÉHO ÚROČENÍ ----------
   function formatCZK(num) {
