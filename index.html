@@ -572,7 +572,78 @@
       </div>
     </div>
   </section>
+<!-- ANALYZÁTOR – DCF PROMPT -->
+<section id="screen-analyzer" class="screen">
+  <div class="inner-topbar">
+    <button class="back-btn" data-back="home">←</button>
+    <div class="inner-title-block">
+      <span class="main">Analyzátor</span>
+      <span class="sub">Odhad vnitřní hodnoty (DCF Prompt)</span>
+    </div>
+  </div>
 
+  <div class="card-panel">
+    <div class="panel-header">
+      <div class="panel-title">Vstupní parametry</div>
+      <span class="panel-pill">DCF</span>
+    </div>
+    <div class="panel-sub">
+      Zjednodušený DCF model na 10 let + terminální hodnota. Výsledek je orientační.
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="dcf-ticker">Ticker / název akcie</label>
+        <input id="dcf-ticker" type="text" placeholder="Např. AAPL, MSFT, SOFI…" />
+      </div>
+
+      <div class="field">
+        <label for="dcf-price">Aktuální cena akcie <span class="tag">Kč nebo $</span></label>
+        <input id="dcf-price" type="number" step="0.01" placeholder="např. 250" />
+      </div>
+
+      <div class="field">
+        <label for="dcf-fcf">FCF na akcii (poslední rok)</label>
+        <input id="dcf-fcf" type="number" step="0.01" placeholder="např. 8,5" />
+      </div>
+
+      <div class="field">
+        <label for="dcf-growth">Růst FCF (10 let) <span class="tag">% ročně</span></label>
+        <input id="dcf-growth" type="number" step="0.1" placeholder="např. 12" />
+      </div>
+
+      <div class="field">
+        <label for="dcf-discount">Diskontní sazba <span class="tag">% ročně</span></label>
+        <input id="dcf-discount" type="number" step="0.1" placeholder="např. 9" />
+      </div>
+
+      <div class="field">
+        <label for="dcf-terminal">Terminální růst po 10. roce <span class="tag">% ročně</span></label>
+        <input id="dcf-terminal" type="number" step="0.1" placeholder="např. 2,5" />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="secondary" type="button" id="dcf-example">Ukázková data</button>
+      <button class="primary" type="button" id="dcf-calc">Spočítat vnitřní hodnotu</button>
+    </div>
+
+    <div class="result-box">
+      <div class="result-main" id="dcf-result">
+        --,-- Kč <span>vnitřní hodnota na akcii</span>
+      </div>
+      <div class="result-note" id="dcf-note">
+        Vyplň hodnoty a klikni na výpočet.
+      </div>
+    </div>
+
+    <div class="placeholder-panel" style="margin-top:18px; padding:12px; border-radius:12px; background:rgba(15,23,42,0.7); border:1px solid rgba(148,163,184,0.3); font-size:0.8rem; line-height:1.45;">
+      <strong>DCF Prompt – verze 1.0</strong><br><br>
+      Model: 10letá projekce FCF s konstantním růstem + diskontní sazba + terminální hodnota (Gordon Growth).
+      Výsledek je orientační a není investičním doporučením.
+    </div>
+  </div>
+</section>
   
 
   <!-- WATCHLIST – FUNKČNÍ (lokální verze) -->
