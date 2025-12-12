@@ -601,7 +601,14 @@
         <label for="dcf-price">Aktuální cena akcie <span class="tag">Kč nebo $</span></label>
         <input id="dcf-price" type="number" step="0.01" placeholder="např. 250" />
       </div>
-
+<div class="field">
+  <label for="dcf-currency">Měna výpočtu</label>
+  <select id="dcf-currency">
+    <option value="USD">$ USD</option>
+    <option value="EUR">€ EUR</option>
+    <option value="CZK">Kč CZK</option>
+  </select>
+</div>
       <div class="field">
         <label for="dcf-fcf">FCF na akcii (poslední rok)</label>
         <input id="dcf-fcf" type="number" step="0.01" placeholder="např. 8,5" />
