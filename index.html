@@ -898,22 +898,32 @@
   </section>
 
 </div>
-
-<script>
-  // ---------- NAVIGACE MEZI SCREENY ----------
-  function showScreen(name) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    const el = document.getElementById("screen-" + name);
-    if (el) el.classList.add("active");
-  }
-
-  document.querySelectorAll(".menu-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const target = card.getAttribute("data-target");
-      if (target) showScreen(target);
-    });
   });
+<script>
+let lastDCF = null;
 
+function formatPct(num) {
+  if (num === null || num === undefined || !isFinite(num)) return "";
+  return (num > 0 ? "+" : "") + num.toFixed(1).replace(".", ",") + " %";
+}
+
+// -------- NAVIGACE MEZI SCREENY --------
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById("screen-" + name);
+  if (el) el.classList.add("active");
+}
+
+document.querySelectorAll(".menu-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const target = card.getAttribute("data-target");
+    if (target) showScreen(target);
+  });
+});
+
+document.querySelectorAll(".back-btn").forEach(btn => {
+  btn.addEventListener("click", () => showScreen("home"));
+});
   document.querySelectorAll(".back-btn").forEach(btn => {
     btn.addEventListener("click", () => showScreen("home"));
   });// ---------- ANALYZÁTOR DCF (PROMPT) ----------
