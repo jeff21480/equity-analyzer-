@@ -948,7 +948,9 @@ function calculateDCF() {
 
   const intrinsic = presentValue + terminalPV;
 
-  resultEl.innerHTML = `${formatCZK(intrinsic)} <span>vnitřní hodnota na akcii</span>`;
+  const currency = document.getElementById("dcf-currency").value;
+
+resultEl.innerHTML = `${formatMoney(intrinsic, currency)} <span>vnitřní hodnota na akcii</span>`;
 
   if (!isNaN(price) && price > 0) {
     const diffPct = ((intrinsic - price) / price) * 100;
