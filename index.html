@@ -930,13 +930,25 @@ document.querySelectorAll(".back-btn").forEach(btn => {
 });
   document.querySelectorAll(".back-btn").forEach(btn => {
     btn.addEventListener("click", () => showScreen("home"));
-  });// ---------- ANALYZÁTOR DCF (PROMPT) ----------
+  });
+
+function formatMoney(num) {
+  if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
+    return "--,--";
+  }
+  return num.toLocaleString("cs-CZ", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+// ... ANALYZÁTOR DCF (PROMPT)
+
 function calculateDCF() {
   const price = parseFloat(document.getElementById("dcf-price").value);
   const fcf = parseFloat(document.getElementById("dcf-fcf").value);
   const growth = parseFloat(document.getElementById("dcf-growth").value) / 100;
-  const discount = parseFloat(document.getElementById("dcf-discount").value) / 100;
-  const terminal = parseFloat(document.getElementById("dcf-terminal").value) / 100;
+const discount = parseFloat(document.getElementById("dcf-discount").value) / 100;
+const terminal = parseFloat(document.getElementById("dcf-terminal").value) / 100;
 
   const resultEl = document.getElementById("dcf-result");
   const noteEl = document.getElementById("dcf-note");
