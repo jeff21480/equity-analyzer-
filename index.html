@@ -986,16 +986,35 @@ resultEl.innerHTML = `${formatMoney(intrinsic, currency)} <span>vnitřní hodnot
 }
 
 // tlačítka
-document.getElementById("dcf-calc").addEventListener("click", calculateDCF);
+// tlačítka (DCF) – bezpečné napojení
+document.addEventListener("DOMContentLoaded", () => {
+  const calcBtn = document.getElementById("dcf-calc");
+  const exampleBtn = document.getElementById("dcf-example");
 
-document.getElementById("dcf-example").addEventListener("click", () => {
-  document.getElementById("dcf-ticker").value = "SOFI";
-  document.getElementById("dcf-price").value = "8.50";
-  document.getElementById("dcf-fcf").value = "0.65";
-  document.getElementById("dcf-growth").value = "18";
-  document.getElementById("dcf-discount").value = "9";
-  document.getElementById("dcf-terminal").value = "2.5";
-  calculateDCF();
+  if (!calcBtn) {
+    console.error("❌ Chybí tlačítko dcf-calc (id='dcf-calc')");
+    return;
+  }
+
+  calcBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    calculateDCF();
+  });
+
+  if (exampleBtn) {
+    exampleBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      document.getElementById("dcf-ticker").value = "SOFI";
+      document.getElementById("dcf-price").value = "8.50";
+      document.getElementById("dcf-fcf").value = "0.65";
+      document.getElementById("dcf-growth").value = "18";
+      document.getElementById("dcf-discount").value = "9";
+      document.getElementById("dcf-terminal").value = "2.5";
+
+      calculateDCF();
+    });
+  }
 });
 
   // ---------- KALKULAČKA SLOŽENÉHO ÚROČENÍ ----------
