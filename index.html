@@ -1174,26 +1174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveWatchlist([]);
     renderWatchlist();
   });
-// ===== TEST DCF TLAČÍTKA =====
-document.addEventListener("DOMContentLoaded", function () {
 
-  const btn = document.getElementById("dcf-calc");
-  const out = document.getElementById("dcf-result");
-
-  if (!btn) {
-    alert("CHYBA: tlačítko dcf-calc nenalezeno");
-    return;
-  }
-
-  btn.addEventListener("click", function () {
-    if (out) {
-      out.textContent = "Klik funguje ✅";
-    } else {
-      alert("CHYBA: dcf-result nenalezen");
-    }
-  });
-
-});
   // inicializace watchlistu při načtení
   renderWatchlist();
 </script>
