@@ -997,9 +997,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   calcBtn.addEventListener("click", (e) => {
-    e.preventDefault();
+  e.preventDefault();
+
+  const noteEl = document.getElementById("dcf-note");
+  const resultEl = document.getElementById("dcf-result");
+
+  try {
+    if (noteEl) noteEl.textContent = "Počítám…";
+
+    if (typeof calculateDCF !== "function") {
+      throw new Error("calculateDCF() neexistuje / není dostupná.");
+    }
+
     calculateDCF();
-  });
+
+    if (noteEl) noteEl.textContent = "Klik OK – pokud není výsledek, chyba je uvnitř calculateDCF().";
+  } catch (err) {
+    if (noteEl) noteEl.textContent = "CHYBA: " + (err?.message || err);
+    if (resultEl) resultEl.textContent = "--,--";
+  }
+});
 
   if (exampleBtn) {
     exampleBtn.addEventListener("click", (e) => {
