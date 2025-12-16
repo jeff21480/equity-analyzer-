@@ -1217,28 +1217,38 @@ if (saveBtn) {
     });
   }
 
-  document.getElementById("wl-add").addEventListener("click", () => {
-    const type = document.getElementById("wl-type").value.trim();
-    const ticker = document.getElementById("wl-ticker").value.trim().toUpperCase();
-    const name = document.getElementById("wl-name").value.trim();
-    const note = document.getElementById("wl-note").value.trim();
-    const msg = document.getElementById("wl-message");
+  document.getElementById("wl-add").addEventListener("click", () => {const type = document.getElementById("wl-type").value;
+const type = document.getElementById("wl-type").value;
+  const ticker = document.getElementById("wl-ticker").value.trim().toUpperCase();
+  const name = document.getElementById("wl-name").value.trim();
+  const note = document.getElementById("wl-note").value.trim();
+  const msg = document.getElementById("wl-message");
 
-    if (!ticker) {
-      msg.textContent = "Vyplň prosím alespoň ticker.";
-      return;
-    }
+  if (!ticker) {
+    msg.textContent = "Vyplň prosím alespoň ticker.";
+    return;
+  }
 
-    const list = loadWatchlist();
-    list.unshift({ type, ticker, name, note });
-    saveWatchlist(list);
+  const list = loadWatchlist();
 
-    document.getElementById("wl-ticker").value = "";
-    document.getElementById("wl-name").value = "";
-    document.getElementById("wl-note").value = "";
+  const exists = list.some(item =>
+    (item.ticker || "").trim().toUpperCase() === ticker
+  );
 
-    msg.textContent = "Položka byla přidána do watchlistu.";
-    renderWatchlist();
+  if (exists) {
+    msg.textContent = `Ticker ${ticker} už je ve watchlistu.`;
+    return;
+  }
+
+  list.unshift({ type, ticker, name, note });
+  saveWatchlist(list);
+
+  document.getElementById("wl-ticker").value = "";
+  document.getElementById("wl-name").value = "";
+  document.getElementById("wl-note").value = "";
+
+  msg.textContent = "Položka byla přidána do watchlistu.";
+  renderWatchlist();
   });
 
   document.getElementById("wl-clear").addEventListener("click", () => {
