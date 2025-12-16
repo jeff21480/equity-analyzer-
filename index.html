@@ -921,24 +921,24 @@ function showScreen(name) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
 
   // ukaž cílový
-  const el = document.getElementById(name);
+  const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
 
 // po načtení stránky navážeme kliky + nastavíme start
-document.addEventListener("DOMContentLoaded", () => {
+
   // kliky na šuplíky
   document.querySelectorAll(".menu-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const target = card.getAttribute("data-target");
-      if (target) showScreen(target);
-    });
+  card.addEventListener("click", () => {
+    const target = card.getAttribute("data-target");
+    if (target) showScreen(target);
   });
+});
 
   // tlačítka zpět
   document.querySelectorAll(".back-btn").forEach(btn => {
-    btn.addEventListener("click", () => showScreen("home"));
-  });
+  btn.addEventListener("click", () => showScreen("home"));
+});
 
   // start: pokud existuje home, ukaž home, jinak ukaž první screen
   if (document.getElementById("home")) {
