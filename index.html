@@ -908,22 +908,36 @@
 </div>
 
 <script>
-let lastDCF = null;
+/* ===== Equity Analyzer – JS (navigace + DCF + Watchlist) ===== */
+
+// ---------- helpers ----------
+function normTicker(t) {
+  return (t || "").toString().trim().toUpperCase();
+}
+
+function formatMoney(num) {
+  if (num === null || num === undefined || isNaN(num)) return "--,--";
+  return Number(num).toLocaleString("cs-CZ", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
 
 function formatPct(num) {
-  if (num === null || num === undefined || !isFinite(num)) return "";
-  return (num > 0 ? "+" : "") + num.toFixed(1).replace(".", ",") + " %";
+  if (num === null || num === undefined || isNaN(num)) return "";
+  const n = Number(num);
+  const sign = n > 0 ? "+" : "";
+  return sign + n.toFixed(1).replace(".", ",");
 }
-// ===== NAVIGACE (odolná – funguje vždy) =====
+
+// ---------- NAVIGACE ----------
 function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s =>
-    s.classList.remove("active")
-  );
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
 
-// event delegace – řeší mobil + pozdní DOM
+// Delegace kliků = odolné na mobil / pozdní DOM
 document.addEventListener("click", (e) => {
   const card = e.target.closest(".menu-card");
   if (card) {
@@ -939,370 +953,261 @@ document.addEventListener("click", (e) => {
   }
 }, true);
 
-// start aplikace
-showScreen("home");
-// ... ANALYZÁTOR DCF (PROMPT)
-
+// ---------- DCF ----------
 function calculateDCF() {
-  const price = parseFloat(document.getElementById("dcf-price").value);
-  const fcf = parseFloat(document.getElementById("dcf-fcf").value);
-  const growth = parseFloat(document.getElementById("dcf-growth").value) / 100;
-const discount = parseFloat(document.getElementById("dcf-discount").value) / 100;
-const terminal = parseFloat(document.getElementById("dcf-terminal").value) / 100;
+  const price = parseFloat(document.getElementById("dcf-price")?.value);
+  const fcf = parseFloat(document.getElementById("dcf-fcf")?.value);
+  const growth = parseFloat(document.getElementById("dcf-growth")?.value);
+  const discount = parseFloat(document.getElementById("dcf-discount")?.value);
+  const terminal = parseFloat(document.getElementById("dcf-terminal")?.value);
 
   const resultEl = document.getElementById("dcf-result");
   const noteEl = document.getElementById("dcf-note");
 
-  if (isNaN(fcf) || isNaN(growth) || isNaN(discount) || isNaN(terminal) || discount <= 0) {
-    resultEl.innerHTML = "--,-- Kč <span>vnitřní hodnota na akcii</span>";
-    noteEl.textContent = "Vyplň prosím FCF, růst, diskont a terminální růst.";
-    return;
+  if ([price, fcf, growth, discount, terminal].some(v => isNaN(v))) {
+    if (resultEl) resultEl.textContent = "--,--";
+    if (noteEl) noteEl.textContent = "Vyplň prosím všechna pole (cena, FCF, růst, diskont, terminál).";
+    return NaN;
   }
 
+  const g = growth / 100;
+  const r = discount / 100;
+  const tg = terminal / 100;
+
   const years = 10;
-  let presentValue = 0;
+  let pv = 0;
   let cashFlow = fcf;
 
   for (let t = 1; t <= years; t++) {
-    cashFlow *= (1 + growth);
-    const df = Math.pow(1 + discount, t);
-    presentValue += cashFlow / df;
+    cashFlow *= (1 + g);
+    pv += cashFlow / Math.pow(1 + r, t);
   }
 
   let terminalPV = 0;
-  if (discount > terminal) {
-    const lastCF = cashFlow * (1 + terminal);
-    const terminalValue = lastCF / (discount - terminal);
-    terminalPV = terminalValue / Math.pow(1 + discount, years);
+  if (r > tg) {
+    const lastCF = cashFlow * (1 + tg);
+    const terminalValue = lastCF / (r - tg);
+    terminalPV = terminalValue / Math.pow(1 + r, years);
   }
 
-  const intrinsic = presentValue + terminalPV;
+  const intrinsic = pv + terminalPV;
 
-  const currency = document.getElementById("dcf-currency").value;
-
-resultEl.innerHTML = `${formatMoney(intrinsic, currency)} <span>vnitřní hodnota na akcii</span>`;
-
-  if (!isNaN(price) && price > 0) {
-    const diffPct = ((intrinsic - price) / price) * 100;
-    const diffText = (diffPct > 0 ? "+" : "") + diffPct.toFixed(1).replace(".", ",") + " %";
-
-    let status =
-      diffPct > 20 ? "Akcie se zdá podhodnocená." :
-      diffPct < -20 ? "Akcie se zdá nadhodnocená." :
-      "Akcie je blízko odhadované hodnotě.";
-
-    noteEl.textContent = `Rozdíl oproti tržní ceně: ${diffText}. ${status}`;
-  
-    noteEl.textContent = "Zadej i cenu akcie, aby se ukázal rozdíl v procentech.";
-  
+  if (resultEl) resultEl.textContent = formatMoney(intrinsic);
+  if (noteEl) noteEl.textContent = "Výsledek je orientační.";
 
   return intrinsic;
+}
+
+// ---------- WATCHLIST (localStorage) ----------
+const WL_KEY = "aa_watchlist";
+
+function loadWatchlist() {
+  try {
+    const raw = localStorage.getItem(WL_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }
 
-// tlačítka
-// tlačítka (DCF) – bezpečné napojení
-document.addEventListener("DOMContentLoaded", () => {
-  const calcBtn = document.getElementById("dcf-calc");
-  const exampleBtn = document.getElementById("dcf-example");
-const saveBtn = document.getElementById("dcf-save");
-  if (!calcBtn) {
-    console.error("❌ Chybí tlačítko dcf-calc (id='dcf-calc')");
+function saveWatchlist(list) {
+  try {
+    localStorage.setItem(WL_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+function renderWatchlist() {
+  const body = document.getElementById("wl-body");
+  const table = document.getElementById("wl-table");
+  const msg = document.getElementById("wl-message");
+
+  if (!body || !table || !msg) return;
+
+  const list = loadWatchlist();
+  body.innerHTML = "";
+
+  msg.textContent = `Počet položek ve watchlistu: ${list.length}`;
+
+  if (!list.length) {
+    table.style.display = "none";
     return;
   }
-if (saveBtn) {
-  saveBtn.addEventListener("click", (e) => {
-    e.preventDefault();
 
-  const ticker = (document.getElementById("dcf-ticker").value || "")
-  .trim()
-  .toUpperCase();
-    const price = parseFloat(document.getElementById("dcf-price")?.value);
-    const currency = document.getElementById("dcf-currency")?.value || "USD";
+  table.style.display = "table";
 
-    if (!ticker) {
-      alert("Zadej ticker (např. AAPL).");
-      return;
-    }
+  list.forEach((item, idx) => {
+    const tr = document.createElement("tr");
 
-    const fairValue = calculateDCF();
-    if (typeof fairValue !== "number" || isNaN(fairValue)) {
-  alert("Nepodařilo se spočítat férovou hodnotu.");
-  return;
-}
+    const tdType = document.createElement("td");
+    tdType.textContent = item.type || "";
+    tr.appendChild(tdType);
 
-const list = loadWatchlist();
+    const tdTicker = document.createElement("td");
+    tdTicker.textContent = item.ticker || "";
+    tr.appendChild(tdTicker);
 
-// zákaz duplicity
-const exists = list.some(item =>
-  (item.ticker || "").trim().toUpperCase() === ticker
-);
+    const tdCur = document.createElement("td");
+    tdCur.textContent = item.currency || "";
+    tr.appendChild(tdCur);
 
-if (exists) {
-  alert(`Ticker ${ticker} už je ve watchlistu.`);
-  return;
-}
+    const tdPrice = document.createElement("td");
+    tdPrice.textContent = item.price != null ? `${formatMoney(item.price)}` : "";
+    tr.appendChild(tdPrice);
 
-const diffPct = (!isNaN(price) && price > 0)
-  ? ((fairValue - price) / price) * 100
-  : null;
+    const tdFV = document.createElement("td");
+    tdFV.textContent = item.fairValue != null ? `${formatMoney(item.fairValue)}` : "";
+    tr.appendChild(tdFV);
 
-list.unshift({
-  type: "DCF",
-  ticker,
-  name: ticker,
-  currency,
-  price,
-  fairValue,
-  diffPct,
-  note: `DCF: ${formatMoney(fairValue)} ${currency}`,
-  dcf: { price, fairValue, diffPct, currency }
-});
+    const tdDiff = document.createElement("td");
+    tdDiff.textContent = item.diffPct != null ? `${formatPct(item.diffPct)}%` : "";
+    tr.appendChild(tdDiff);
 
-saveWatchlist(list);
-renderWatchlist();
-showScreen("watchlist");
+    const tdDate = document.createElement("td");
+    tdDate.textContent = item.date || "";
+    tr.appendChild(tdDate);
 
-alert(`Uloženo do watchlistu: ${ticker}`); alert("Nepodařilo se spočítat férovou cenu – zkontroluj vstupy.");
-      return;
-    }
+    const tdNote = document.createElement("td");
+    tdNote.textContent = item.note || "";
+    tr.appendChild(tdNote);
 
-    const diffPct = (!isNaN(price) && price > 0) ? ((fairValue - price) / price) * 100 : null;
+    const tdAct = document.createElement("td");
+    const btnDel = document.createElement("button");
+    btnDel.className = "danger";
+    btnDel.textContent = "Smazat";
+    btnDel.addEventListener("click", () => {
+      const updated = loadWatchlist().filter((_, i) => i !== idx);
+      saveWatchlist(updated);
+      renderWatchlist();
+    });
+    tdAct.appendChild(btnDel);
+    tr.appendChild(tdAct);
 
-    const list = loadWatchlist();
-    list.unshift({
-  type: "DCF",
-  ticker,
-  name: ticker,
-  currency,        // ✅ TOTO JE TEN KLÍČOVÝ ŘÁDEK
-  price,
-  fairValue,
-  diffPct,
-  note: `DCF: ${formatMoney(fairValue)} ${currency} (${diffPct.toFixed(1)}%)`,
-  dcf: { price, fairValue, diffPct, currency, ts: new Date().toISOString() }
-});
-
-    saveWatchlist(list);
-    renderWatchlist();
-
-    alert(`Uloženo do sledovaných: ${ticker}`);
+    body.appendChild(tr);
   });
-                                                     }
-  calcBtn.addEventListener("click", (e) => {
-  e.preventDefault();
+}
 
-  const noteEl = document.getElementById("dcf-note");
-  const resultEl = document.getElementById("dcf-result");
+// ---------- napojení tlačítek (po načtení DOM) ----------
+document.addEventListener("DOMContentLoaded", () => {
+  // start screen
+  showScreen("home");
 
-  try {
-    
-
-    if (typeof calculateDCF !== "function") {
-      throw new Error("calculateDCF() neexistuje / není dostupná.");
-    }
-
-    calculateDCF();
-
-    if (noteEl) noteEl.textContent = "Klik OK – pokud není výsledek, chyba je uvnitř calculateDCF().";
-  } catch (err) {
-    if (noteEl) noteEl.textContent = "CHYBA: " + (err?.message || err);
-    if (resultEl) resultEl.textContent = "--,--";
-  }
-});
-
-  if (exampleBtn) {
-    exampleBtn.addEventListener("click", (e) => {
+  // DCF tlačítka
+  const dcfCalc = document.getElementById("dcf-calc");
+  if (dcfCalc) {
+    dcfCalc.addEventListener("click", (e) => {
       e.preventDefault();
-
-      document.getElementById("dcf-ticker").value = "SOFI";
-      document.getElementById("dcf-price").value = "8.50";
-      document.getElementById("dcf-fcf").value = "0.65";
-      document.getElementById("dcf-growth").value = "18";
-      document.getElementById("dcf-discount").value = "9";
-      document.getElementById("dcf-terminal").value = "2.5";
-
       calculateDCF();
     });
   }
-});
 
-  // ---------- KALKULAČKA SLOŽENÉHO ÚROČENÍ ----------
-  function formatCZK(num) {
-    if (isNaN(num) || !isFinite(num)) return "--,-- Kč";
-    return num.toLocaleString("cs-CZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Kč";
-  }
+  const dcfSave = document.getElementById("dcf-save");
+  if (dcfSave) {
+    dcfSave.addEventListener("click", (e) => {
+      e.preventDefault();
 
-  function calcCompound() {
-    const start = parseFloat(document.getElementById("ci-start").value) || 0;
-    const monthly = parseFloat(document.getElementById("ci-monthly").value) || 0;
-    const years = parseFloat(document.getElementById("ci-years").value);
-    const rateYear = parseFloat(document.getElementById("ci-rate").value);
+      const ticker = normTicker(document.getElementById("dcf-ticker")?.value);
+      const price = parseFloat(document.getElementById("dcf-price")?.value);
+      const currency = document.getElementById("dcf-currency")?.value || "USD";
 
-    const resultEl = document.getElementById("ci-result");
-    const detailEl = document.getElementById("ci-detail");
+      if (!ticker) {
+        alert("Zadej ticker (např. AAPL).");
+        return;
+      }
 
-    if (isNaN(years) || years <= 0 || isNaN(rateYear)) {
-      resultEl.textContent = "--,-- Kč";
-      detailEl.textContent = "Zadej prosím alespoň počet let a roční výnos.";
-      return;
-    }
+      const fairValue = calculateDCF();
+      if (typeof fairValue !== "number" || isNaN(fairValue)) {
+        alert("Nepodařilo se spočítat férovou hodnotu.");
+        return;
+      }
 
-    const n = Math.round(years * 12);      // počet měsíců
-    const r = rateYear / 100 / 12;         // měsíční sazba
+      const list = loadWatchlist();
+      const exists = list.some(it => normTicker(it.ticker) === ticker);
+      if (exists) {
+        alert(`Ticker ${ticker} už je ve watchlistu.`);
+        return;
+      }
 
-    let future = 0;
-    if (r === 0) {
-      future = start + monthly * n;
-    } else {
-      future =
-        start * Math.pow(1 + r, n) +
-        monthly * ((Math.pow(1 + r, n) - 1) / r);
-    }
+      const diffPct = (!isNaN(price) && price > 0) ? ((fairValue - price) / price) * 100 : null;
 
-    const invested = start + monthly * n;
-    const interest = future - invested;
-
-    resultEl.innerHTML = `${formatCZK(future)} <span>budoucí hodnota portfolia</span>`;
-    detailEl.textContent =
-      `Celkem vloženo: ${formatCZK(invested)} · Výnos (úrok): ${formatCZK(interest)} · ` +
-      `Výpočet je orientační, počítá s měsíčním připisováním úroku.`;
-  }
-
-  document.getElementById("ci-calc").addEventListener("click", calcCompound);
-  document.getElementById("ci-example").addEventListener("click", () => {
-    document.getElementById("ci-start").value = "50000";
-    document.getElementById("ci-monthly").value = "2000";
-    document.getElementById("ci-years").value = "15";
-    document.getElementById("ci-rate").value = "8";
-    calcCompound();
-  });
-
-  // ---------- WATCHLIST (localStorage) ----------
-  const WL_KEY = "aa_watchlist";
-function normTicker(t) {
-  return (t || "").toString().trim().toUpperCase();
-}
-
-function hasTicker(list, ticker) {
-  const t = normTicker(ticker);
-  return list.some(item => normTicker(item.ticker) === t);
-}
-  function loadWatchlist() {
-    try {
-      const raw = localStorage.getItem(WL_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error("Chyba při načítání watchlistu:", e);
-      return [];
-    }
-  }
-
-  function saveWatchlist(list) {
-    try {
-      localStorage.setItem(WL_KEY, JSON.stringify(list));
-    } catch (e) {
-      console.error("Chyba při ukládání watchlistu:", e);
-    }
-  }
-
-  function renderWatchlist() {
-    const body = document.getElementById("wl-body");
-    const table = document.getElementById("wl-table");
-    const msg = document.getElementById("wl-message");
-
-    const list = loadWatchlist();
-    body.innerHTML = "";
-
-    if (!list.length) {
-      table.style.display = "none";
-      msg.textContent = "Zatím žádné položky. Přidej první ticker.";
-      return;
-    }
-
-    table.style.display = "table";
-    msg.textContent = `Počet položek ve watchlistu: ${list.length}`;
-
-    list.forEach((item, idx) => {
-      const tr = document.createElement("tr");
-
-      const tdType = document.createElement("td");
-      tdType.textContent = item.type || "";
-      tr.appendChild(tdType);
-
-      const tdTicker = document.createElement("td");
-      tdTicker.textContent = item.ticker || "";
-      tr.appendChild(tdTicker);
-
-      const tdName = document.createElement("td");
-      tdName.textContent = item.currency || "";
-      tr.appendChild(tdName);
-
-      const tdNote = document.createElement("td");
-      tdNote.textContent = item.note || "";
-      tr.appendChild(tdNote);
-
-      const tdAction = document.createElement("td");
-      const btnDel = document.createElement("button");
-      btnDel.className = "danger";
-      btnDel.textContent = "Smazat";
-      btnDel.addEventListener("click", () => {
-        const updated = loadWatchlist().filter((_, i) => i !== idx);
-        saveWatchlist(updated);
-        renderWatchlist();
+      list.unshift({
+        type: "DCF",
+        ticker,
+        name: ticker,
+        currency,
+        price: isNaN(price) ? null : price,
+        fairValue,
+        diffPct,
+        date: new Date().toLocaleDateString("cs-CZ"),
+        note: `DCF: ${formatMoney(fairValue)} ${currency} (${diffPct != null ? formatPct(diffPct) + "%" : ""})`
       });
-      tdAction.appendChild(btnDel);
-      tr.appendChild(tdAction);
 
-      body.appendChild(tr);
+      saveWatchlist(list);
+      renderWatchlist();
+      showScreen("watchlist");
+      alert(`Uloženo do sledovaných: ${ticker}`);
     });
   }
 
-  
-const type = document.getElementById("wl-type").value;
-  const ticker = normTicker(document.getElementById("wl-ticker").value);
-  const name = document.getElementById("wl-name").value.trim();
-  const note = document.getElementById("wl-note").value.trim();
-  const msg = document.getElementById("wl-message");
+  // Watchlist add/clear
+  const wlAdd = document.getElementById("wl-add");
+  if (wlAdd) {
+    wlAdd.addEventListener("click", (e) => {
+      e.preventDefault();
 
-  if (!ticker) {
-    msg.textContent = "Vyplň prosím alespoň ticker.";
-    return;
+      const type = document.getElementById("wl-type")?.value || "Akcie";
+      const ticker = normTicker(document.getElementById("wl-ticker")?.value);
+      const name = (document.getElementById("wl-name")?.value || "").trim();
+      const note = (document.getElementById("wl-note")?.value || "").trim();
+      const msg = document.getElementById("wl-message");
+
+      if (!ticker) {
+        if (msg) msg.textContent = "Vyplň prosím alespoň ticker.";
+        return;
+      }
+
+      const list = loadWatchlist();
+      const exists = list.some(it => normTicker(it.ticker) === ticker);
+      if (exists) {
+        if (msg) msg.textContent = `Ticker ${ticker} už je ve watchlistu.`;
+        return;
+      }
+
+      list.unshift({
+        type,
+        ticker,
+        name,
+        note,
+        date: new Date().toLocaleDateString("cs-CZ")
+      });
+
+      saveWatchlist(list);
+
+      if (document.getElementById("wl-ticker")) document.getElementById("wl-ticker").value = "";
+      if (document.getElementById("wl-name")) document.getElementById("wl-name").value = "";
+      if (document.getElementById("wl-note")) document.getElementById("wl-note").value = "";
+
+      if (msg) msg.textContent = "Položka byla přidána do watchlistu.";
+      renderWatchlist();
+    });
   }
 
-  const list = loadWatchlist();
-
-  const exists = list.some(item =>
-    (item.ticker || "").trim().toUpperCase() === ticker
-  );
-
-  if (exists) {
-    msg.textContent = `Ticker ${ticker} už je ve watchlistu.`;
-    return;
+  const wlClear = document.getElementById("wl-clear");
+  if (wlClear) {
+    wlClear.addEventListener("click", (e) => {
+      e.preventDefault();
+      const list = loadWatchlist();
+      if (!list.length) return;
+      if (!confirm("Opravdu chceš vymazat celý watchlist?")) return;
+      saveWatchlist([]);
+      renderWatchlist();
+    });
   }
 
-  list.unshift({ type, ticker, name, note });
-  saveWatchlist(list);
-
-  document.getElementById("wl-ticker").value = "";
-  document.getElementById("wl-name").value = "";
-  document.getElementById("wl-note").value = "";
-
-  msg.textContent = "Položka byla přidána do watchlistu.";
+  // první render
   renderWatchlist();
-  });
-
-  document.getElementById("wl-clear").addEventListener("click", () => {
-    const list = loadWatchlist();
-    if (!list.length) return;
-    if (!confirm("Opravdu chceš vymazat celý watchlist v tomto zařízení?")) return;
-    saveWatchlist([]);
-    renderWatchlist();
-  });
-
-  // inicializace watchlistu při načtení
-  renderWatchlist();
+});
 </script>
 
 </body>
