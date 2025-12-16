@@ -914,33 +914,30 @@ function formatPct(num) {
   if (num === null || num === undefined || !isFinite(num)) return "";
   return (num > 0 ? "+" : "") + num.toFixed(1).replace(".", ",") + " %";
 }
-// ================= NAVIGACE =================
+// ===== NAVIGACE (odolná – funguje vždy) =====
 function showScreen(name) {
-  const screens = document.querySelectorAll(".screen");
-  screens.forEach(s => {
-    s.classList.remove("active");
-  });
-
+  document.querySelectorAll(".screen").forEach(s =>
+    s.classList.remove("active")
+  );
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
 
-// kliky na menu
-const cards = document.querySelectorAll(".menu-card");
-cards.forEach(card => {
-  card.addEventListener("click", () => {
+// event delegace – řeší mobil + pozdní DOM
+document.addEventListener("click", (e) => {
+  const card = e.target.closest(".menu-card");
+  if (card) {
     const target = card.getAttribute("data-target");
     if (target) showScreen(target);
-  });
-});
+    return;
+  }
 
-// tlačítka zpět
-const backs = document.querySelectorAll(".back-btn");
-backs.forEach(btn => {
-  btn.addEventListener("click", () => {
-    showScreen("home");
-  });
-});
+  const back = e.target.closest(".back-btn");
+  if (back) {
+    const to = back.getAttribute("data-back") || "home";
+    showScreen(to);
+  }
+}, true);
 
 // start aplikace
 showScreen("home");
