@@ -638,6 +638,9 @@
 <button class="primary" type="button" id="dcf-calc">
   Spočítat vnitřní hodnotu
 </button>
+    <button class="secondary" type="button" id="dcf-save">
+  Přidat do sledovaných
+</button>
     </div>
 
     <div class="result-box">
@@ -992,8 +995,11 @@ resultEl.innerHTML = `${formatMoney(intrinsic, currency)} <span>vnitřní hodnot
       "Akcie je blízko odhadované hodnotě.";
 
     noteEl.textContent = `Rozdíl oproti tržní ceně: ${diffText}. ${status}`;
-  } else {
+  
     noteEl.textContent = "Zadej i cenu akcie, aby se ukázal rozdíl v procentech.";
+  
+
+  return intrinsic;
   }
 }
 
@@ -1002,12 +1008,47 @@ resultEl.innerHTML = `${formatMoney(intrinsic, currency)} <span>vnitřní hodnot
 document.addEventListener("DOMContentLoaded", () => {
   const calcBtn = document.getElementById("dcf-calc");
   const exampleBtn = document.getElementById("dcf-example");
-
+const saveBtn = document.getElementById("dcf-save");
   if (!calcBtn) {
     console.error("❌ Chybí tlačítko dcf-calc (id='dcf-calc')");
     return;
   }
+if (saveBtn) {
+  saveBtn.addEventListener("click", (e) => {
+    e.preventDefault();
 
+    const ticker = (document.getElementById("dcf-ticker")?.value || "").trim().toUpperCase();
+    const price = parseFloat(document.getElementById("dcf-price")?.value);
+    const currency = document.getElementById("dcf-currency")?.value || "USD";
+
+    if (!ticker) {
+      alert("Zadej ticker (např. AAPL).");
+      return;
+    }
+
+    const fairValue = calculateDCF();
+    if (typeof fairValue !== "number" || isNaN(fairValue) || !isFinite(fairValue)) {
+      alert("Nepodařilo se spočítat férovou cenu – zkontroluj vstupy.");
+      return;
+    }
+
+    const diffPct = (!isNaN(price) && price > 0) ? ((fairValue - price) / price) * 100 : null;
+
+    const list = loadWatchlist();
+    list.unshift({
+      type: "DCF",
+      ticker,
+      name: ticker,
+      note: `DCF: ${formatMoney(fairValue)} ${currency}${diffPct === null ? "" : ` (${diffPct.toFixed(1)}%)`}`,
+      dcf: { price, fairValue, diffPct, currency, ts: new Date().toISOString() }
+    });
+
+    saveWatchlist(list);
+    renderWatchlist();
+
+    alert(`Uloženo do sledovaných: ${ticker}`);
+  });
+                                                     }
   calcBtn.addEventListener("click", (e) => {
   e.preventDefault();
 
