@@ -1153,7 +1153,14 @@ if (saveBtn) {
 
   // ---------- WATCHLIST (localStorage) ----------
   const WL_KEY = "aa_watchlist";
+function normTicker(t) {
+  return (t || "").toString().trim().toUpperCase();
+}
 
+function hasTicker(list, ticker) {
+  const t = normTicker(ticker);
+  return list.some(item => normTicker(item.ticker) === t);
+}
   function loadWatchlist() {
     try {
       const raw = localStorage.getItem(WL_KEY);
@@ -1228,7 +1235,7 @@ if (saveBtn) {
 
   
 const type = document.getElementById("wl-type").value;
-  const ticker = document.getElementById("wl-ticker").value.trim().toUpperCase();
+  const ticker = normTicker(document.getElementById("wl-ticker").value);
   const name = document.getElementById("wl-name").value.trim();
   const note = document.getElementById("wl-note").value.trim();
   const msg = document.getElementById("wl-message");
