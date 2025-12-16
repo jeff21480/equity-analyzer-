@@ -916,15 +916,18 @@ function formatPct(num) {
 }
 
 
+
 // -------- NAVIGACE MEZI SCREENY --------
 function showScreen(name) {
   document.querySelectorAll(".screen").forEach(s => {
     s.classList.remove("active");
   });
+
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
 
+// kliky na menu karty
 document.querySelectorAll(".menu-card").forEach(card => {
   card.addEventListener("click", () => {
     const target = card.getAttribute("data-target");
@@ -932,23 +935,13 @@ document.querySelectorAll(".menu-card").forEach(card => {
   });
 });
 
+// tlačítka zpět
 document.querySelectorAll(".back-btn").forEach(btn => {
   btn.addEventListener("click", () => showScreen("home"));
 });
 
+// start aplikace
 showScreen("home");
-
-
-
-function formatMoney(num) {
-  if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
-    return "--,--";
-  }
-  return num.toLocaleString("cs-CZ", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
 // ... ANALYZÁTOR DCF (PROMPT)
 
 function calculateDCF() {
