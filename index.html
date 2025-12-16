@@ -928,12 +928,12 @@ function showScreen(name) {
 
 // kliky na menu karty
 document.querySelectorAll(".menu-card").forEach(card => {
+  document.querySelectorAll(".menu-card").forEach(card => {
   card.addEventListener("click", () => {
     const target = card.getAttribute("data-target");
     if (target) showScreen(target);
   });
 });
-
 // tlačítka zpět
 document.querySelectorAll(".back-btn").forEach(btn => {
   btn.addEventListener("click", () => showScreen("home"));
@@ -941,7 +941,7 @@ document.querySelectorAll(".back-btn").forEach(btn => {
 
 // start
 showScreen("home");
-});
+
 
 
 function formatMoney(num) {
