@@ -918,22 +918,13 @@ function formatPct(num) {
 
 // -------- NAVIGACE MEZI SCREENY --------
 function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s =>
-    s.classList.remove("active")
-  );
+  document.querySelectorAll(".screen").forEach(s => {
+    s.classList.remove("active");
+  });
 
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
-
-// kliky na menu karty
-document.querySelectorAll(".menu-card").forEach(card => {
-  document.querySelectorAll(".menu-card").forEach(card => {
-  card.addEventListener("click", () => {
-    const target = card.getAttribute("data-target");
-    if (target) showScreen(target);
-  });
-});
 // tlačítka zpět
 document.querySelectorAll(".back-btn").forEach(btn => {
   btn.addEventListener("click", () => showScreen("home"));
