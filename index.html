@@ -914,12 +914,10 @@ function formatPct(num) {
   if (num === null || num === undefined || !isFinite(num)) return "";
   return (num > 0 ? "+" : "") + num.toFixed(1).replace(".", ",") + " %";
 }
-
-
-
-// -------- NAVIGACE MEZI SCREENY --------
+// ================= NAVIGACE =================
 function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s => {
+  const screens = document.querySelectorAll(".screen");
+  screens.forEach(s => {
     s.classList.remove("active");
   });
 
@@ -927,8 +925,9 @@ function showScreen(name) {
   if (el) el.classList.add("active");
 }
 
-// kliky na menu karty
-document.querySelectorAll(".menu-card").forEach(card => {
+// kliky na menu
+const cards = document.querySelectorAll(".menu-card");
+cards.forEach(card => {
   card.addEventListener("click", () => {
     const target = card.getAttribute("data-target");
     if (target) showScreen(target);
@@ -936,8 +935,11 @@ document.querySelectorAll(".menu-card").forEach(card => {
 });
 
 // tlačítka zpět
-document.querySelectorAll(".back-btn").forEach(btn => {
-  btn.addEventListener("click", () => showScreen("home"));
+const backs = document.querySelectorAll(".back-btn");
+backs.forEach(btn => {
+  btn.addEventListener("click", () => {
+    showScreen("home");
+  });
 });
 
 // start aplikace
