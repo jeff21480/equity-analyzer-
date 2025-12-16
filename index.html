@@ -921,6 +921,7 @@ function showScreen(name) {
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
+  }
 document.querySelectorAll(".menu-card").forEach(card => {
   card.addEventListener("click", () => {
     const target = card.getAttribute("data-target");
@@ -931,9 +932,9 @@ document.querySelectorAll(".menu-card").forEach(card => {
 document.querySelectorAll(".back-btn").forEach(btn => {
   btn.addEventListener("click", () => showScreen("home"));
 });
-  document.querySelectorAll(".back-btn").forEach(btn => {
-    btn.addEventListener("click", () => showScreen("home"));
-  });
+
+showScreen("home");
+
 
 function formatMoney(num) {
   if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
