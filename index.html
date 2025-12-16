@@ -1036,12 +1036,16 @@ if (saveBtn) {
 
     const list = loadWatchlist();
     list.unshift({
-      type: "DCF",
-      ticker,
-      name: ticker,
-      note: `DCF: ${formatMoney(fairValue)} ${currency}${diffPct === null ? "" : ` (${diffPct.toFixed(1)}%)`}`,
-      dcf: { price, fairValue, diffPct, currency, ts: new Date().toISOString() }
-    });
+  type: "DCF",
+  ticker,
+  name: ticker,
+  currency,        // ✅ TOTO JE TEN KLÍČOVÝ ŘÁDEK
+  price,
+  fairValue,
+  diffPct,
+  note: `DCF: ${formatMoney(fairValue)} ${currency} (${diffPct.toFixed(1)}%)`,
+  dcf: { price, fairValue, diffPct, currency, ts: new Date().toISOString() }
+});
 
     saveWatchlist(list);
     renderWatchlist();
