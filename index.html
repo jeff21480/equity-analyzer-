@@ -1026,7 +1026,9 @@ if (saveBtn) {
   saveBtn.addEventListener("click", (e) => {
     e.preventDefault();
 
-    const ticker = (document.getElementById("dcf-ticker")?.value || "").trim().toUpperCase();
+  const ticker = (document.getElementById("dcf-ticker").value || "")
+  .trim()
+  .toUpperCase();
     const price = parseFloat(document.getElementById("dcf-price")?.value);
     const currency = document.getElementById("dcf-currency")?.value || "USD";
 
@@ -1036,8 +1038,44 @@ if (saveBtn) {
     }
 
     const fairValue = calculateDCF();
-    if (typeof fairValue !== "number" || isNaN(fairValue) || !isFinite(fairValue)) {
-      alert("Nepodařilo se spočítat férovou cenu – zkontroluj vstupy.");
+    if (typeof fairValue !== "number" || isNaN(fairValue)) {
+  alert("Nepodařilo se spočítat férovou hodnotu.");
+  return;
+}
+
+const list = loadWatchlist();
+
+// zákaz duplicity
+const exists = list.some(item =>
+  (item.ticker || "").trim().toUpperCase() === ticker
+);
+
+if (exists) {
+  alert(`Ticker ${ticker} už je ve watchlistu.`);
+  return;
+}
+
+const diffPct = (!isNaN(price) && price > 0)
+  ? ((fairValue - price) / price) * 100
+  : null;
+
+list.unshift({
+  type: "DCF",
+  ticker,
+  name: ticker,
+  currency,
+  price,
+  fairValue,
+  diffPct,
+  note: `DCF: ${formatMoney(fairValue)} ${currency}`,
+  dcf: { price, fairValue, diffPct, currency }
+});
+
+saveWatchlist(list);
+renderWatchlist();
+showScreen("watchlist");
+
+alert(`Uloženo do watchlistu: ${ticker}`); alert("Nepodařilo se spočítat férovou cenu – zkontroluj vstupy.");
       return;
     }
 
