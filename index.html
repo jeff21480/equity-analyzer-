@@ -921,16 +921,21 @@ function showScreen(name) {
   document.querySelectorAll(".screen").forEach(s => {
     s.classList.remove("active");
   });
-
   const el = document.getElementById("screen-" + name);
   if (el) el.classList.add("active");
 }
-// tlačítka zpět
+
+document.querySelectorAll(".menu-card").forEach(card => {
+  card.addEventListener("click", () => {
+    const target = card.getAttribute("data-target");
+    if (target) showScreen(target);
+  });
+});
+
 document.querySelectorAll(".back-btn").forEach(btn => {
   btn.addEventListener("click", () => showScreen("home"));
 });
 
-// start
 showScreen("home");
 
 
