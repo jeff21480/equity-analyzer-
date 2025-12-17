@@ -565,7 +565,16 @@
         <div class="menu-arrow">›</div>
       </div>
 
-      
+ <div class="menu-card" data-target="calc">
+  <div class="menu-left">
+    <div class="menu-icon">🧮</div>
+    <div>
+      <div class="menu-text-title">Kalkulačka</div>
+      <div class="menu-text-sub">Složené úročení / margin of safety</div>
+    </div>
+  </div>
+  <div class="menu-arrow">›</div>
+ </div>     
 <div class="menu-card" data-target="how">
   <div class="menu-left">
     <div class="menu-icon">ℹ️</div>
@@ -580,7 +589,69 @@
           
   </section>
 <!-- ANALYZÁTOR – DCF PROMPT -->
-<section id="screen-analyzer" class="screen">
+<section id="screen-calc" class="screen">
+  <div class="inner-topbar">
+    <button class="back-btn" data-back="home">←</button>
+    <div class="inner-title-block">
+      <span class="main">Kalkulačka</span>
+      <span class="sub">Složené úročení & vysvětlení</span>
+    </div>
+  </div>
+
+  <div class="card-panel">
+    <div class="panel-header">
+      <div class="panel-title">Složené úročení</div>
+      <span class="panel-pill">INFO</span>
+    </div>
+
+    <div class="panel-sub">
+      Jednoduchý nástroj pro pochopení, jak čas a výnos ovlivňují kapitál.
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Počáteční investice</label>
+        <input type="number" placeholder="např. 100 000">
+      </div>
+
+      <div class="field">
+        <label>Měsíční příspěvek</label>
+        <input type="number" placeholder="např. 5 000">
+      </div>
+
+      <div class="field">
+        <label>Roční výnos (%)</label>
+        <input type="number" placeholder="např. 8">
+      </div>
+
+      <div class="field">
+        <label>Doba investice (roky)</label>
+        <input type="number" placeholder="např. 20">
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-note">
+        🔍 Tahle kalkulačka je **edukační**.  
+        Slouží k pochopení principu složeného úročení, ne k predikci výnosu.
+      </div>
+    </div>
+  </div>
+
+  <div class="card-panel">
+    <div class="panel-header">
+      <div class="panel-title">Jak to číst</div>
+    </div>
+
+    <div class="placeholder-panel">
+      • Čím delší čas, tím větší efekt úročení  
+      <br>• Pravidelné investice jsou silnější než jednorázové  
+      <br>• Malý rozdíl ve výnosu = velký rozdíl v čase  
+      <br><br>
+      👉 Kalkulačka **nic neukládá**, jen vysvětluje princip.
+    </div>
+  </div>
+</section><section id="screen-analyzer" class="screen">
   <div class="inner-topbar">
     <button class="back-btn" data-back="home">←</button>
     <div class="inner-title-block">
