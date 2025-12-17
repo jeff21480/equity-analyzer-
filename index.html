@@ -743,7 +743,7 @@
   <div class="result-note" id="wl-message">
     Zatím žádné položky. Přidej první.
   </div>
-</div>
+      </div>
 
 <div id="wl-cards" class="wl-cards"></div>
 <div class="table-wrap">
@@ -1029,6 +1029,7 @@ function calculateDCF() {
   return intrinsic;
 }
 
+
 // ---------- WATCHLIST (localStorage) ----------
 const WL_KEY = "aa_watchlist";
 
@@ -1053,76 +1054,78 @@ function renderWatchlist() {
   const body = document.getElementById("wl-body");
   const table = document.getElementById("wl-table");
   const msg = document.getElementById("wl-message");
+  const cards = document.getElementById("wl-cards");
 
-  if (!body || !table || !msg) return;
+  if (!body || !msg) return;
 
   const list = loadWatchlist();
   body.innerHTML = "";
+  if (cards) cards.innerHTML = "";
 
   msg.textContent = `Počet položek ve watchlistu: ${list.length}`;
 
   if (!list.length) {
-    table.style.display = "none";
+    if (table) table.style.display = "none";
     return;
   }
 
-  table.style.display = "table";
+  if (table) table.style.display = "table";
 
   list.forEach((item, idx) => {
-    const tr = document.createElement("tr");
+    // desktop tabulka
+    if (table) {
+      const tr = document.createElement("tr");
 
-    const tdType = document.createElement("td");
-    tdType.textContent = item.type || "";
-    tr.appendChild(tdType);
+      const tdType = document.createElement("td");
+      tdType.textContent = item.type || "";
+      tr.appendChild(tdType);
 
-    const tdTicker = document.createElement("td");
-    tdTicker.textContent = item.ticker || "";
-    tr.appendChild(tdTicker);
+      const tdTicker = document.createElement("td");
+      tdTicker.textContent = item.ticker || "";
+      tr.appendChild(tdTicker);
 
-    const tdCur = document.createElement("td");
-    tdCur.textContent = item.currency || "";
-    tr.appendChild(tdCur);
+      const tdName = document.createElement("td");
+      tdName.textContent = item.name || "";
+      tr.appendChild(tdName);
 
-    const tdPrice = document.createElement("td");
-    tdPrice.textContent = item.price != null ? `${formatMoney(item.price)}` : "";
-    tr.appendChild(tdPrice);
+      const tdNote = document.createElement("td");
+      tdNote.textContent = item.note || "";
+      tr.appendChild(tdNote);
 
-    const tdFV = document.createElement("td");
-    tdFV.textContent = item.fairValue != null ? `${formatMoney(item.fairValue)}` : "";
-    tr.appendChild(tdFV);
+      const tdAct = document.createElement("td");
+      const btnDel = document.createElement("button");
+      btnDel.className = "danger";
+      btnDel.textContent = "Smazat";
+      btnDel.onclick = () => {
+        const updated = loadWatchlist().filter((_, i) => i !== idx);
+        saveWatchlist(updated);
+        renderWatchlist();
+      };
+      tdAct.appendChild(btnDel);
+      tr.appendChild(tdAct);
 
-    const tdDiff = document.createElement("td");
-    tdDiff.textContent = item.diffPct != null ? `${formatPct(item.diffPct)}%` : "";
-    tr.appendChild(tdDiff);
+      body.appendChild(tr);
+    }
 
-    const tdDate = document.createElement("td");
-    tdDate.textContent = item.date || "";
-    tr.appendChild(tdDate);
-
-    const tdNote = document.createElement("td");
-    tdNote.textContent = item.note || "";
-    tr.appendChild(tdNote);
-
-    const tdAct = document.createElement("td");
-    const btnDel = document.createElement("button");
-    btnDel.className = "danger";
-    btnDel.textContent = "Smazat";
-    btnDel.addEventListener("click", () => {
-      const updated = loadWatchlist().filter((_, i) => i !== idx);
-      saveWatchlist(updated);
-      renderWatchlist();
-    });
-    tdAct.appendChild(btnDel);
-    tr.appendChild(tdAct);
-
-    body.appendChild(tr);
+    // mobilní karty
+    if (cards) {
+      const card = document.createElement("div");
+      card.className = "wl-card";
+      card.innerHTML = `
+        <div class="wl-row"><strong>${item.ticker || ""}</strong></div>
+        <div class="wl-row muted">${item.name || ""}</div>
+        <div class="wl-row muted">${item.note || ""}</div>
+        <button class="danger" style="margin-top:8px">Smazat</button>
+      `;
+      card.querySelector("button").onclick = () => {
+        const updated = loadWatchlist().filter((_, i) => i !== idx);
+        saveWatchlist(updated);
+        renderWatchlist();
+      };
+      cards.appendChild(card);
+    }
   });
 }
-
-// ---------- napojení tlačítek (po načtení DOM) ----------
-document.addEventListener("DOMContentLoaded", () => {
-  // start screen
-  showScreen("home");
 
   // DCF tlačítka
   const dcfCalc = document.getElementById("dcf-calc");
