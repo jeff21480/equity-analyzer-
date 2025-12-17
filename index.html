@@ -1077,113 +1077,36 @@ function renderWatchlist() {
       const tr = document.createElement("tr");
 
       const tdType = document.createElement("td");
-      tdType.textContent = item.type || "";
-      tr.appendChild(tdType);
+         }
 
-      const tdTicker = document.createElement("td");
-      tdTicker.textContent = item.ticker || "";
-      tr.appendChild(tdTicker);
+      
 
-      const tdName = document.createElement("td");
-      tdName.textContent = item.name || "";
-      tr.appendChild(tdName);
-
-      const tdNote = document.createElement("td");
-      tdNote.textContent = item.note || "";
-      tr.appendChild(tdNote);
-
-      const tdAct = document.createElement("td");
-      const btnDel = document.createElement("button");
-      btnDel.className = "danger";
-      btnDel.textContent = "Smazat";
-      btnDel.onclick = () => {
-        const updated = loadWatchlist().filter((_, i) => i !== idx);
-        saveWatchlist(updated);
-        renderWatchlist();
-      };
-      tdAct.appendChild(btnDel);
-      tr.appendChild(tdAct);
-
-      body.appendChild(tr);
-    }
-
-    // mobilní karty
-    if (cards) {
-      const card = document.createElement("div");
-      card.className = "wl-card";
-      card.innerHTML = `
-        <div class="wl-row"><strong>${item.ticker || ""}</strong></div>
-        <div class="wl-row muted">${item.name || ""}</div>
-        <div class="wl-row muted">${item.note || ""}</div>
-        <button class="danger" style="margin-top:8px">Smazat</button>
-      `;
-      card.querySelector("button").onclick = () => {
-        const updated = loadWatchlist().filter((_, i) => i !== idx);
-        saveWatchlist(updated);
-        renderWatchlist();
-      };
-      cards.appendChild(card);
-    }
-  });
-}
-
-  // DCF tlačítka
-  const dcfCalc = document.getElementById("dcf-calc");
-  if (dcfCalc) {
-    dcfCalc.addEventListener("click", (e) => {
-      e.preventDefault();
-      calculateDCF();
-    });
+      
+  
+  // mobilní karty
+if (cards) {
+  const card = document.createElement("div");
+  card.className = "wl-card";
+  card.innerHTML = `
+    <div class="wl-row"><strong>${item.type || ""}:</strong> ${item.ticker || ""}</div>
+    <div class="wl-row muted">${item.name || ""}</div>
+    <div class="wl-row muted">${item.currency || ""}</div>
+    <div class="wl-row muted">Cena: ${item.price != null ? item.price : "-"}</div>
+    <div class="wl-row muted">Fair: ${item.fairValue != null ? item.fairValue : "-"}</div>
+    <div class="wl-row muted">Rozdíl: ${item.diffPct != null ? item.diffPct : "-"}</div>
+    <div class="wl-row muted">${item.note || ""}</div>
+    <div class="wl-actions">
+      <button class="danger" data-idx="${idx}">Smazat</button>
+    </div>
+  `;
+  card.querySelector("button.danger").onclick = () => {
+    const updated = loadWatchlist().filter((_, i) => i !== idx);
+    saveWatchlist(updated);
+    renderWatchlist();
+  };
+  cards.appendChild(card);
   }
-
-  const dcfSave = document.getElementById("dcf-save");
-  if (dcfSave) {
-    dcfSave.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      const ticker = normTicker(document.getElementById("dcf-ticker")?.value);
-      const price = parseFloat(document.getElementById("dcf-price")?.value);
-      const currency = document.getElementById("dcf-currency")?.value || "USD";
-
-      if (!ticker) {
-        alert("Zadej ticker (např. AAPL).");
-        return;
-      }
-
-      const fairValue = calculateDCF();
-      if (typeof fairValue !== "number" || isNaN(fairValue)) {
-        alert("Nepodařilo se spočítat férovou hodnotu.");
-        return;
-      }
-
-      const list = loadWatchlist();
-      const exists = list.some(it => normTicker(it.ticker) === ticker);
-      if (exists) {
-        alert(`Ticker ${ticker} už je ve watchlistu.`);
-        return;
-      }
-
-      const diffPct = (!isNaN(price) && price > 0) ? ((fairValue - price) / price) * 100 : null;
-
-      list.unshift({
-        type: "DCF",
-        ticker,
-        name: ticker,
-        currency,
-        price: isNaN(price) ? null : price,
-        fairValue,
-        diffPct,
-        date: new Date().toLocaleDateString("cs-CZ"),
-        note: `DCF: ${formatMoney(fairValue)} ${currency} (${diffPct != null ? formatPct(diffPct) + "%" : ""})`
-      });
-
-      saveWatchlist(list);
-      renderWatchlist();
-      showScreen("watchlist");
-      alert(`Uloženo do sledovaných: ${ticker}`);
-    });
-  }
-
+});
   // Watchlist add/clear
   const wlAdd = document.getElementById("wl-add");
   if (wlAdd) {
