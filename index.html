@@ -640,9 +640,10 @@
     </div>
 
     <div class="btn-row">
-      <button class="primary" type="button" onclick="calculateCompound()">
+    <button class="primary" type="button" onclick="calculateCompound()">
   Spočítat
       </button>
+  
     </div>
 
     <div class="result-box">
@@ -1010,7 +1011,7 @@
 
       <div class="btn-row">
         <button class="secondary" type="button" id="ci-example">Ukázková data</button>
-        <button class="primary" type="button" id="ci-calc">Spočítat</button>
+        <button class="primary" type="button" onclick="calcCompound()">
       </div>
 
       <div class="result-box">
@@ -1353,6 +1354,40 @@ document.addEventListener("DOMContentLoaded", () => {
   // první render
   renderWatchlist();
 });
+ 
+function calcCompound() {
+  const start = parseFloat(document.getElementById("ci-start")?.value) || 0;
+  const monthly = parseFloat(document.getElementById("ci-monthly")?.value) || 0;
+  const years = parseFloat(document.getElementById("ci-years")?.value) || 0;
+  const rateYear = parseFloat(document.getElementById("ci-rate")?.value) || 0;
+
+  const n = Math.round(years * 12);
+  const r = rateYear / 100 / 12;
+let future = 0;
+
+if (r === 0) {
+  future = start + monthly * n;
+} else {
+  future =
+    start * Math.pow(1 + r, n) +
+    monthly * ((Math.pow(1 + r, n) - 1) / r);
+}
+
+  const invested = start + monthly * n;
+  const interest = future - invested;
+
+  const resultEl = document.getElementById("ci-result");
+  const detailEl = document.getElementById("ci-detail");
+
+  if (resultEl) {
+    resultEl.textContent = future.toLocaleString("cs-CZ", { maximumFractionDigits: 0 });
+  }
+  if (detailEl) {
+    detailEl.textContent =
+      `Celkem vloženo: ${invested.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč • ` +
+      `Zisk: ${interest.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč`;
+  }
+  }
 </script>
 
 </body>
