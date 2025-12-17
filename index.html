@@ -44,16 +44,15 @@
         radial-gradient(circle at top right, #0ea5e9 0%, transparent 50%),
         linear-gradient(to bottom, #0f0f25 0%, #030311 100%);
       color: var(--text-main);
-      display: flex;
-      justify-content: center;
+      
       min-height: 100vh;
       padding: 20px;
     }
 
     .app {
-      width: 100%;
-      max-width: 900px; /* desktop friendly */
-      margin: 0 auto 40px;
+  width: 100%;
+  max-width: none;
+  margin: 0 0 40px;
     }
 
     /* HORNÍ LIŠTA */
@@ -68,12 +67,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 26px;
-      font-size: 0.9rem;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .top-bar .left {
-      color: var(--text-muted);
+      font-size:  color: var(--text-muted);
     }
 
     .top-bar .right {
