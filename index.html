@@ -477,6 +477,44 @@
     .muted {
       color: var(--text-muted);
       font-size: 0.8rem;
+    }/* ===== WATCHLIST – MOBIL ===== */
+@media (max-width: 768px) {
+
+  .table-wrap {
+    display: none;
+  }
+
+  .wl-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .wl-card {
+    background: rgba(13,16,34,0.95);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  }
+
+  .wl-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  .wl-row strong {
+    color: #9ca3af;
+    font-weight: 500;
+  }
+
+  .wl-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
     }
   </style>
 </head>
