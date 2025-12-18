@@ -1199,9 +1199,12 @@ if (r === 0) {
       `Zisk: ${interest.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč`;
   }
   }
-(function () {
+
+
   function showScreen(id) {
-    document.querySelectorAll("section.screen").forEach((s) => s.classList.remove("active"));
+    document.querySelectorAll("section.screen")
+      .forEach((s) => s.classList.remove("active"));
+
     const el = document.getElementById("screen-" + id);
     if (el) el.classList.add("active");
   }
@@ -1217,14 +1220,9 @@ if (r === 0) {
   // tlačítko zpět
   document.querySelectorAll("[data-back]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const back = btn.getAttribute("data-back");
-      showScreen(back || "home");
+      const back = btn.getAttribute("data-back") || "home";
+      showScreen(back);
     });
-  });
-
-  // start
-  showScreen("home");
-})();
   });
 
   // start
