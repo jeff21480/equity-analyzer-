@@ -1199,8 +1199,38 @@ if (r === 0) {
       `Zisk: ${interest.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč`;
   }
   }
-</script>
+(function () {
+  function showScreen(id) {
+    document.querySelectorAll("section.screen").forEach((s) => s.classList.remove("active"));
+    const el = document.getElementById("screen-" + id);
+    if (el) el.classList.add("active");
+  }
 
+  // menu dlaždice
+  document.querySelectorAll(".menu-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const target = card.getAttribute("data-target");
+      if (target) showScreen(target);
+    });
+  });
+
+  // tlačítko zpět
+  document.querySelectorAll("[data-back]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const back = btn.getAttribute("data-back");
+      showScreen(back || "home");
+    });
+  });
+
+  // start
+  showScreen("home");
+})();
+  });
+
+  // start
+  showScreen("home");
+})();
+</script>
 </body>
 </html>
         
