@@ -1201,33 +1201,35 @@ if (r === 0) {
   }
 
 
-  function showScreen(id) {
-    document.querySelectorAll("section.screen")
-      .forEach((s) => s.classList.remove("active"));
+  /* ===== JEDINÁ PLATNÁ NAVIGACE ===== */
 
-    const el = document.getElementById("screen-" + id);
-    if (el) el.classList.add("active");
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s =>
+    s.classList.remove("active")
+  );
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+}
+
+document.addEventListener("click", (e) => {
+
+  const menuCard = e.target.closest(".menu-card");
+  if (menuCard) {
+    const target = menuCard.getAttribute("data-target");
+    if (target) showScreen(target);
+    return;
   }
 
-  // menu dlaždice
-  document.querySelectorAll(".menu-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const target = card.getAttribute("data-target");
-      if (target) showScreen(target);
-    });
-  });
+  const backBtn = e.target.closest("[data-back]");
+  if (backBtn) {
+    const back = backBtn.getAttribute("data-back") || "home";
+    showScreen(back);
+    return;
+  }
 
-  // tlačítko zpět
-  document.querySelectorAll("[data-back]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const back = btn.getAttribute("data-back") || "home";
-      showScreen(back);
-    });
-  });
+}, true);
 
-  // start
-  showScreen("home");
-})();
+showScreen("home");
 </script>
 </body>
 </html>
