@@ -954,107 +954,8 @@ function formatPct(num) {
   return (sign + n.toFixed(1)).replace(".", ",") + " %";
 }
 
-// ---------- NAVIGACE (odolná na mobil) ----------
-function showScreen(name) {
-  document.querySelectorAll(".screen, section.screen").forEach((s) => s.classList.remove("active"));
-  const el = document.getElementById(name);
-  if (el) el.classList.add("active");
-  // mobile: posun nahoru, ať uživatel vidí nový screen
-  try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch(e) { window.scrollTo(0, 0); }
-}
 
-// Delegace kliků = funguje i když klikneš na ikonku/text uvnitř karty
-document.addEventListener("click", (e) => {
-  // menu dlaždice
-  const card = e.target.closest(".menu-card");
-  if (card) {
-    const target = card.getAttribute("data-target") || card.dataset.target;
-    if (target) showScreen(target);
-    return;
-  }
 
-  // tlačítko zpět: podporuje [data-back] i .back-btn
-  const backBtn = e.target.closest("[data-back], .back-btn");
-  if (backBtn) {
-    const to = backBtn.getAttribute("data-back") || backBtn.dataset.back || "home";
-    showScreen(to);
-    return;
-  }
-}, true);
-
-// ---------- WATCHLIST ----------
-const WL_KEY = "equity_watchlist_v1";
-
-function loadWatchlist() {
-  try {
-    const raw = localStorage.getItem(WL_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveWatchlist(list) {
-  try {
-    localStorage.setItem(WL_KEY, JSON.stringify(list || []));
-  } catch (e) {}
-}
-
-function renderWatchlist() {
-  const box = document.getElementById("wl-list");
-  if (!box) return;
-
-  const list = loadWatchlist();
-  if (!list.length) {
-    box.innerHTML = `<div style="opacity:.8">Zatím tu nic není. Ulož si první analýzu 🙂</div>`;
-    return;
-  }
-
-  box.innerHTML = list.map((it, idx) => {
-    const t = (it.ticker || "").toString();
-    const n = (it.name || "").toString();
-    const note = (it.note || "").toString();
-    const price = it.price ?? "";
-    const fair = it.fair ?? "";
-    const diff = it.diff ?? "";
-
-    return `
-      <div class="wl-item" style="padding:12px;border-radius:14px;background:rgba(255,255,255,.06);margin:10px 0;">
-        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
-          <div>
-            <div style="font-weight:800;font-size:16px;">${t}${n ? ` • ${n}` : ""}</div>
-            ${note ? `<div style="opacity:.85;margin-top:4px;">${note}</div>` : ""}
-            <div style="opacity:.85;margin-top:8px;font-size:13px;">
-              Cena: <b>${price !== "" ? formatMoney(price) : "—"}</b> |
-              Férová: <b>${fair !== "" ? formatMoney(fair) : "—"}</b> |
-              Rozdíl: <b>${diff !== "" ? formatPct(diff) : "—"}</b>
-            </div>
-          </div>
-
-          <button class="wl-del" data-wl-del="${idx}"
-            style="border:0;border-radius:10px;padding:8px 10px;background:rgba(255,80,80,.25);color:#fff;">
-            Smazat
-          </button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-// mazání položky (delegace)
-document.addEventListener("click", (e) => {
-  const del = e.target.closest("[data-wl-del]");
-  if (!del) return;
-
-  const idx = Number(del.getAttribute("data-wl-del"));
-  const list = loadWatchlist();
-  if (!Number.isInteger(idx) || idx < 0 || idx >= list.length) return;
-
-  list.splice(idx, 1);
-  saveWatchlist(list);
-  renderWatchlist();
-}, true);
 
 function addToWatchlist(payload) {
   const list = loadWatchlist();
@@ -1205,23 +1106,46 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cBtn) {
     cBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      calcCompound();
+      if (typeof calcCompound === "function") calcCompound();
     });
   }
-});
-        
-      </div>
-    </div>
-  </section>
 
-</div>
+  // DCF calculate (pokud máš tlačítko v DCF sekci)
+  const dcfBtn = document.getElementById("dcf-calc");
+  if (dcfBtn) {
+    dcfBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (typeof calculateDCF === "function") calculateDCF();
+    });
+  }
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  alert("JS NABĚHL 🔥");
-});
+  // -------- NAVIGACE (klik na "šuplíky") --------
+  function showScreen(id) {
+    document.querySelectorAll("section.screen").forEach((s) => s.classList.remove("active"));
+    const el = document.getElementById(id);
+    if (el) el.classList.add("active");
+  }
+
+  // menu dlaždice (Analyzátor / Kalkulačka / Watchlist / Jak to funguje)
+  document.querySelectorAll(".menu-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const target = card.getAttribute("data-target");
+      if (target) showScreen(target);
+    });
+  });
+
+  // tlačítko zpět (Back)
+  document.querySelectorAll("[data-back]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const back = btn.getAttribute("data-back");
+      showScreen(back || "home");
+    });
+  });
+
+  // start
+  showScreen("home");
+})();
 </script>
-
 </body>
 </html>
         
