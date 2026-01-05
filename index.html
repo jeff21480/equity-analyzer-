@@ -130,23 +130,13 @@ body{
       padding: 14px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
+    overflow: hidden;
     }
-    .panel-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
-    .panel-title{font-weight:800; letter-spacing:-.01em}
-    .panel-sub{color:var(--muted); font-size:12px}
-    .row{display:grid; grid-template-columns:1fr; gap:12px}
-    @media (min-width:700px){ .row.two{grid-template-columns:1fr 1fr;} .row.three{grid-template-columns:1fr 1fr 1fr;} }
-
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
-    input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius: 14px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.04);
-      color:var(--text);
-      outline:none;
-    }
+    /* Fix: ať tabulky nepřetékají mimo rámeček */
+.panel, .card { max-width: 100%; }
+.panel table, .card table { width: 100%; table-layout: fixed; }
+.panel th, .panel td, .card th, .card td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
     input:focus, textarea:focus{border-color: rgba(38,198,255,.55)}
     textarea{min-height:120px; resize:vertical}
     .btn{
