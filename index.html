@@ -1216,33 +1216,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </div>
 
-<script> <script>
-/* ====== START APP ====== */
+<script>
 document.addEventListener("DOMContentLoaded", () => {
-  // test, že JS běží
-  alert("JS běží ✅");
-
-  // Delegace kliků (spolehlivé na mobilu)
-  document.addEventListener("click", (e) => {
-    const card = e.target.closest(".menu-card");
-    if (card) {
-      const target = card.getAttribute("data-target");
-      if (target) showScreen(target);
-      return;
-    }
-
-    const backBtn = e.target.closest("[data-back]");
-    if (backBtn) {
-      const back = backBtn.getAttribute("data-back") || "home";
-      showScreen(back);
-    }
-  }, true);
-
-  // start
-  showScreen("home");
+  alert("JS NABĚHL 🔥");
 });
-/* ====== END APP ====== */
 </script>
+
 </body>
 </html>
         
