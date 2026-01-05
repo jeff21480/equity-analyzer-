@@ -1209,15 +1209,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-        </script>sné, kam to směřujeme.
+        
       </div>
     </div>
   </section>
 
 </div>
 
-<script>
+<script> <script>
+/* ====== START APP ====== */
+document.addEventListener("DOMContentLoaded", () => {
+  // test, že JS běží
+  alert("JS běží ✅");
 
+  // Delegace kliků (spolehlivé na mobilu)
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest(".menu-card");
+    if (card) {
+      const target = card.getAttribute("data-target");
+      if (target) showScreen(target);
+      return;
+    }
+
+    const backBtn = e.target.closest("[data-back]");
+    if (backBtn) {
+      const back = backBtn.getAttribute("data-back") || "home";
+      showScreen(back);
+    }
+  }, true);
+
+  // start
+  showScreen("home");
+});
+/* ====== END APP ====== */
 </script>
 </body>
 </html>
