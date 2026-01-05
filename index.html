@@ -1120,31 +1120,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------- NAVIGACE (klik na "šuplíky") --------
-  function showScreen(id) {
-    document.querySelectorAll("section.screen").forEach((s) => s.classList.remove("active"));
-    const el = document.getElementById(id);
-    if (el) el.classList.add("active");
+function showScreen(id) {
+  // schovej všechny obrazovky
+  document.querySelectorAll("section.screen").forEach(s =>
+    s.classList.remove("active")
+  );
+
+  // zkus najít sekci podle id (a když není, zkus "screen-" prefix)
+  const el =
+    document.getElementById(id) ||
+    document.getElementById("screen-" + id);
+
+  if (el) el.classList.add("active");
+
+  // na mobilu posun nahoru
+  try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+}
+
+// Delegace kliků – funguje vždy (i když se DOM změní)
+document.addEventListener("click", (e) => {
+  const card = e.target.closest(".menu-card");
+  if (card) {
+    const target = card.getAttribute("data-target");
+    if (target) showScreen(target);
+    return;
   }
 
-  // menu dlaždice (Analyzátor / Kalkulačka / Watchlist / Jak to funguje)
-  document.querySelectorAll(".menu-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      const target = card.getAttribute("data-target");
-      if (target) showScreen(target);
-    });
-  });
+  const backBtn = e.target.closest("[data-back]");
+  if (backBtn) {
+    const to = backBtn.getAttribute("data-back") || "home";
+    showScreen(to);
+  }
+}, true);
 
-  // tlačítko zpět (Back)
-  document.querySelectorAll("[data-back]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const back = btn.getAttribute("data-back");
-      showScreen(back || "home");
-    });
-  });
-
-  // start
-  showScreen("home");
-})();
+// start
+document.addEventListener("DOMContentLoaded", () => {
+  showScreen("home"); // nebo "screen-home", pokud to tak máš v HTML
+});
 </script>
 </body>
 </html>
