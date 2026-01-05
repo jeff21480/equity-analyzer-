@@ -931,15 +931,8 @@
         • Zde se mohou zobrazovat novinky k firmám, které máš ve watchlistu.<br>
         • Earnings preview, významné pohyby ceny, rating changes…<br>
         • Bude to jedna z nejzajímavějších PRÉMIOVÝCH funkcí appky.<br><br>
-        Teď necháváme jen UI jako nástin, aby bylo jasné, kam to směřujeme.
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<script>
-/* ===== Equity Analyzer – JS (navigace + DCF + Watchlist) ===== */
+        Teď necháváme jen UI jako nástin, aby bylo ja<script>
+/* ===== Equity Analyzer - JS (navigace + watchlist + výpočty) ===== */
 
 // ---------- helpers ----------
 function normTicker(t) {
@@ -947,42 +940,128 @@ function normTicker(t) {
 }
 
 function formatMoney(num) {
-  if (num === null || num === undefined || isNaN(num)) return "--,--";
-  return Number(num).toLocaleString("cs-CZ", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
+  if (num === null || num === undefined || num === "") return "";
+  const n = Number(num);
+  if (!Number.isFinite(n)) return "";
+  return n.toLocaleString("cs-CZ", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatPct(num) {
-  if (num === null || num === undefined || isNaN(num)) return "";
+  if (num === null || num === undefined || num === "") return "";
   const n = Number(num);
+  if (!Number.isFinite(n)) return "";
   const sign = n > 0 ? "+" : "";
-  return sign + n.toFixed(1).replace(".", ",");
+  return (sign + n.toFixed(1)).replace(".", ",") + " %";
 }
 
-// ---------- NAVIGACE ----------
+// ---------- NAVIGACE (odolná na mobil) ----------
 function showScreen(name) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  const el = document.getElementById("screen-" + name);
+  document.querySelectorAll(".screen, section.screen").forEach((s) => s.classList.remove("active"));
+  const el = document.getElementById(name);
   if (el) el.classList.add("active");
+  // mobile: posun nahoru, ať uživatel vidí nový screen
+  try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch(e) { window.scrollTo(0, 0); }
 }
 
-// Delegace kliků = odolné na mobil / pozdní DOM
+// Delegace kliků = funguje i když klikneš na ikonku/text uvnitř karty
 document.addEventListener("click", (e) => {
+  // menu dlaždice
   const card = e.target.closest(".menu-card");
   if (card) {
-    const target = card.getAttribute("data-target");
+    const target = card.getAttribute("data-target") || card.dataset.target;
     if (target) showScreen(target);
     return;
   }
 
-  const back = e.target.closest(".back-btn");
-  if (back) {
-    const to = back.getAttribute("data-back") || "home";
+  // tlačítko zpět: podporuje [data-back] i .back-btn
+  const backBtn = e.target.closest("[data-back], .back-btn");
+  if (backBtn) {
+    const to = backBtn.getAttribute("data-back") || backBtn.dataset.back || "home";
     showScreen(to);
+    return;
   }
 }, true);
+
+// ---------- WATCHLIST ----------
+const WL_KEY = "equity_watchlist_v1";
+
+function loadWatchlist() {
+  try {
+    const raw = localStorage.getItem(WL_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveWatchlist(list) {
+  try {
+    localStorage.setItem(WL_KEY, JSON.stringify(list || []));
+  } catch (e) {}
+}
+
+function renderWatchlist() {
+  const box = document.getElementById("wl-list");
+  if (!box) return;
+
+  const list = loadWatchlist();
+  if (!list.length) {
+    box.innerHTML = `<div style="opacity:.8">Zatím tu nic není. Ulož si první analýzu 🙂</div>`;
+    return;
+  }
+
+  box.innerHTML = list.map((it, idx) => {
+    const t = (it.ticker || "").toString();
+    const n = (it.name || "").toString();
+    const note = (it.note || "").toString();
+    const price = it.price ?? "";
+    const fair = it.fair ?? "";
+    const diff = it.diff ?? "";
+
+    return `
+      <div class="wl-item" style="padding:12px;border-radius:14px;background:rgba(255,255,255,.06);margin:10px 0;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+          <div>
+            <div style="font-weight:800;font-size:16px;">${t}${n ? ` • ${n}` : ""}</div>
+            ${note ? `<div style="opacity:.85;margin-top:4px;">${note}</div>` : ""}
+            <div style="opacity:.85;margin-top:8px;font-size:13px;">
+              Cena: <b>${price !== "" ? formatMoney(price) : "—"}</b> |
+              Férová: <b>${fair !== "" ? formatMoney(fair) : "—"}</b> |
+              Rozdíl: <b>${diff !== "" ? formatPct(diff) : "—"}</b>
+            </div>
+          </div>
+
+          <button class="wl-del" data-wl-del="${idx}"
+            style="border:0;border-radius:10px;padding:8px 10px;background:rgba(255,80,80,.25);color:#fff;">
+            Smazat
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// mazání položky (delegace)
+document.addEventListener("click", (e) => {
+  const del = e.target.closest("[data-wl-del]");
+  if (!del) return;
+
+  const idx = Number(del.getAttribute("data-wl-del"));
+  const list = loadWatchlist();
+  if (!Number.isInteger(idx) || idx < 0 || idx >= list.length) return;
+
+  list.splice(idx, 1);
+  saveWatchlist(list);
+  renderWatchlist();
+}, true);
+
+function addToWatchlist(payload) {
+  const list = loadWatchlist();
+  list.unshift(payload);
+  saveWatchlist(list);
+  renderWatchlist();
+}
 
 // ---------- DCF ----------
 function calculateDCF() {
@@ -995,10 +1074,10 @@ function calculateDCF() {
   const resultEl = document.getElementById("dcf-result");
   const noteEl = document.getElementById("dcf-note");
 
-  if ([price, fcf, growth, discount, terminal].some(v => isNaN(v))) {
-    if (resultEl) resultEl.textContent = "--,--";
-    if (noteEl) noteEl.textContent = "Vyplň prosím všechna pole (cena, FCF, růst, diskont, terminál).";
-    return NaN;
+  if ([price, fcf, growth, discount, terminal].some(v => !Number.isFinite(v))) {
+    if (resultEl) resultEl.textContent = "";
+    if (noteEl) noteEl.textContent = "Vyplň prosím všechna pole.";
+    return null;
   }
 
   const g = growth / 100;
@@ -1014,142 +1093,101 @@ function calculateDCF() {
     pv += cashFlow / Math.pow(1 + r, t);
   }
 
-  let terminalPV = 0;
-  if (r > tg) {
-    const lastCF = cashFlow * (1 + tg);
-    const terminalValue = lastCF / (r - tg);
-    terminalPV = terminalValue / Math.pow(1 + r, years);
-  }
+  const terminalValue = (cashFlow * (1 + tg)) / (r - tg);
+  const pvTerminal = terminalValue / Math.pow(1 + r, years);
 
-  const intrinsic = pv + terminalPV;
+  const fairValue = pv + pvTerminal;
+  const diffPct = ((fairValue / price) - 1) * 100;
 
-  if (resultEl) resultEl.textContent = formatMoney(intrinsic);
-  if (noteEl) noteEl.textContent = "Výsledek je orientační.";
+  if (resultEl) resultEl.textContent = formatMoney(fairValue);
+  if (noteEl) noteEl.textContent = `Rozdíl vs. cena: ${formatPct(diffPct)}`;
 
-  return intrinsic;
+  return { fairValue, diffPct, price };
 }
 
+// ---------- Složené úročení ----------
+function calcCompound() {
+  const start = parseFloat(document.getElementById("c-start")?.value);
+  const monthly = parseFloat(document.getElementById("c-monthly")?.value);
+  const years = parseFloat(document.getElementById("c-years")?.value);
+  const rateYear = parseFloat(document.getElementById("c-rate")?.value);
 
-// ---------- WATCHLIST (localStorage) ----------
-const WL_KEY = "aa_watchlist";
+  const resultEl = document.getElementById("c-result");
+  const detailEl = document.getElementById("c-detail");
 
-function loadWatchlist() {
-  try {
-    const raw = localStorage.getItem(WL_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveWatchlist(list) {
-  try {
-    localStorage.setItem(WL_KEY, JSON.stringify(list));
-  } catch {}
-}
-
-function renderWatchlist() {
-  const body = document.getElementById("wl-body");
-  const table = document.getElementById("wl-table");
-  const msg = document.getElementById("wl-message");
-  const cards = document.getElementById("wl-cards");
-
-  if (!body || !msg) return;
-
-  const list = loadWatchlist();
-  body.innerHTML = "";
-  if (cards) cards.innerHTML = "";
-
-  msg.textContent = `Počet položek ve watchlistu: ${list.length}`;
-
-  if (!list.length) {
-    if (table) table.style.display = "none";
+  if ([start, monthly, years, rateYear].some(v => !Number.isFinite(v))) {
+    if (resultEl) resultEl.textContent = "";
+    if (detailEl) detailEl.textContent = "Vyplň prosím všechna pole.";
     return;
   }
 
-  if (table) table.style.display = "table";
+  const n = Math.round(years * 12);
+  const r = rateYear / 100 / 12;
 
-  list.forEach((item, idx) => {
-    // desktop tabulka
-    if (table) {
-      const tr = document.createElement("tr");
-
-      const tdType = document.createElement("td");
-         }
-
-      
-
-      
-  
-  // mobilní karty
-if (cards) {
-  const card = document.createElement("div");
-  card.className = "wl-card";
-  card.innerHTML = `
-    <div class="wl-row"><strong>${item.type || ""}:</strong> ${item.ticker || ""}</div>
-    <div class="wl-row muted">${item.name || ""}</div>
-    <div class="wl-row muted">${item.currency || ""}</div>
-    <div class="wl-row muted">Cena: ${item.price != null ? item.price : "-"}</div>
-    <div class="wl-row muted">Fair: ${item.fairValue != null ? item.fairValue : "-"}</div>
-    <div class="wl-row muted">Rozdíl: ${item.diffPct != null ? item.diffPct : "-"}</div>
-    <div class="wl-row muted">${item.note || ""}</div>
-    <div class="wl-actions">
-      <button class="danger" data-idx="${idx}">Smazat</button>
-    </div>
-  `;
-  card.querySelector("button.danger").onclick = () => {
-    const updated = loadWatchlist().filter((_, i) => i !== idx);
-    saveWatchlist(updated);
-    renderWatchlist();
-  };
-  cards.appendChild(card);
+  let future = 0;
+  if (r === 0) {
+    future = start + monthly * n;
+  } else {
+    future =
+      start * Math.pow(1 + r, n) +
+      monthly * ((Math.pow(1 + r, n) - 1) / r);
   }
-});
-  // Watchlist add/clear
-  const wlAdd = document.getElementById("wl-add");
-  if (wlAdd) {
-    wlAdd.addEventListener("click", (e) => {
+
+  const invested = start + monthly * n;
+  const interest = future - invested;
+
+  if (resultEl) resultEl.textContent = formatMoney(future);
+  if (detailEl) {
+    detailEl.textContent =
+      `Celkem vloženo: ${formatMoney(invested)} | Zisk: ${formatMoney(interest)}`;
+  }
+}
+
+// ---------- napojení tlačítek ----------
+document.addEventListener("DOMContentLoaded", () => {
+  // start screen
+  showScreen("home");
+
+  // první render watchlistu
+  renderWatchlist();
+
+  // DCF calculate
+  const dcfBtn = document.getElementById("dcf-calc");
+  if (dcfBtn) {
+    dcfBtn.addEventListener("click", (e) => {
       e.preventDefault();
-
-      const type = document.getElementById("wl-type")?.value || "Akcie";
-      const ticker = normTicker(document.getElementById("wl-ticker")?.value);
-      const name = (document.getElementById("wl-name")?.value || "").trim();
-      const note = (document.getElementById("wl-note")?.value || "").trim();
-      const msg = document.getElementById("wl-message");
-
-      if (!ticker) {
-        if (msg) msg.textContent = "Vyplň prosím alespoň ticker.";
-        return;
-      }
-
-      const list = loadWatchlist();
-      const exists = list.some(it => normTicker(it.ticker) === ticker);
-      if (exists) {
-        if (msg) msg.textContent = `Ticker ${ticker} už je ve watchlistu.`;
-        return;
-      }
-
-      list.unshift({
-        type,
-        ticker,
-        name,
-        note,
-        date: new Date().toLocaleDateString("cs-CZ")
-      });
-
-      saveWatchlist(list);
-
-      if (document.getElementById("wl-ticker")) document.getElementById("wl-ticker").value = "";
-      if (document.getElementById("wl-name")) document.getElementById("wl-name").value = "";
-      if (document.getElementById("wl-note")) document.getElementById("wl-note").value = "";
-
-      if (msg) msg.textContent = "Položka byla přidána do watchlistu.";
-      renderWatchlist();
+      calculateDCF();
     });
   }
 
+  // DCF save to watchlist
+  const dcfSave = document.getElementById("dcf-save");
+  if (dcfSave) {
+    dcfSave.addEventListener("click", (e) => {
+      e.preventDefault();
+      const res = calculateDCF();
+      if (!res) return;
+
+      const ticker = normTicker(document.getElementById("wl-ticker")?.value);
+      const name = (document.getElementById("wl-name")?.value || "").toString().trim();
+      const note = (document.getElementById("wl-note")?.value || "").toString().trim();
+
+      addToWatchlist({
+        ticker: ticker || "—",
+        name,
+        note,
+        price: res.price,
+        fair: res.fairValue,
+        diff: res.diffPct,
+        ts: Date.now()
+      });
+
+      const msg = document.getElementById("wl-msg");
+      if (msg) msg.textContent = "Položka uložená do Watchlistu ✅";
+    });
+  }
+
+  // Watchlist clear
   const wlClear = document.getElementById("wl-clear");
   if (wlClear) {
     wlClear.addEventListener("click", (e) => {
@@ -1162,74 +1200,24 @@ if (cards) {
     });
   }
 
-  // první render
-  renderWatchlist();
+  // Compound calculate
+  const cBtn = document.getElementById("c-calc");
+  if (cBtn) {
+    cBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      calcCompound();
+    });
+  }
 });
- 
-function calcCompound() {
-  const start = parseFloat(document.getElementById("ci-start")?.value) || 0;
-  const monthly = parseFloat(document.getElementById("ci-monthly")?.value) || 0;
-  const years = parseFloat(document.getElementById("ci-years")?.value) || 0;
-  const rateYear = parseFloat(document.getElementById("ci-rate")?.value) || 0;
+        </script>sné, kam to směřujeme.
+      </div>
+    </div>
+  </section>
 
-  const n = Math.round(years * 12);
-  const r = rateYear / 100 / 12;
-let future = 0;
+</div>
 
-if (r === 0) {
-  future = start + monthly * n;
-} else {
-  future =
-    start * Math.pow(1 + r, n) +
-    monthly * ((Math.pow(1 + r, n) - 1) / r);
-}
+<script>
 
-  const invested = start + monthly * n;
-  const interest = future - invested;
-
-  const resultEl = document.getElementById("ci-result");
-  const detailEl = document.getElementById("ci-detail");
-
-  if (resultEl) {
-    resultEl.textContent = future.toLocaleString("cs-CZ", { maximumFractionDigits: 0 });
-  }
-  if (detailEl) {
-    detailEl.textContent =
-      `Celkem vloženo: ${invested.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč • ` +
-      `Zisk: ${interest.toLocaleString("cs-CZ", { maximumFractionDigits: 0 })} Kč`;
-  }
-  }
-
-
-  /* ===== JEDINÁ PLATNÁ NAVIGACE ===== */
-
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s =>
-    s.classList.remove("active")
-  );
-  const el = document.getElementById(id);
-  if (el) el.classList.add("active");
-}
-
-document.addEventListener("click", (e) => {
-
-  const menuCard = e.target.closest(".menu-card");
-  if (menuCard) {
-    const target = menuCard.getAttribute("data-target");
-    if (target) showScreen(target);
-    return;
-  }
-
-  const backBtn = e.target.closest("[data-back]");
-  if (backBtn) {
-    const back = backBtn.getAttribute("data-back") || "home";
-    showScreen(back);
-    return;
-  }
-
-}, true);
-
-showScreen("home");
 </script>
 </body>
 </html>
