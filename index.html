@@ -250,7 +250,17 @@ section.screen select:-webkit-autofill{
   -webkit-text-fill-color: #fff !important;
   -webkit-box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
   box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
-}
+}/* === ABSOLUTNÍ FORCE INPUT FIX === */
+input,
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  background-color: rgba(0,0,0,.45) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 1px solid rgba(255,255,255,.35) !important;
+      }
 </style>
 
 </head>
