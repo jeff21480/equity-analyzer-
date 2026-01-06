@@ -6,256 +6,114 @@
 <title>Equity Analyzer – DCF</title>
 
 <style>
-  /* ===== ZÁKLAD ===== */
-  :root {
-    --bg: #0e0b1f;
-    --card: #181233;
-    --purple: #8b5cf6;
-    --purple-soft: rgba(139, 92, 246, 0.25);
-    --text: #ffffff;
-    --muted: #b9b5e5;
-    --stroke: rgba(255, 255, 255, 0.18);
-  }
+/* =========================
+   FIALOVO-MODRÝ THEME (FINAL)
+   ========================= */
 
-  html { color-scheme: dark; }
+:root {
+  --bg1: #0b0220;
+  --bg2: #1a063a;
+  --card: rgba(30, 18, 66, 0.75);
+  --card-border: rgba(140, 110, 255, 0.35);
+  --purple: #8b7cff;
+  --purple-soft: rgba(139,124,255,0.25);
+  --text: #ffffff;
+  --muted: #c7c3ff;
+}
 
-  html, body {
-    margin: 0;
-    background: linear-gradient(180deg, #0e0b1f 0%, #070a12 100%);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: var(--text);
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--bg1), var(--bg2));
+}
 
-  .app {
-    max-width: 820px;
-    margin: auto;
-    padding: 20px;
-  }
+/* APP WRAPPER */
+.app {
+  max-width: 820px;
+  margin: auto;
+  padding: 20px;
+}
 
-  /* ===== KARTY ===== */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--stroke);
-    border-radius: 18px;
-    padding: 18px;
-    margin-bottom: 16px;
-  }
+/* TITLES */
+h1 {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+h2 {
+  font-size: 18px;
+  color: var(--muted);
+}
 
-  h1 {
-    margin: 0 0 6px 0;
-  }
+/* CARDS (šuplíky) */
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 40px rgba(120,90,255,0.15);
+  backdrop-filter: blur(12px);
+}
 
-  h2 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-  }
+/* MENU CARDS */
+.menu-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.menu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 55px rgba(140,110,255,0.35);
+}
 
-  /* ===== INPUT FIX (Android / Chrome) ===== */
-  input, select, textarea {
-    background-color: rgba(0,0,0,.45) !important;
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
-    border: 1px solid rgba(255,255,255,.25) !important;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: rgba(255,255,255,.55) !important;
-  }
-
-  input:-webkit-autofill,
-  textarea:-webkit-autofill,
-  select:-webkit-autofill {
-    -webkit-text-fill-color: #fff !important;
-    box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
-    transition: background-color 9999s ease-in-out 0s;
-  }
-</style>
-</head>
-
-/* ===== INPUTY (ANDROID SAFE) ===== */
-input, select {
+/* INPUTS – ANDROID SAFE */
+input, select, textarea {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(0,0,0,.45) !important;
+  background: rgba(20,10,50,0.9) !important;
   color: #fff !important;
-  border: 1px solid var(--stroke);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 12px;
   font-size: 15px;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -webkit-text-fill-color: #fff;
 }
 
 input::placeholder {
-  color: var(--muted);
+  color: rgba(255,255,255,0.55);
 }
 
-label {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 6px;
-  display: block;
+/* AUTOFILL FIX */
+input:-webkit-autofill {
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 0 0 1000px rgba(20,10,50,1) inset !important;
 }
 
-/* ===== ŘÁDKY ===== */
-.row {
-  margin-bottom: 14px;
-}
-
-/* ===== TLAČÍTKO ===== */
+/* BUTTONS */
 button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 16px;
+  background: linear-gradient(135deg, #6f63ff, #9b8cff);
+  color: #fff;
   border: none;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-size: 15px;
   cursor: pointer;
+  box-shadow: 0 0 25px rgba(140,110,255,0.45);
 }
 
-/* ===== VÝSLEDKY ===== */
-.result {
-  background: rgba(139,92,246,.15);
-  border: 1px solid var(--purple-soft);
-  border-radius: 14px;
-  padding: 12px;
-  margin-top: 10px;
-}
-
-.result b {
-  color: #e9d5ff;
-}
-
-/* ===== ROZKLIKÁVACÍ VYSVĚTLIVKY ===== */
-details {
-  border-top: 1px dashed var(--stroke);
-  padding-top: 10px;
-  margin-top: 10px;
-}
-
-summary {
-  cursor: pointer;
-  color: var(--purple);
-  font-size: 14px;
-}
-
-small {
-  color: var(--muted);
-  font-size: 13px;
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--card-border);
+  box-shadow: none;
 }
 </style>
-</head>
 
-<body>
-<div class="app">
+  
 
-  <div class="card">
-    <h1>Equity Analyzer</h1>
-    <small>DCF valuation – jednoduchý nástroj pro výpočet vnitřní hodnoty akcie</small>
-  </div>
-
-  <!-- DCF -->
-  <div class="card">
-    <h2>DCF výpočet – vnitřní hodnota</h2>
-
-    <div class="row">
-      <label>Aktuální cena akcie (Current Price)</label>
-      <input id="price" type="number" placeholder="např. 150">
-      <details>
-        <summary>Co to je?</summary>
-        <small>Aktuální tržní cena jedné akcie. Slouží pouze pro srovnání s férovou hodnotou.</small>
-      </details>
-    </div>
-
-    <div class="row">
-      <label>Free Cash Flow / akcii (FCF per share)</label>
-      <input id="fcf" type="number" placeholder="např. 6.5">
-      <details>
-        <summary>Co to je?</summary>
-        <small>Volný peněžní tok přepočtený na jednu akcii. Dá se dohledat ve výročních zprávách nebo na finančních portálech.</small>
-      </details>
-    </div>
-
-    <div class="row">
-      <label>Růst FCF – Base scénář (%)</label>
-      <input id="growth" type="number" placeholder="např. 8">
-      <details>
-        <summary>Co to je?</summary>
-        <small>Očekávaný průměrný roční růst FCF. Konzervativní odhad je lepší než optimistický.</small>
-      </details>
-    </div>
-
-    <div class="row">
-      <label>Diskontní sazba (%)</label>
-      <input id="discount" type="number" placeholder="např. 9">
-      <details>
-        <summary>Co to je?</summary>
-        <small>Požadovaný výnos investora. Často 8–10 % pro akcie.</small>
-      </details>
-    </div>
-
-    <div class="row">
-      <label>Terminální růst (%)</label>
-      <input id="terminal" type="number" placeholder="např. 2.5">
-      <details>
-        <summary>Co to je?</summary>
-        <small>Dlouhodobý udržitelný růst firmy po skončení projekce. Většinou blízko inflace.</small>
-      </details>
-    </div>
-
-    <button onclick="calculateDCF()">Spočítat vnitřní hodnotu</button>
-
-    <div id="output"></div>
-  </div>
-
-</div>
-
-<script>
-function calculateDCF() {
-  const price = +priceInput.value;
-  const fcf = +fcfInput.value;
-  const g = +growthInput.value / 100;
-  const r = +discountInput.value / 100;
-  const t = +terminalInput.value / 100;
-  const years = 10;
-
-  if (!fcf || !r) return;
-
-  let value = 0;
-  let current = fcf;
-
-  for (let i = 1; i <= years; i++) {
-    current *= (1 + g);
-    value += current / Math.pow(1 + r, i);
-  }
-
-  const terminalValue =
-    (current * (1 + t)) / (r - t) / Math.pow(1 + r, years);
-
-  value += terminalValue;
-
-  output.innerHTML = `
-    <div class="result">
-      <b>Férová hodnota (Base):</b> ${value.toFixed(2)}<br>
-      <small>Porovnání s tržní cenou: ${price ? (value / price * 100).toFixed(0) + "%" : "-"}</small>
-    </div>
-  `;
-}
-
-const priceInput = document.getElementById("price");
-const fcfInput = document.getElementById("fcf");
-const growthInput = document.getElementById("growth");
-const discountInput = document.getElementById("discount");
-const terminalInput = document.getElementById("terminal");
-const output = document.getElementById("output");
-</script>
-
-</body>
-</html>
 
 
 
