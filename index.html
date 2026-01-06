@@ -202,53 +202,42 @@ section.screen table td,
 section.screen table th{
   color: var(--text) !important;
 }
-    /* ===== FIX: tmavé inputy (Analyzátor + Kalkulačka) ===== */
-section.screen input,
-section.screen select,
-section.screen textarea{
-  background: rgba(0,0,0,.22) !important;
+/* ===== FIX: tmavé inputy – finální, Android OK ===== */
+html { color-scheme: dark; }
+
+input,
+select,
+textarea{
+  background-color: rgba(0,0,0,.32) !important;
+  background: rgba(0,0,0,.32) !important;
   color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+
   border: 1px solid var(--stroke) !important;
   border-radius: 14px;
-  outline: none !important;
+  outline: none;
+
   box-sizing: border-box;
-  -webkit-appearance: none;
   appearance: none;
+  -webkit-appearance: none;
 }
 
-section.screen input:focus,
-section.screen select:focus,
-section.screen textarea:focus{
-  border-color: rgba(38,198,255,.55) !important;
-}
-
-/* placeholder text */
-section.screen input::placeholder,
-section.screen textarea::placeholder{
-  color: var(--muted) !important;
-  opacity: .85;
-}
-
-/* Chrome / Android autofill (to často dělá bílé pole) */
-section.screen input:-webkit-autofill,
-section.screen input:-webkit-autofill:hover,
-section.screen input:-webkit-autofill:focus,
-section.screen textarea:-webkit-autofill,
-section.screen select:-webkit-autofill{
-  -webkit-text-fill-color: var(--text) !important;
-  caret-color: var(--text) !important;
-  box-shadow: 0 0 0px 1000px rgba(0,0,0,.22) inset !important;
-  border: 1px solid var(--stroke) !important;
-  transition: background-color 9999s ease-out 0s;
-
-}
-
-section.screen input::placeholder,
-section.screen textarea::placeholder,
 input::placeholder,
 textarea::placeholder{
   color: var(--muted) !important;
   opacity: .85;
+}
+
+/* Autofill – Chrome / Android */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill{
+  -webkit-text-fill-color: var(--text) !important;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,.32) inset !important;
+  border: 1px solid var(--stroke) !important;
+  transition: background-color 9999s ease-out 0s;
 }
 
 /* Autofill – Chrome / Android */
