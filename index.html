@@ -202,40 +202,45 @@ section.screen table td,
 section.screen table th{
   color: var(--text) !important;
 }
-    .good{color:var(--good)}
-    .bad{color:var(--bad)}
-    .muted{color:var(--muted)}
-    .hr{height:1px; background: rgba(255,255,255,.10); margin:12px 0}
-    .small{font-size:12px; color:var(--muted)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-    .list{display:grid; gap:10px; margin-top:10px}
-    .list-item{
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      border-radius: 18px;
-      padding: 12px;
-    }
-    .li-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
-    .li-title{font-weight:800}
-    .li-sub{font-size:12px; color:var(--muted); margin-top:3px}
-    .li-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
-    .kbd{
-      padding:2px 6px; border-radius:8px; border:1px solid var(--stroke);
-      background: rgba(255,255,255,.04);
-      font-size:12px;
     /* ===== FIX: tmavé inputy (Analyzátor + Kalkulačka) ===== */
 section.screen input,
 section.screen select,
-section.screen textarea,
-input, select, textarea{
-  background: rgba(0,0,0,.28) !important;
+section.screen textarea{
+  background: rgba(0,0,0,.22) !important;
   color: var(--text) !important;
   border: 1px solid var(--stroke) !important;
   border-radius: 14px;
-  outline: none;
+  outline: none !important;
   box-sizing: border-box;
   -webkit-appearance: none;
   appearance: none;
+}
+
+section.screen input:focus,
+section.screen select:focus,
+section.screen textarea:focus{
+  border-color: rgba(38,198,255,.55) !important;
+}
+
+/* placeholder text */
+section.screen input::placeholder,
+section.screen textarea::placeholder{
+  color: var(--muted) !important;
+  opacity: .85;
+}
+
+/* Chrome / Android autofill (to často dělá bílé pole) */
+section.screen input:-webkit-autofill,
+section.screen input:-webkit-autofill:hover,
+section.screen input:-webkit-autofill:focus,
+section.screen textarea:-webkit-autofill,
+section.screen select:-webkit-autofill{
+  -webkit-text-fill-color: var(--text) !important;
+  caret-color: var(--text) !important;
+  box-shadow: 0 0 0px 1000px rgba(0,0,0,.22) inset !important;
+  border: 1px solid var(--stroke) !important;
+  transition: background-color 9999s ease-out 0s;
+
 }
 
 section.screen input::placeholder,
