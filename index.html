@@ -1,4 +1,4 @@
-o<!doctype html>
+jo<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
@@ -240,52 +240,42 @@ select:-webkit-autofill{
   transition: background-color 9999s ease-out 0s;
 }
 
-/* Autofill – Chrome / Android */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill{
-  -webkit-text-fill-color: var(--text) !important;
-  box-shadow: 0 0 0px 1000px rgba(0,0,0,.28) inset !important;
-  border: 1px solid var(--stroke) !important;
-  transition: background-color 9999s ease-out 0s;
-}/* ===== FINAL FIX – INPUTY (Android / Chrome) ===== */
-html { color-scheme: dark; }
-
+/* ===== DEFINITIVNÍ FIX INPUTŮ – ANDROID / CHROME ===== */
 input,
+input[type="text"],
+input[type="number"],
 select,
-textarea{
-  background-color: rgba(0,0,0,.35) !important;
-  background: rgba(0,0,0,.35) !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+textarea {
+  background-color: rgba(0,0,0,0.45) !important;
+  background: rgba(0,0,0,0.45) !important;
 
-  border: 1px solid rgba(255,255,255,.25) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  border: 1px solid rgba(255,255,255,0.35) !important;
   border-radius: 14px;
-  outline: none;
 
-  appearance: none;
-  -webkit-appearance: none;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
 
 input::placeholder,
-textarea::placeholder{
-  color: rgba(255,255,255,.6) !important;
+textarea::placeholder {
+  color: rgba(255,255,255,0.6) !important;
 }
 
-/* Autofill */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill{
-  -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 0 0 1000px rgba(0,0,0,.35) inset !important;
-  transition: background-color 9999s ease-out 0s;
-  }/* DEBUG – když tohle neuvidíš, tak se web nenačítá z aktuálního souboru */
-input, select, textarea { outline: 3px solid lime !important; }
-  </style>
+select:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,0.45) inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+</style>
+
 </head>
 
 <body>
