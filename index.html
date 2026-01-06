@@ -181,16 +181,26 @@ body{
       background: rgba(255,255,255,.04);
       font-size:12px; color:var(--muted);
     /* ===== FIX: tmavé řádky v tabulkách (Analyzátor + Kalkulačka) ===== */
-table tr {
-  background: rgba(0,0,0,.18);
-}
-
-table tr:nth-child(even) {
-  background: rgba(0,0,0,.24);
-}
-
-table td {
+section.screen table,
+section.screen tbody,
+section.screen tr,
+section.screen td,
+section.screen th{
+  background: transparent;
   color: var(--text);
+}
+
+section.screen table tr{
+  background: rgba(0,0,0,.18) !important;
+}
+
+section.screen table tr:nth-child(even){
+  background: rgba(0,0,0,.24) !important;
+}
+
+section.screen table td,
+section.screen table th{
+  color: var(--text) !important;
 }
     .good{color:var(--good)}
     .bad{color:var(--bad)}
