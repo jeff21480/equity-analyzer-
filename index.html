@@ -655,7 +655,39 @@ textarea {
 
   // start screen
   showScreen("home");
-  
+  // --- DEBUG: napojení tlačítka Spočítat (DCF) ---
+const calcBtn =
+  document.getElementById("btnCalc") ||
+  document.querySelector('button[type="button"]') ||
+  document.querySelector("button");
+
+if (calcBtn) {
+  calcBtn.addEventListener("click", () => {
+    try {
+      // Uprav si ID, pokud se liší v HTML:
+      const price = parseNum($("price")?.value);
+      const fcf = parseNum($("fcf")?.value);
+      const years = parseInt($("years")?.value || "10", 10);
+
+      const gPct = parseNum($("baseGrowth")?.value);
+      const rPct = parseNum($("baseDiscount")?.value);
+      const tgPct = parseNum($("baseTerminal")?.value);
+
+      const base = dcfValue({ price, fcf, gPct, rPct, tgPct, years });
+
+      if (base == null) {
+        alert("Něco je špatně ve vstupech (NaN / roky / diskont).");
+        return;
+      }
+      alert("BASE férová cena: " + fmtMoney(base));
+    } catch (e) {
+      console.error(e);
+      alert("Chyba v JS: " + (e?.message || e));
+    }
+  });
+} else {
+  console.warn("Nenašel jsem tlačítko pro výpočet.");
+  }
 
   // -----------------------
   // DCF logic
