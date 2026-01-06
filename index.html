@@ -1,116 +1,1161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Equity Analyzer – DCF</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f24" />
+  <title>Analýza akcií</title>
 
-<style>
-/* =========================
-   FIALOVO-MODRÝ THEME (FINAL)
-   ========================= */
+  <style>
+    :root{
+      --bg0:#070a12;
+      --bg1:#0b1020;
+      --card: rgba(18, 17, 45, .65);
+      --card2: rgba(18, 17, 45, .42);
+      --stroke: rgba(255,255,255,.12);
+      --stroke2: rgba(255,255,255,.18);
 
-:root {
-  --bg1: #0b0220;
-  --bg2: #1a063a;
-  --card: rgba(30, 18, 66, 0.75);
-  --card-border: rgba(140, 110, 255, 0.35);
-  --purple: #8b7cff;
-  --purple-soft: rgba(139,124,255,0.25);
-  --text: #ffffff;
-  --muted: #c7c3ff;
-}
+      --text:#f1eaff;
+      --muted:#c4b5fdcc;
+      --muted2:#c4b5fd99;
 
-html, body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
-  color: var(--text);
-  background: linear-gradient(180deg, var(--bg1), var(--bg2));
-}
+      --accent1:#7c3aed; /* purple */
+      --accent2:#22d3ee; /* cyan */
+      --good:#31d17b;
+      --bad:#ff5a7a;
 
-/* APP WRAPPER */
-.app {
-  max-width: 820px;
-  margin: auto;
-  padding: 20px;
-}
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 14px;
+      --pad: 18px;
+    }
 
-/* TITLES */
-h1 {
-  font-size: 36px;
-  margin-bottom: 8px;
-}
-h2 {
-  font-size: 18px;
-  color: var(--muted);
-}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(900px 700px at 90% 20%, rgba(34,211,238,.25), transparent 60%),
+        radial-gradient(900px 900px at 50% 120%, rgba(124,58,237,.25), transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-/* CARDS (šuplíky) */
-.card {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: 22px;
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: 0 0 40px rgba(120,90,255,0.15);
-  backdrop-filter: blur(12px);
-}
+    .app{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 22px 14px 44px;
+    }
 
-/* MENU CARDS */
-.menu-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease;
-}
-.menu-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 55px rgba(140,110,255,0.35);
-}
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.1) 40%), linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 0 18px rgba(124,58,237,.5);
+    }
+    .badge{
+      font-size:12px;
+      padding:5px 10px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+    }
 
-/* INPUTS – ANDROID SAFE */
-input, select, textarea {
-  width: 100%;
-  background: rgba(20,10,50,0.9) !important;
-  color: #fff !important;
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 12px;
-  margin-bottom: 12px;
-  font-size: 15px;
-}
+    h1{
+      margin: 6px 0 6px;
+      font-size: 46px;
+      line-height: 1.05;
+      letter-spacing: .2px;
+      font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
+    }
+    .sub{
+      margin: 0 0 18px;
+      color: var(--muted2);
+      font-size: 15px;
+      max-width: 820px;
+    }
 
-input::placeholder {
-  color: rgba(255,255,255,0.55);
-}
+    /* Cards / panels */
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .card-inner{ padding: var(--pad); }
+    .divider{ height:1px; background: var(--stroke); margin: 14px 0; }
 
-/* AUTOFILL FIX */
-input:-webkit-autofill {
-  -webkit-text-fill-color: #fff !important;
-  box-shadow: 0 0 0 1000px rgba(20,10,50,1) inset !important;
-}
+    /* Navigation tiles */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (min-width: 680px){
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    .menu-card{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .menu-card:hover{ transform: translateY(-1px); border-color: rgba(124,58,237,.35); background: rgba(255,255,255,.075); }
+    .menu-left{ display:flex; gap: 12px; align-items:center; }
+    .icon{
+      width:44px; height:44px; border-radius: 14px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(135deg, rgba(124,58,237,.35), rgba(34,211,238,.18));
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      font-size: 20px;
+    }
+    .menu-title{ margin:0; font-weight:700; font-size:18px; letter-spacing:.2px; }
+    .menu-sub{ margin:2px 0 0; color: var(--muted2); font-size: 13px; }
+    .arrow{ color: rgba(255,255,255,.55); font-size: 18px; }
 
-/* BUTTONS */
-button {
-  background: linear-gradient(135deg, #6f63ff, #9b8cff);
-  color: #fff;
-  border: none;
-  border-radius: 18px;
-  padding: 14px 18px;
-  font-size: 15px;
-  cursor: pointer;
-  box-shadow: 0 0 25px rgba(140,110,255,0.45);
-}
+    /* Screens */
+    .screen{ display:none; }
+    .screen.active{ display:block; }
 
-button.secondary {
-  background: transparent;
-  border: 1px solid var(--card-border);
-  box-shadow: none;
-}
-</style>
+    .header-row{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom: 12px;
+    }
+    .back{
+      display:inline-flex;
+      gap:8px; align-items:center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      text-decoration:none;
+      user-select:none;
+    }
+    .back:hover{ border-color: rgba(124,58,237,.35); }
+
+    .title{
+      font-size: 24px; margin:0; font-weight:800;
+      letter-spacing:.2px;
+      font-family: ui-serif, Georgia, serif;
+    }
+    .title-sub{
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: var(--muted2);
+    }
+
+    /* Forms */
+    label{
+      display:block;
+      margin: 10px 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: .2px;
+    }
+
+    input, select, textarea, button{
+      font-family: inherit;
+    }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.35);
+      color: var(--text);
+      outline:none;
+      transition: border-color .12s ease, transform .08s ease;
+    }
+    input:focus, select:focus{
+      border-color: rgba(124,58,237,.55);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.18);
+    }
+    input::placeholder{
+      color: rgba(255,255,255,.45);
+    }
+
+    /* IMPORTANT: Android / Chrome autofill + white inputs fix */
+    input, textarea, select {
+      -webkit-text-fill-color: var(--text) !important;
+      caret-color: var(--text);
+      color: var(--text);
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus{
+      -webkit-text-fill-color: var(--text) !important;
+      box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
+      transition: background-color 9999s ease-in-out 0s !important;
+      border: 1px solid rgba(255,255,255,.18) !important;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 720px){
+      .row.two{ grid-template-columns: 1fr 1fr; }
+      .row.three{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .hint{
+      margin: 6px 0 0;
+      color: var(--muted2);
+      font-size: 12px;
+    }
+
+    .btns{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    button{
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    button.primary{
+      border:none;
+      background: linear-gradient(135deg, var(--accent1), #a78bfa);
+      box-shadow: 0 14px 34px rgba(124,58,237,.28);
+    }
+    button.primary:hover{ filter: brightness(1.05); }
+    button.ghost:hover{ border-color: rgba(124,58,237,.35); }
+    button.danger{
+      border: 1px solid rgba(255,90,122,.35);
+      background: rgba(255,90,122,.10);
+    }
+    button.danger:hover{ border-color: rgba(255,90,122,.55); }
+
+    /* Results */
+    .result{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(124,58,237,.25);
+      background: rgba(124,58,237,.10);
+    }
+    .result h3{ margin: 0 0 8px; font-size: 15px; }
+    .pill-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pill{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      min-width: 160px;
+    }
+    .pill .k{ font-size: 12px; color: var(--muted2); }
+    .pill .v{ font-size: 18px; font-weight: 900; margin-top: 4px; }
+    .pill.good .v{ color: #b9ffd7; }
+    .pill.bad .v{ color: #ffd0d8; }
+
+    /* Explain (details) */
+    .explain summary{
+      cursor:pointer;
+      color: #c4b5fd;
+      font-size: 13px;
+      margin-top: 6px;
+      user-select:none;
+      list-style:none;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .explain summary::-webkit-details-marker{ display:none; }
+    .explain summary::before{
+      content:"▸";
+      color: #a78bfa;
+      transform: translateY(-1px);
+    }
+    details[open].explain summary::before{ content:"▾"; }
+
+    .explain-box{
+      margin-top: 10px;
+      background: rgba(139,92,246,0.12);
+      border: 1px solid rgba(139,92,246,0.35);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .explain-box table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .explain-box td{
+      vertical-align: top;
+      padding: 4px 6px;
+      color: #efe7ff;
+    }
+    .explain-box td:first-child{
+      width: 52px;
+      color: #c4b5fd;
+      font-weight: 800;
+      opacity: .95;
+    }
+
+    /* Watchlist table */
+    .wl-table{
+      width:100%;
+      border-collapse: collapse;
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      overflow:hidden;
+      background: rgba(255,255,255,.04);
+    }
+    .wl-table th, .wl-table td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size: 13px;
+      text-align:left;
+    }
+    .wl-table th{
+      color: var(--muted);
+      font-weight: 800;
+      background: rgba(255,255,255,.05);
+    }
+    .wl-actions{
+      display:flex; gap:8px; align-items:center; justify-content:flex-end;
+    }
+    .mini{
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .small{
+      color: var(--muted2);
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.45;
+    }
+
+    .footer-note{
+      margin-top: 14px;
+      color: rgba(255,255,255,.45);
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <div class="badge">Analýza akcií • Beta</div>
+      </div>
+      <div class="badge">MVP</div>
+    </div>
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <h1>Analýza akcií</h1>
+      <p class="sub">
+        Moderní nástroje pro investory: výpočet vnitřní hodnoty (DCF), watchlist, složené úročení a jednoduché vysvětlení metodiky.
+      </p>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="grid">
+            <div class="menu-card" data-target="screen-analyzer">
+              <div class="menu-left">
+                <div class="icon">📈</div>
+                <div>
+                  <p class="menu-title">Analyzátor</p>
+                  <p class="menu-sub">Odhad vnitřní hodnoty (Bear / Base / Bull)</p>
+                </div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+
+            <div class="menu-card" data-target="screen-calc">
+              <div class="menu-left">
+                <div class="icon">🧮</div>
+                <div>
+                  <p class="menu-title">Kalkulačka</p>
+                  <p class="menu-sub">Složené úročení</p>
+                </div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+
+            <div class="menu-card" data-target="screen-watchlist">
+              <div class="menu-left">
+                <div class="icon">👀</div>
+                <div>
+                  <p class="menu-title">Watchlist</p>
+                  <p class="menu-sub">Uložené analýzy (datum + výsledky)</p>
+                </div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+
+            <div class="menu-card" data-target="screen-help">
+              <div class="menu-left">
+                <div class="icon">ℹ️</div>
+                <div>
+                  <p class="menu-title">Jak to funguje</p>
+                  <p class="menu-sub">Metodika, vysvětlení, jak appku používat</p>
+                </div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+
+          <div class="footer-note">Tip: Můžeš psát desetinnou čárkou (např. 9,5). Funguje i na mobilu.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYZER -->
+    <section id="screen-analyzer" class="screen">
+      <div class="header-row">
+        <div>
+          <a class="back" href="#" data-back="home">← Zpět</a>
+        </div>
+        <div style="text-align:right">
+          <div class="badge">DCF • 3 scénáře</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div>
+              <p class="title">Analyzátor</p>
+              <p class="title-sub">Zadej Base předpoklady. Bear/Bull se dopočítají jako úpravy.</p>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row two">
+            <div>
+              <label for="ticker">Ticker / název (např. MSFT)</label>
+              <input id="ticker" type="text" placeholder="MSFT" autocomplete="off" />
+
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Ticker / Name</td></tr>
+                    <tr><td>CZ</td><td>Identifikace firmy do Watchlistu. Nemá vliv na výpočet.</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+
+            <div>
+              <label for="price">Aktuální cena (na akcii)</label>
+              <input id="price" type="text" inputmode="decimal" placeholder="např. 420" />
+
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Current Price</td></tr>
+                    <tr><td>CZ</td><td>Tržní cena akcie. Používá se pro porovnání s férovou cenou (upside/downside).</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="row two">
+            <div>
+              <label for="fcf">FCF na akcii (počáteční)</label>
+              <input id="fcf" type="text" inputmode="decimal" placeholder="např. 10" />
+
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Free Cash Flow per Share</td></tr>
+                    <tr><td>CZ</td><td>Volný peněžní tok připadající na jednu akcii. Základ pro DCF projekci.</td></tr>
+                    <tr><td>Pozn</td><td>V MVP zadáváš přímo “na akcii”, aby nebylo potřeba tahat data.</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+
+            <div>
+              <label for="years">Počet let projekce</label>
+              <select id="years">
+                <option value="5">5 let</option>
+                <option value="7">7 let</option>
+                <option value="10" selected>10 let</option>
+                <option value="12">12 let</option>
+                <option value="15">15 let</option>
+              </select>
+
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Projection Years</td></tr>
+                    <tr><td>CZ</td><td>Kolik let dopředu projektujeme cash flow. Poté nastupuje terminál.</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="row three">
+            <div>
+              <label for="baseGrowth">Base růst FCF (%)</label>
+              <input id="baseGrowth" type="text" inputmode="decimal" placeholder="např. 8" value="8" />
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>FCF Growth Rate</td></tr>
+                    <tr><td>CZ</td><td>Průměrný roční růst FCF během projekce (např. 8% ročně).</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+            <div>
+              <label for="baseDiscount">Base diskont (%)</label>
+              <input id="baseDiscount" type="text" inputmode="decimal" placeholder="např. 9" value="9" />
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Discount Rate</td></tr>
+                    <tr><td>CZ</td><td>Požadovaný výnos / rizikovost. Čím vyšší diskont, tím nižší férová cena.</td></tr>
+                    <tr><td>Pozn</td><td>Ty jsi chtěl typicky kolem 9% – proto default.</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+            <div>
+              <label for="baseTerminal">Base terminál (%)</label>
+              <input id="baseTerminal" type="text" inputmode="decimal" placeholder="např. 3" value="3" />
+              <details class="explain">
+                <summary>Co to je?</summary>
+                <div class="explain-box">
+                  <table>
+                    <tr><td>EN</td><td>Terminal Growth</td></tr>
+                    <tr><td>CZ</td><td>Růst po skončení projekce (dlouhodobě). Typicky 2–3%.</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row three">
+            <div>
+              <label for="bearGrowthAdj">Bear úprava růstu (p.b.)</label>
+              <input id="bearGrowthAdj" type="text" inputmode="decimal" value="-2" />
+            </div>
+            <div>
+              <label for="bearDiscountAdj">Bear úprava diskontu (p.b.)</label>
+              <input id="bearDiscountAdj" type="text" inputmode="decimal" value="+1" />
+            </div>
+            <div>
+              <label for="bearTerminalAdj">Bear úprava terminálu (p.b.)</label>
+              <input id="bearTerminalAdj" type="text" inputmode="decimal" value="-0,5" />
+            </div>
+          </div>
+
+          <div class="row three">
+            <div>
+              <label for="bullGrowthAdj">Bull úprava růstu (p.b.)</label>
+              <input id="bullGrowthAdj" type="text" inputmode="decimal" value="+2" />
+            </div>
+            <div>
+              <label for="bullDiscountAdj">Bull úprava diskontu (p.b.)</label>
+              <input id="bullDiscountAdj" type="text" inputmode="decimal" value="-1" />
+            </div>
+            <div>
+              <label for="bullTerminalAdj">Bull úprava terminálu (p.b.)</label>
+              <input id="bullTerminalAdj" type="text" inputmode="decimal" value="+0,5" />
+            </div>
+          </div>
+
+          <div class="btns">
+            <button id="btnCalc" class="primary">Spočítat</button>
+            <button id="btnSave" class="ghost">Uložit do Watchlistu</button>
+          </div>
+
+          <div id="calcMsg" class="small"></div>
+
+          <div id="resultBox" class="result" style="display:none;">
+            <h3>Výsledek (férová cena na akcii)</h3>
+            <div class="pill-row">
+              <div class="pill" id="pillBear">
+                <div class="k">Bear</div>
+                <div class="v">—</div>
+              </div>
+              <div class="pill" id="pillBase">
+       <div class="k">Base</div>
+            <div class="v">—</div>
+          </div>
+
+          <div class="pill" id="pillBull">
+            <div class="k">Bull</div>
+            <div class="v">—</div>
+          </div>
+        </div>
+
+        <div class="small" id="upsideLine" style="margin-top:10px; opacity:.95;"></div>
+
+        <details class="help" style="margin-top:12px;">
+          <summary>Co znamenají výsledky?</summary>
+          <div class="small" style="margin-top:8px; line-height:1.45;">
+            <b>Bear / Base / Bull</b> jsou 3 scénáře férové ceny na akcii podle DCF.<br/>
+            <b>Bear</b> = horší předpoklady (nižší růst / vyšší diskont / nižší terminál).<br/>
+            <b>Bull</b> = lepší předpoklady (vyšší růst / nižší diskont / vyšší terminál).<br/>
+            <br/>
+            Pokud je férová cena výrazně nad aktuální cenou, znamená to potenciální <b>upside</b> (podle těchto vstupů).
+          </div>
+        </details>
+      </div>
+
+    </section>
+
+    <!-- =========================
+         WATCHLIST
+    ========================== -->
+    <section id="screen-watchlist" class="screen">
+      <div class="topbar">
+        <button class="back" data-back="home">← Zpět</button>
+        <div>
+          <div class="title">Watchlist</div>
+          <div class="subtitle">Uložené analýzy (datum + výsledky)</div>
+        </div>
+        <div class="badge">MVP</div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">Uložené položky</div>
+        <div class="small" style="margin-top:6px;">
+          Každou položku můžeš smazat zvlášť (ikona 🗑). „Smazat vše“ smaže celý watchlist.
+        </div>
+
+        <div class="btns" style="margin-top:12px;">
+          <button id="btnExport" class="ghost">Export (kopírovat text)</button>
+          <button id="btnExportCsv" class="ghost">Export CSV</button>
+          <button id="btnClearAll" class="danger">Smazat vše</button>
+        </div>
+
+        <div id="wlMsg" class="small" style="margin-top:10px;"></div>
+      </div>
+
+      <div id="wlList"></div>
+    </section>
+
+    <!-- =========================
+         HOW IT WORKS
+    ========================== -->
+    <section id="screen-help" class="screen">
+      <div class="topbar">
+        <button class="back" data-back="home">← Zpět</button>
+        <div>
+          <div class="title">Jak to funguje</div>
+          <div class="subtitle">Metodika + vysvětlení vstupů</div>
+        </div>
+        <div class="badge">Beta</div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">Co je DCF?</div>
+        <div class="small" style="margin-top:8px; line-height:1.55;">
+          DCF (Discounted Cash Flow) je metoda, která odhaduje férovou hodnotu firmy tak, že
+          <b>diskontuje budoucí cash flow</b> na současnou hodnotu.
+          V této MVP verzi zadáváš <b>FCF na akcii</b> a model z něj udělá projekci pro X let + terminální hodnotu.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">Tipy</div>
+        <ul class="small" style="margin-top:10px; line-height:1.55;">
+          <li>Můžeš psát desetinnou čárku (např. 9,5).</li>
+          <li>Terminální růst dávej realisticky (často 2–4 %).</li>
+          <li>Diskont 8–12 % podle rizika firmy.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">Poznámka</div>
+        <div class="small" style="margin-top:8px; line-height:1.55;">
+          To je MVP. Přesnost závisí na vstupních předpokladech.
+        </div>
+      </div>
+    </section>
+
+  </div> <!-- /app -->
+
+  <script>
+    // =========================
+    // Helpers
+    // =========================
+    const $ = (id) => document.getElementById(id);
+
+    function parseNum(v){
+      if (v === null || v === undefined) return NaN;
+      const s = String(v).trim()
+        .replace(/\s+/g,'')
+        .replace(',', '.'); // CZ decimal
+      if (!s) return NaN;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function fmtMoney(n){
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("cs-CZ", { maximumFractionDigits: 2 });
+    }
+
+    function fmtPct(n){
+      if (!Number.isFinite(n)) return "—";
+      const sign = n > 0 ? "+" : "";
+      return sign + n.toLocaleString("cs-CZ", { maximumFractionDigits: 1 }) + " %";
+    }
+
+    function nowStamp(){
+      const d = new Date();
+      return d.toLocaleString("cs-CZ", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#39;");
+    }
+
+    // =========================
+    // Navigation (screens)
+    // =========================
+    function showScreen(id){
+      document.querySelectorAll("section.screen").forEach(s => s.classList.remove("active"));
+      const el = document.getElementById(id);
+      if (el) el.classList.add("active");
+      window.scrollTo({ top:0, behavior:"instant" });
+    }
+
+    document.querySelectorAll(".menu-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const target = card.getAttribute("data-target");
+        if (!target) return;
+        showScreen(target);
+        if (target === "screen-watchlist") renderWatchlist();
+      });
+    });
+
+    document.querySelectorAll("[data-back]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const back = btn.getAttribute("data-back");
+        showScreen(back || "home");
+      });
+    });
+
+    // start
+    showScreen("home");
+
+    // =========================
+    // DCF logic
+    // =========================
+    function dcfValue({ fcf, years, gPct, rPct, tgPct }){
+      const g = gPct / 100;
+      const r = rPct / 100;
+      const tg = tgPct / 100;
+
+      if (!Number.isFinite(fcf)) return null;
+      if (!Number.isFinite(years) || years <= 0) return null;
+      if (!Number.isFinite(g) || !Number.isFinite(r) || !Number.isFinite(tg)) return null;
+      if (r <= -0.99) return null;
+      if (tg >= r) return null; // Gordon must be r > tg
+
+      let pv = 0;
+      let cash = fcf;
+
+      for (let t=1; t<=years; t++){
+        cash = cash * (1 + g);
+        pv += cash / Math.pow(1 + r, t);
+      }
+
+      // Terminal value at end of year N
+      const terminalCF = cash * (1 + tg);
+      const terminalValue = terminalCF / (r - tg);
+      const pvTerminal = terminalValue / Math.pow(1 + r, years);
+
+      return pv + pvTerminal;
+    }
+
+    function getInputs(){
+      // IDs must match your inputs (z předchozí části souboru)
+      const ticker = ($("ticker")?.value || "").trim().toUpperCase();
+      const price = parseNum($("price")?.value);
+      const fcf0 = parseNum($("fcf")?.value);
+      const years = parseInt($("years")?.value || "10", 10);
+
+      const baseG = parseNum($("baseGrowth")?.value);
+      const baseR = parseNum($("baseDiscount")?.value);
+      const baseTG = parseNum($("baseTerminal")?.value);
+
+      const bearGAdj = parseNum($("bearGrowthAdj")?.value);
+      const bearRAdj = parseNum($("bearDiscountAdj")?.value);
+      const bearTGAdj = parseNum($("bearTerminalAdj")?.value);
+
+      const bullGAdj = parseNum($("bullGrowthAdj")?.value);
+      const bullRAdj = parseNum($("bullDiscountAdj")?.value);
+      const bullTGAdj = parseNum($("bullTerminalAdj")?.value);
+
+      return {
+        ticker, price, fcf0, years,
+        base: { g: baseG, r: baseR, tg: baseTG },
+        bearAdj: { g: bearGAdj, r: bearRAdj, tg: bearTGAdj },
+        bullAdj: { g: bullGAdj, r: bullRAdj, tg: bullTGAdj }
+      };
+    }
+
+    function calcAll(){
+      const x = getInputs();
+
+      // Guardrails
+      if (!x.ticker) return { ok:false, msg:"Doplň ticker." };
+      if (!Number.isFinite(x.price)) return { ok:false, msg:"Doplň aktuální cenu." };
+      if (!Number.isFinite(x.fcf0)) return { ok:false, msg:"Doplň FCF na akcii (počáteční)." };
+      if (!Number.isFinite(x.base.g) || !Number.isFinite(x.base.r) || !Number.isFinite(x.base.tg)) return { ok:false, msg:"Doplň Base předpoklady (růst/diskont/terminál)." };
+
+      const base = dcfValue({ fcf:x.fcf0, years:x.years, gPct:x.base.g, rPct:x.base.r, tgPct:x.base.tg });
+      if (base === null) return { ok:false, msg:"Zkontroluj vstupy (např. terminál musí být menší než diskont)." };
+
+      const bear = dcfValue({
+        fcf:x.fcf0, years:x.years,
+        gPct:x.base.g + (Number.isFinite(x.bearAdj.g) ? x.bearAdj.g : 0),
+        rPct:x.base.r + (Number.isFinite(x.bearAdj.r) ? x.bearAdj.r : 0),
+        tgPct:x.base.tg + (Number.isFinite(x.bearAdj.tg) ? x.bearAdj.tg : 0)
+      });
+
+      const bull = dcfValue({
+        fcf:x.fcf0, years:x.years,
+        gPct:x.base.g + (Number.isFinite(x.bullAdj.g) ? x.bullAdj.g : 0),
+        rPct:x.base.r + (Number.isFinite(x.bullAdj.r) ? x.bullAdj.r : 0),
+        tgPct:x.base.tg + (Number.isFinite(x.bullAdj.tg) ? x.bullAdj.tg : 0)
+      });
+
+      const values = {
+        bear: bear ?? NaN,
+        base: base ?? NaN,
+        bull: bull ?? NaN
+      };
+
+      const upsidePct = (Number.isFinite(values.base) && x.price > 0)
+        ? ((values.base / x.price) - 1) * 100
+        : NaN;
+
+      return {
+        ok:true,
+        inputs:x,
+        values:{
+          bear: values.bear,
+          base: values.base,
+          bull: values.bull,
+          upsidePct
+        }
+      };
+    }
+
+    function renderResult(res){
+      const box = $("resultBox");
+      if (!box) return;
+      box.style.display = "block";
+
+      const pb = $("pillBear")?.querySelector(".v");
+      const pbase = $("pillBase")?.querySelector(".v");
+      const pbu = $("pillBull")?.querySelector(".v");
+
+      if (pb) pb.textContent = fmtMoney(res.values.bear);
+      if (pbase) pbase.textContent = fmtMoney(res.values.base);
+      if (pbu) pbu.textContent = fmtMoney(res.values.bull);
+
+      const up = $("upsideLine");
+      if (up){
+        up.textContent = `Base vs aktuální cena: ${fmtPct(res.values.upsidePct)}`;
+      }
+    }
+
+    // =========================
+    // Buttons – Calculate / Save
+    // =========================
+    const btnCalc = $("btnCalc");
+    if (btnCalc){
+      btnCalc.addEventListener("click", () => {
+        const msg = $("calcMsg");
+        if (msg) msg.textContent = "";
+        try{
+          const res = calcAll();
+          if (!res.ok){
+            if (msg) msg.textContent = res.msg;
+            return;
+          }
+          renderResult(res);
+          // store last calc for Save
+          window.__lastCalc = res;
+          if (msg) msg.textContent = "Hotovo.";
+        }catch(e){
+          console.error(e);
+          if (msg) msg.textContent = "Chyba ve výpočtu.";
+        }
+      });
+    }
+
+    function loadWL(){
+      try{
+        const raw = localStorage.getItem("watchlist_v1");
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch{
+        return [];
+      }
+    }
+
+    function saveWL(arr){
+      localStorage.setItem("watchlist_v1", JSON.stringify(arr));
+    }
+
+    const btnSave = $("btnSave");
+    if (btnSave){
+      btnSave.addEventListener("click", () => {
+        const msg = $("calcMsg");
+        const res = window.__lastCalc;
+        if (!res || !res.ok){
+          if (msg) msg.textContent = "Nejdřív spočítej výsledek.";
+          return;
+        }
+
+        const item = {
+          id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2),
+          stamp: nowStamp(),
+          ticker: res.inputs.ticker,
+          price: res.inputs.price,
+          fcf0: res.inputs.fcf0,
+          years: res.inputs.years,
+          base: { ...res.inputs.base },
+          bearAdj: { ...res.inputs.bearAdj },
+          bullAdj: { ...res.inputs.bullAdj },
+          values: {
+            bear: res.values.bear,
+            base: res.values.base,
+            bull: res.values.bull,
+            upsidePct: res.values.upsidePct
+          }
+        };
+
+        const wl = loadWL();
+        wl.unshift(item);
+        saveWL(wl);
+
+        if (msg) msg.textContent = "Uloženo do Watchlistu.";
+      });
+    }
+
+    // =========================
+    // Watchlist UI + delete row
+    // =========================
+    function renderWatchlist(){
+      const root = $("wlList");
+      if (!root) return;
+
+      const wl = loadWL();
+      const msg = $("wlMsg");
+      if (msg) msg.textContent = wl.length ? "" : "Watchlist je prázdný.";
+
+      root.innerHTML = wl.map(item => {
+        const t = escapeHtml(item.ticker);
+        const d = escapeHtml(item.stamp);
+        const base = fmtMoney(item.values?.base);
+        const bear = fmtMoney(item.values?.bear);
+        const bull = fmtMoney(item.values?.bull);
+        const up = fmtPct(item.values?.upsidePct);
+
+        return `
+          <div class="card" data-row="${escapeHtml(item.id)}">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+              <div>
+                <div class="panel-title" style="margin:0;">${t}</div>
+                <div class="small" style="margin-top:4px;">${d}</div>
+              </div>
+              <button class="ghost" data-del="${escapeHtml(item.id)}" title="Smazat položku">🗑</button>
+            </div>
+
+            <div class="result" style="margin-top:12px;">
+              <div class="pill-row">
+                <div class="pill"><div class="k">Bear</div><div class="v">${bear}</div></div>
+                <div class="pill"><div class="k">Base</div><div class="v">${base}</div></div>
+                <div class="pill"><div class="k">Bull</div><div class="v">${bull}</div></div>
+              </div>
+              <div class="small" style="margin-top:10px;">Base vs cena: ${up}</div>
+
+              <details class="help" style="margin-top:12px;">
+                <summary>Detaily vstupů</summary>
+                <div class="small" style="margin-top:8px; line-height:1.55;">
+                  Cena: <b>${fmtMoney(item.price)}</b><br/>
+                  FCF/akcii (start): <b>${fmtMoney(item.fcf0)}</b><br/>
+                  Roky: <b>${escapeHtml(item.years)}</b><br/>
+                  Base růst/diskont/terminál: <b>${fmtMoney(item.base?.g)}%</b> / <b>${fmtMoney(item.base?.r)}%</b> / <b>${fmtMoney(item.base?.tg)}%</b>
+                </div>
+              </details>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      root.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del");
+          if (!id) return;
+          const wl2 = loadWL().filter(x => x.id !== id);
+          saveWL(wl2);
+          renderWatchlist();
+        });
+      });
+    }
+
+    const btnClearAll = $("btnClearAll");
+    if (btnClearAll){
+      btnClearAll.addEventListener("click", () => {
+        saveWL([]);
+        renderWatchlist();
+      });
+    }
+
+    const btnExport = $("btnExport");
+    if (btnExport){
+      btnExport.addEventListener("click", async () => {
+        const wl = loadWL();
+        if (!wl.length){
+          $("wlMsg").textContent = "Není co exportovat.";
+          return;
+        }
+        const text = wl.map(x => {
+          return `${x.ticker} | ${x.stamp} | Bear ${fmtMoney(x.values?.bear)} | Base ${fmtMoney(x.values?.base)} | Bull ${fmtMoney(x.values?.bull)} | Upside ${fmtPct(x.values?.upsidePct)}`;
+        }).join("\n");
+
+        try{
+          await navigator.clipboard.writeText(text);
+          $("wlMsg").textContent = "Zkopírováno do schránky.";
+        }catch{
+          $("wlMsg").textContent = "Nepodařilo se zkopírovat. Zkus jiný prohlížeč.";
+        }
+      });
+    }
+
+    // =========================
+    // CSV Export (Excel CZ friendly)
+    // =========================
+    function toCsvCell(v){
+      const s = String(v ?? "");
+      const escaped = s.replace(/"/g, '""');
+      return `"${escaped}"`;
+    }
+
+    function downloadTextFile(filename, content, mime){
+      const blob = new Blob([content], { type: mime || "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    const btnExportCsv = $("btnExportCsv");
+    if (btnExportCsv){
+      btnExportCsv.addEventListener("click", () => {
+        const arr = loadWL();
+        if (!arr.length){
+          $("wlMsg").textContent = "Není co exportovat.";
+          return;
+        }
+
+        const sep = ";";
+        const header = [
+          "Ticker","Datum","Aktuální cena",
+          "Bear férová cena","Base férová cena","Bull férová cena",
+          "Upside vs cena (%)",
+          "FCF na akcii (start)","Roky projekce",
+          "Base růst (%)","Base diskont (%)","Base terminál (%)"
+        ];
+
+        const lines = [];
+        lines.push(header.map(toCsvCell).join(sep));
+
+        for (const item of arr){
+          const row = [
+            item.ticker ?? "",
+            item.stamp ?? "",
+            item.price ?? "",
+            item.values?.bear ?? "",
+            item.values?.base ?? "",
+            item.values?.bull ?? "",
+            item.values?.upsidePct ?? "",
+            item.fcf0 ?? "",
+            item.years ?? "",
+            item.base?.g ?? "",
+            item.base?.r ?? "",
+            item.base?.tg ?? ""
+          ];
+          lines.push(row.map(toCsvCell).join(sep));
+        }
+
+        const bom = "\uFEFF"; // Excel-friendly UTF-8
+        const csv = bom + lines.join("\n");
+
+        const ts = new Date().toISOString().slice(0,10);
+        downloadTextFile(`watchlist_${ts}.csv`, csv, "text/csv;charset=utf-8");
+        $("wlMsg").textContent = "CSV export stažen.";
+      });
+    }
+  </script>
+</body>
+      </html>
 
   
 
