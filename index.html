@@ -202,76 +202,34 @@ section.screen table td,
 section.screen table th{
   color: var(--text) !important;
 }
-/* ===== FIX: tmavé inputy – finální, Android OK ===== */
+
+
+/* placeholder */
+.app input::placeholder,
+.app textarea::placeholder {
+  color: rgba(255,255,255,0.6) !important;
+}/* FINAL: force dark inputs + autofill (Android/Chrome) */
 html { color-scheme: dark; }
 
-input,
-select,
-textarea{
-  background-color: rgba(0,0,0,.32) !important;
-  background: rgba(0,0,0,.32) !important;
-  color: var(--text) !important;
-  -webkit-text-fill-color: var(--text) !important;
-
-  border: 1px solid var(--stroke) !important;
-  border-radius: 14px;
-  outline: none;
-
-  box-sizing: border-box;
-  appearance: none;
-  -webkit-appearance: none;
+.app input,
+.app select,
+.app textarea{
+  background-color: rgba(0,0,0,.45) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
-input::placeholder,
-textarea::placeholder{
-  color: var(--muted) !important;
-  opacity: .85;
+.app input::placeholder,
+.app textarea::placeholder{
+  color: rgba(255,255,255,.6) !important;
+  opacity: 1 !important;
 }
 
-/* Autofill – Chrome / Android */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill{
-  -webkit-text-fill-color: var(--text) !important;
-  box-shadow: 0 0 0 1000px rgba(0,0,0,.32) inset !important;
-  border: 1px solid var(--stroke) !important;
-  transition: background-color 9999s ease-out 0s;
-}
-
-/* ===== DEFINITIVNÍ FIX INPUTŮ – ANDROID / CHROME ===== */
-input,
-input[type="text"],
-input[type="number"],
-select,
-textarea {
-  background-color: rgba(0,0,0,0.45) !important;
-  background: rgba(0,0,0,0.45) !important;
-
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-
-  border: 1px solid rgba(255,255,255,0.35) !important;
-  border-radius: 14px;
-
-  outline: none !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: rgba(255,255,255,0.6) !important;
-}
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-select:-webkit-autofill,
-textarea:-webkit-autofill {
-  -webkit-text-fill-color: #ffffff !important;
-  box-shadow: 0 0 0 1000px rgba(0,0,0,0.45) inset !important;
+.app input:-webkit-autofill,
+.app textarea:-webkit-autofill,
+.app select:-webkit-autofill{
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
   transition: background-color 9999s ease-in-out 0s;
 }
 </style>
