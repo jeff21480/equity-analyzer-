@@ -231,6 +231,25 @@ html { color-scheme: dark; }
   -webkit-text-fill-color: #fff !important;
   box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
   transition: background-color 9999s ease-in-out 0s;
+}/* === LAST OVERRIDE (Android) === */
+section.screen input,
+section.screen input[type="text"],
+section.screen input[type="number"],
+section.screen select,
+section.screen textarea{
+  background-color: rgba(0,0,0,.45) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+section.screen input:-webkit-autofill,
+section.screen textarea:-webkit-autofill,
+section.screen select:-webkit-autofill{
+  -webkit-text-fill-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,.45) inset !important;
 }
 </style>
 
