@@ -39,7 +39,23 @@ i<!doctype html>
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
       color: var(--text);
       overflow-x:hidden; /* klíčové proti posunu do strany */
-      background: linear-gradient(135deg, var(--bgA) 0%, var(--bgB) 55%, var(--bgC) 100%);
+    background:
+  radial-gradient(
+    900px 600px at 20% -10%,
+    rgba(140, 120, 255, 0.35),
+    transparent 60%
+  ),
+  radial-gradient(
+    800px 500px at 80% 20%,
+    rgba(90, 140, 255, 0.25),
+    transparent 65%
+  ),
+  linear-gradient(
+    180deg,
+    #1a1435 0%,
+    #120f2b 55%,
+    #0b0a1a 100%
+  ); linear-gradient(135deg, var(--bgA) 0%, var(--bgB) 55%, var(--bgC) 100%);
     }
 
     .wrap{
