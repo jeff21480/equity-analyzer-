@@ -630,73 +630,71 @@
               <h3 class="title">Výsledek ocenění</h3>
               <span class="badge" id="summaryBadge">
                 <span class="dot" id="summaryDot"></span>
-                <span id="summaryText">—</span>
-    </span>
+                <s<span id="summaryText">—</span>
+</span>
+</div>
+
+<div class="resultGrid">
+  <div class="resultItem base">
+    <div class="label">Base</div>
+    <div class="value" id="resBase">—</div>
+    <div class="diff" id="diffBase">—</div>
   </div>
 
-  <div class="resultGrid">
-    <div class="resultItem base">
-      <div class="label">Base</div>
-      <div class="value" id="resBase">—</div>
-      <div class="diff" id="diffBase">—</div>
-    </div>
-
-    <div class="resultItem bull">
-      <div class="label">Bull</div>
-      <div class="value" id="resBull">—</div>
-      <div class="diff" id="diffBull">—</div>
-    </div>
-
-    <div class="resultItem bear">
-      <div class="label">Bear</div>
-      <div class="value" id="resBear">—</div>
-      <div class="diff" id="diffBear">—</div>
-    </div>
+  <div class="resultItem bull">
+    <div class="label">Bull</div>
+    <div class="value" id="resBull">—</div>
+    <div class="diff" id="diffBull">—</div>
   </div>
+
+  <div class="resultItem bear">
+    <div class="label">Bear</div>
+    <div class="value" id="resBear">—</div>
+    <div class="diff" id="diffBear">—</div>
+  </div>
+</div>
 </div> <!-- /resultCard -->
 
-</div> <!-- /card (DCF) -->
+</div> <!-- /card -->
 </section>
-<!-- ========== END DCF SCREEN ========== -->
+<!-- ===== END DCF ===== -->
 
 
-<!-- ================= SCRIPT ================= -->
+<!-- ===== SCRIPT ===== -->
 <script>
-/* ---------- HELPERS ---------- */
 function num(id) {
-  return parseFloat(
-    document.getElementById(id)?.value.replace(',', '.')
-  ) || 0;
+  const el = document.getElementById(id);
+  if (!el) return 0;
+  return parseFloat(el.value.replace(',', '.')) || 0;
 }
 
-function formatPrice(v) {
+function price(v) {
   return v.toLocaleString('cs-CZ', { maximumFractionDigits: 0 }) + ' Kč';
 }
 
-function formatPct(v) {
+function pct(v) {
   return (v > 0 ? '+' : '') + v.toFixed(1) + ' %';
 }
 
-/* ---------- DCF CORE ---------- */
-function dcfValue(fcf, years, g, r, tg) {
-  let value = 0;
+function dcf(fcf, years, g, r, t) {
+  let sum = 0;
   for (let i = 1; i <= years; i++) {
     const cash = fcf * Math.pow(1 + g / 100, i);
-    value += cash / Math.pow(1 + r / 100, i);
+    sum += cash / Math.pow(1 + r / 100, i);
   }
 
   const terminal =
-    (fcf * Math.pow(1 + g / 100, years) * (1 + tg / 100)) /
-    ((r - tg) / 100);
+    (fcf * Math.pow(1 + g / 100, years) * (1 + t / 100)) /
+    ((r - t) / 100);
 
-  value += terminal / Math.pow(1 + r / 100, years);
-  return value;
+  sum += terminal / Math.pow(1 + r / 100, years);
+  return sum;
 }
 
-/* ---------- CALC BUTTON ---------- */
 document.getElementById('btnCalc').addEventListener('click', () => {
   const fcf = num('fcf');
   const years = num('years');
+
   const gBase = num('gBase');
   const rBase = num('rBase');
   const tBase = num('tBase');
@@ -707,26 +705,30 @@ document.getElementById('btnCalc').addEventListener('click', () => {
     return;
   }
 
-  const gBear = gBase + num('bearG');
-  const rBear = rBase + num('bearR');
-  const tBear = tBase + num('bearT');
+  const base = dcf(fcf, years, gBase, rBase, tBase);
+  const bull = dcf(
+    fcf,
+    years,
+    gBase + num('bullG'),
+    rBase + num('bullR'),
+    tBase + num('bullT')
+  );
+  const bear = dcf(
+    fcf,
+    years,
+    gBase + num('bearG'),
+    rBase + num('bearR'),
+    tBase + num('bearT')
+  );
 
-  const gBull = gBase + num('bullG');
-  const rBull = rBase + num('bullR');
-  const tBull = tBase + num('bullT');
-
-  const base = dcfValue(fcf, years, gBase, rBase, tBase);
-  const bull = dcfValue(fcf, years, gBull, rBull, tBull);
-  const bear = dcfValue(fcf, years, gBear, rBear, tBear);
-
-  document.getElementById('resBase').innerText = formatPrice(base);
-  document.getElementById('resBull').innerText = formatPrice(bull);
-  document.getElementById('resBear').innerText = formatPrice(bear);
+  document.getElementById('resBase').innerText = price(base);
+  document.getElementById('resBull').innerText = price(bull);
+  document.getElementById('resBear').innerText = price(bear);
 
   document.getElementById('diffBull').innerText =
-    formatPct(((bull / base) - 1) * 100);
+    pct((bull / base - 1) * 100);
   document.getElementById('diffBear').innerText =
-    formatPct(((bear / base) - 1) * 100);
+    pct((bear / base - 1) * 100);
 
   document.getElementById('summaryText').innerText = 'Vypočteno';
   document.getElementById('summaryDot').classList.add('ok');
@@ -736,8 +738,10 @@ document.getElementById('btnCalc').addEventListener('click', () => {
 
 </body>
 </html>
-    
-    
+
+
+
+            
 
         
 
