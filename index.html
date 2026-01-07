@@ -814,77 +814,70 @@
   <div class="wrap">
 
     <!-- HOME -->
-    <section id="screen-home" class="screen active">
-      <div class="topBar">
-        <div class="brand">
-          <div class="logo">DCF</div>
-          <div class="brandTitle">
-            <div class="h">Equity Analyzér</div>
-            <div class="s">DCF scénáře • Fair Value Range • Watchlist</div>
-          </div>
-        </div>
-        <div class="pill"><span class="dot"></span> Online</div>
+<section id="screen-home" class="screen active">
+  <div class="hero">
+    <div class="pill">Analýza akcií · Beta</div>
+    <div class="mvpPill">MVP</div>
+    <h1 class="heroTitle">Analýza akcií</h1>
+    <p class="heroSub">
+      Moderní nástroje pro investory: výpočet vnitřní hodnoty (DCF),
+      watchlist, složené úročení a jednoduché vysvětlení metodiky.
+    </p>
+  </div>
+
+  <div class="homeGrid">
+    <button class="homeCard main" data-open="dcf">
+    <div class="homeLeft">
+      <div class="homeIcon">📈</div>
+      <div>
+        <div class="homeTitle">DCF Analýza</div>
+        <div class="homeSub2">Vnitřní hodnota • Bear / Base / Bull</div>
       </div>
+    </div>
+    <div class="homeArrow">›</div>
+  </button>
 
-      <div class="hero">
-        <h1>Analýza akcií</h1>
-        <p>
-          Vypočítej si férovou (vnitřní) hodnotu akcie pomocí DCF. Uvidíš výsledky pro Bear/Base/Bull,
-          interval férové hodnoty a cílovou cenu s Margin of Safety. Analýzy si ukládáš do watchlistu lokálně.
-        </p>
-        <div class="subBadges">
-          <span class="badge">DCF: Bear / Base / Bull</span>
-          <span class="badge alt">Fair Value Range + Target</span>
-          <span class="badge neu">Ukládání lokálně</span>
-        </div>
+  <button class="homeCard" data-open="calc">
+    <div class="homeLeft">
+      <div class="homeIcon">🧮</div>
+      <div>
+        <div class="homeTitle">Složené úročení</div>
+        <div class="homeSub2">Růst kapitálu v čase</div>
       </div>
+    </div>
+    <div class="homeArrow">›</div>
+  </button>
 
-      <div class="grid4">
-        <div class="tile" data-open="dcf">
-          <div class="tileLeft">
-            <div class="icon">📈</div>
-            <div class="tileTxt">
-              <div class="t">Výpočet vnitřní hodnoty</div>
-              <div class="d">DCF model + scénáře + range + MoS</div>
-            </div>
-          </div>
-          <div class="chev">›</div>
-        </div>
-
-        <div class="tile" data-open="calc">
-          <div class="tileLeft">
-            <div class="icon">🧮</div>
-            <div class="tileTxt">
-              <div class="t">Složené úročení</div>
-              <div class="d">Budoucí hodnota investice (FV)</div>
-            </div>
-          </div>
-          <div class="chev">›</div>
-        </div>
-
-        <div class="tile" data-open="watchlist">
-          <div class="tileLeft">
-            <div class="icon">👀</div>
-            <div class="tileTxt">
-              <div class="t">Watchlist</div>
-              <div class="d">Uložené analýzy (mazání po řádcích)</div>
-            </div>
-          </div>
-          <div class="chev">›</div>
-        </div>
-
-        <div class="tile" data-open="about">
-          <div class="tileLeft">
-            <div class="icon">ℹ️</div>
-            <div class="tileTxt">
-              <div class="t">O aplikaci</div>
-              <div class="d">Pro koho je, proč existuje, metodika</div>
-            </div>
-          </div>
-          <div class="chev">›</div>
-        </div>
+  <button class="homeCard" data-open="watchlist">
+    <div class="homeLeft">
+      <div class="homeIcon">👀</div>
+      <div>
+        <div class="homeTitle">Watchlist</div>
+        <div class="homeSub2">Uložené analýzy akcií</div>
       </div>
-    </section>
+    </div>
+    <div class="homeArrow">›</div>
+  </button>
+
+  <button class="homeCard" data-open="about">
+    <div class="homeLeft">
+      <div class="homeIcon">ℹ️</div>
+      <div>
+        <div class="homeTitle">O aplikaci</div>
+        <div class="homeSub2">Metodika • vzdělávání • limity</div>
+      </div>
+    </div>
+    <div class="homeArrow">›</div>
+  </button>
+  </div>
+
+  <div class="hintCard">
+    <div class="hintTitle">Tip</div>
+    <div class="hintText">
+      Čísla můžeš psát s mezerami a desetinnou čárkou (např. 1 234,56). Aplikace si to sama převede.
+    </div>
+  </div>
+</section>
 
     <!-- DCF -->
     <section id="screen-dcf" class="screen">
