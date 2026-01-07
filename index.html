@@ -1,4 +1,4 @@
-<!doctype html>
+i<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
@@ -8,15 +8,15 @@
   <style>
     :root{
       /* Vibrant background (fialovo-modré, ale ne vyblité) */
-    --bgA:#1b1438;
---bgB:#1a2a5a;
---bgC:#4a1f6f;
+    --bgA:#0b0a16;
+--bgB:#12102a;
+--bgC:#1a1238;
 
       /* Screens / surfaces */
   --surface: rgba(12, 8, 32, .96);
 --surface2: rgba(18, 12, 45, .96);
---cardHome: rgba(255,255,255,.10);
---cardHome2: rgba(255,255,255,.06);
+--cardHome: rgba(255,255,255,.06);
+--cardHome2: rgba(255,255,255,.04);
 
       --stroke: rgba(178, 140, 255, .28);
       --stroke2: rgba(0,0,0,.35);
@@ -41,11 +41,7 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
       color: var(--text);
       overflow-x:hidden; /* klíčové proti posunu do strany */
-      background:
-        radial-gradient(1100px 700px at 15% 10%, rgba(255,255,255,.16), transparent 55%),
-        radial-gradient(900px 650px at 85% 15%, rgba(0,255,255,.14), transparent 60%),
-        radial-gradient(900px 700px at 50% 95%, rgba(255,0,255,.18), transparent 55%),
-        linear-gradient(135deg, var(--bgA), var(--bgB) 55%, var(--bgC));
+      background: linear-gradient(135deg, var(--bgA) 0%, var(--bgB) 55%, var(--bgC) 100%);
     }
 
     .wrap{
@@ -86,14 +82,14 @@
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.22);
       background: rgba(255,255,255,.14);
-      box-shadow: var(--shadow2);
+      background: rgba(255,255,255,.08);
       backdrop-filter: blur(10px);
       max-width: 100%;
     }
     .dot{
       width:10px;height:10px;border-radius:50%;
       background: rgba(255,255,255,.95);
-      box-shadow: 0 0 0 6px rgba(255,255,255,.12);
+      background: rgba(255,255,255,.70);
       flex:0 0 auto;
     }
     .pill small{ color: var(--muted); font-weight: 650; letter-spacing: .2px; }
