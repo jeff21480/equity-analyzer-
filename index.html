@@ -3,1404 +3,1361 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Analýza akcií — MVP</title>
+  <title>Analýza akcií – MVP</title>
   <style>
     :root{
-      --bg1:#2b0a63;
-      --bg2:#0a2b74;
-      --card: rgba(255,255,255,.08);
-      --card2: rgba(255,255,255,.10);
-      --stroke: rgba(255,255,255,.14);
-      --stroke2: rgba(255,255,255,.18);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --muted2: rgba(255,255,255,.55);
-      --shadow: 0 18px 50px rgba(0,0,0,.38);
-      --shadow2: 0 10px 28px rgba(0,0,0,.28);
+      --bg1:#7f2bff;
+      --bg2:#2b7bff;
+      --bg3:#ff2bd6;
+
+      --card: rgba(255,255,255,.18);
+      --card2: rgba(255,255,255,.12);
+      --stroke: rgba(255,255,255,.28);
+      --stroke2: rgba(0,0,0,.12);
+
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.78);
+      --muted2: rgba(255,255,255,.62);
+
+      --shadow: 0 18px 50px rgba(0,0,0,.22);
+      --shadow2: 0 10px 28px rgba(0,0,0,.16);
+
+      --good:#22ff9a;
+      --bad:#ff477e;
+      --warn:#ffd35c;
+
       --radius: 22px;
-      --radius2: 18px;
-      --good: rgba(110,255,190,.95);
-      --bad: rgba(255,140,170,.95);
-      --warn: rgba(255,220,140,.95);
-      --btn: rgba(255,255,255,.10);
-      --btn2: rgba(255,255,255,.14);
     }
 
-    *{ box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
       color: var(--text);
       background:
-        radial-gradient(1200px 900px at 12% 8%, rgba(255,255,255,.10), transparent 60%),
-        radial-gradient(800px 700px at 88% 12%, rgba(255,255,255,.08), transparent 55%),
-        radial-gradient(900px 800px at 50% 120%, rgba(255,255,255,.08), transparent 55%),
-        linear-gradient(140deg, var(--bg1), var(--bg2));
+        radial-gradient(1100px 700px at 20% 10%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(255,255,255,.28), transparent 55%),
+        radial-gradient(900px 700px at 40% 90%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
       overflow-x:hidden;
     }
 
-    a{ color: inherit; }
     .wrap{
       max-width: 980px;
       margin: 0 auto;
       padding: 18px 14px 40px;
     }
 
-    /* “App shell” */
-    .app{
-      border-radius: 30px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
-      min-height: 84vh;
-    }
+    /* “Screen routing” */
+    .screen{ display:none; }
+    .screen.active{ display:block; animation: pop .22s ease-out; }
+    @keyframes pop { from{ transform: translateY(8px); opacity:.0; } to{ transform:none; opacity:1; } }
 
-    .screen{
-      display:none;
-      padding: 18px 16px 24px;
-    }
-    .screen.active{ display:block; }
-
-    .topBar{
+    .topPillRow{
       display:flex;
-      align-items:flex-start;
       justify-content:space-between;
-      gap:12px;
-      padding: 18px 16px 0;
-    }
-
-    .brand{
-      display:flex;
-      gap:12px;
       align-items:center;
-      min-width:0;
+      gap:10px;
+      margin: 6px 2px 14px;
     }
-    .logo{
-      width:44px;
-      height:44px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
-      font-weight: 950;
-      letter-spacing:.5px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: var(--shadow2);
-      flex: 0 0 auto;
-    }
-    .brandTitle{ min-width:0; }
-    .brandTitle .h{
-      font-weight: 950;
-      font-size: 18px;
-      line-height: 1.1;
-      margin:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .brandTitle .s{
-      opacity:.72;
-      font-size: 12.5px;
-      margin-top:2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
     .pill{
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding: 8px 10px;
+      gap:10px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      font-size: 12.5px;
-      opacity:.95;
-      white-space:nowrap;
-      height: fit-content;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
     }
     .dot{
-      width:10px;
-      height:10px;
-      border-radius:999px;
-      background: rgba(130,190,255,.95);
-      box-shadow: 0 0 0 4px rgba(130,190,255,.18);
+      width:10px;height:10px;border-radius:50%;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 0 6px rgba(255,255,255,.18);
+    }
+    .pill small{ color: var(--muted); font-weight:700; letter-spacing:.2px; }
+    .pillRight{
+      opacity:.95;
+      font-weight:800;
+      letter-spacing:.4px;
     }
 
-    /* HOME hero */
-    .hero{
-      margin: 14px 0 10px;
-      padding: 10px 16px 0;
-    }
     .heroCard{
-      border-radius: 28px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      box-shadow: var(--shadow2);
-      padding: 18px 16px 16px;
-    }
-    .badgeRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom: 10px;
-    }
-    .mvp{
-      padding: 8px 10px;
-      border-radius:999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      font-size: 12px;
-      opacity:.9;
+      padding: 18px 18px 16px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
     }
     .heroTitle{
-      font-size: 44px;
-      line-height: .95;
+      margin: 6px 0 6px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.02;
       letter-spacing: .2px;
-      margin: 8px 0 10px;
       font-weight: 950;
     }
-    .heroText{
-      opacity:.76;
-      font-size: 14px;
-      line-height: 1.45;
+    .heroSub{
       margin: 0;
-      max-width: 72ch;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+      max-width: 62ch;
     }
 
-    /* HOME “šuplíky” */
-    .homeGrid{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
       margin-top: 14px;
-      padding: 0 16px 16px;
     }
-    .homeCard{
+    @media (min-width: 760px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+
+    /* “Šuplíky” */
+    .drawer{
       width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-
-      padding:14px 16px;
-      border-radius: 20px;
-
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 28px rgba(0,0,0,.20);
-
-      cursor:pointer;
       text-align:left;
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      border: 1px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.16);
+      box-shadow: var(--shadow2);
+      border-radius: 18px;
+      padding: 14px;
+      color: var(--text);
+      backdrop-filter: blur(12px);
+      cursor:pointer;
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
     }
-    .homeCard:hover{
+    .drawer:active{ transform: translateY(1px) scale(.995); }
+    .drawer:hover{
       transform: translateY(-1px);
-      border-color: rgba(255,255,255,.22);
-      background: rgba(255,255,255,.10);
+      background: rgba(255,255,255,.20);
+      filter: brightness(1.06);
     }
-    .homeCard:active{
-      transform: translateY(0px);
-    }
-
-    .homeLeft{
+    .drawerRow{
       display:flex;
       align-items:center;
-      gap:14px;
-      min-width:0;
+      gap: 12px;
     }
-    .homeIcon{
-      width:46px;
-      height:46px;
+    .ic{
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
       display:grid;
       place-items:center;
-      border-radius:16px;
-
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.14);
-      flex:0 0 auto;
-      font-size: 20px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.15);
+      box-shadow: 0 10px 22px rgba(0,0,0,.14);
+      font-size: 26px;
     }
-    .homeTitle{
+    .drawerTxt{ flex:1; min-width:0; }
+    .drawerTitle{
+      font-size: 22px;
       font-weight: 950;
-      font-size: 22px;
-      line-height: 1.05;
-      margin:0;
+      margin: 0;
+      letter-spacing:.2px;
     }
-    .homeSub2{
-      margin-top:4px;
-      opacity:.72;
-      font-size: 13px;
-      line-height: 1.25;
+    .drawerSub{
+      margin: 2px 0 0;
+      color: var(--muted2);
+      font-weight: 750;
+      letter-spacing:.1px;
     }
-    .homeArrow{
-      opacity:.68;
+    .chev{
       font-size: 22px;
-      line-height:1;
-      flex:0 0 auto;
-      padding-left:8px;
+      opacity:.9;
+      padding: 0 6px;
     }
 
-    .tip{
-      padding: 0 16px 18px;
-      opacity:.78;
-      font-size: 13px;
-      line-height: 1.35;
+    .card{
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.14);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(12px);
+    }
+    .cardTitle{
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .subTitle{
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
     }
 
-    /* Header row inside screens */
     .headerRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      margin-bottom: 12px;
-    }
-    .miniPill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
-      font-weight: 850;
-      font-size: 13px;
-      opacity:.95;
+      gap: 12px;
+      margin: 6px 2px 12px;
     }
     .backBtn{
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding: 10px 12px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(255,255,255,.07);
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.16);
+      box-shadow: var(--shadow2);
       cursor:pointer;
       user-select:none;
-      font-weight: 800;
-      font-size: 13px;
-      opacity:.92;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      backdrop-filter: blur(12px);
+      font-weight: 900;
     }
-    .backBtn:hover{
-      background: rgba(255,255,255,.10);
-      border-color: rgba(255,255,255,.20);
-    }
-    .backBtn:active{ transform: translateY(1px); }
-
-    .card{
-      border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      box-shadow: var(--shadow2);
-      padding: 14px 14px 16px;
-    }
-
-    .cardTitle{
-      font-weight: 950;
+    .backBtn:hover{ background: rgba(255,255,255,.20); }
+    .miniPill{
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.08);
+      border: 1px solid rgba(255,255,255,.22);
+      font-weight: 900;
       letter-spacing:.2px;
-      font-size: 16px;
-      margin-bottom: 6px;
-      opacity:.98;
-    }
-    .subTitle{
-      font-size: 13px;
-      line-height: 1.35;
-      opacity:.76;
-      margin: 0 0 10px;
-    }
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.10);
-      margin: 12px 0;
+      color: rgba(255,255,255,.92);
     }
 
     .formGrid{
       display:grid;
-      gap:10px;
+      gap: 10px;
     }
-    .two{ grid-template-columns: 1fr 1fr; }
-    .three{ grid-template-columns: 1fr 1fr 1fr; }
-    @media (max-width: 720px){
-      .two, .three{ grid-template-columns: 1fr; }
-      .heroTitle{ font-size: 40px; }
+    .two{ grid-template-columns: 1fr; }
+    .three{ grid-template-columns: 1fr; }
+    @media (min-width: 760px){
+      .two{ grid-template-columns: 1fr 1fr; }
+      .three{ grid-template-columns: 1fr 1fr 1fr; }
     }
 
     .field{
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding: 10px 10px 8px;
+      border: 1px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 12px;
     }
     .labelRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      margin-bottom: 6px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
     label{
-      font-size: 12.5px;
-      font-weight: 850;
-      opacity:.92;
-    }
-    input[type="text"], input[type="number"], select{
-      width:100%;
-      font-size: 15px;
-      font-weight: 750;
-      padding: 10px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.14);
-      color: var(--text);
-      outline:none;
-    }
-    input:focus, select:focus{
-      border-color: rgba(140,190,255,.35);
-      box-shadow: 0 0 0 4px rgba(140,190,255,.12);
-    }
-    .hintInline{
-      margin-top: 6px;
-      font-size: 12px;
-      opacity:.68;
-      line-height:1.25;
+      font-weight: 950;
+      letter-spacing:.2px;
+      color: rgba(255,255,255,.94);
     }
 
-    details.info{
-      cursor:pointer;
-      user-select:none;
-    }
-    details.info summary{
-      list-style:none;
-      font-size: 12px;
-      opacity:.72;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      padding: 6px 8px;
-      border-radius: 999px;
-    }
-    details.info summary::-webkit-details-marker{ display:none; }
-    .infoBody{
-      margin-top: 8px;
-      font-size: 12.5px;
+    .hintInline{
+      margin-top: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,.70);
       line-height: 1.35;
-      opacity: .78;
-      max-width: 70ch;
     }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.18);
+      color: rgba(255,255,255,.96);
+      outline:none;
+      font-weight: 850;
+      letter-spacing:.2px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+    }
+    input::placeholder{ color: rgba(255,255,255,.60); font-weight:700; }
+    select option{ color:#111; }
 
     .btnRow{
       display:flex;
-      gap:10px;
       flex-wrap:wrap;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 12px;
     }
     .btn{
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-weight: 900;
+      border: 1px solid rgba(255,255,255,.30);
+      background: rgba(255,255,255,.16);
+      color: rgba(255,255,255,.95);
+      padding: 12px 14px;
+      border-radius: 16px;
       cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      user-select:none;
+      font-weight: 950;
+      letter-spacing:.2px;
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease, filter .12s ease;
     }
-    .btn:hover{ background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.20); }
+    .btn:hover{ filter: brightness(1.06); transform: translateY(-1px); }
     .btn:active{ transform: translateY(1px); }
     .btn.primary{
-      background: rgba(140,190,255,.16);
-      border-color: rgba(140,190,255,.24);
+      background: rgba(255,255,255,.26);
+      border-color: rgba(255,255,255,.42);
     }
     .btn.danger{
-      background: rgba(255,120,160,.12);
-      border-color: rgba(255,120,160,.22);
+      background: rgba(255, 71, 126, .22);
+      border-color: rgba(255, 71, 126, .45);
     }
 
     .msg{
       margin-top: 10px;
-      font-size: 13px;
-      opacity:.85;
-      line-height: 1.35;
       padding: 10px 12px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.12);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.26);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.90);
       display:none;
     }
     .msg.show{ display:block; }
-    .msg.good{ border-color: rgba(110,255,190,.20); }
-    .msg.bad{ border-color: rgba(255,140,170,.22); }
-    .msg.warn{ border-color: rgba(255,220,140,.22); }
+    .msg.good{ border-color: rgba(34,255,154,.55); background: rgba(34,255,154,.12); }
+    .msg.bad{ border-color: rgba(255,71,126,.55); background: rgba(255,71,126,.12); }
+    .msg.warn{ border-color: rgba(255,211,92,.60); background: rgba(255,211,92,.12); color: rgba(255,255,255,.92); }
 
-    .resultHeader{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 8px;
-    }
-    .summaryBadge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      font-weight: 950;
-      font-size: 12px;
-      opacity:.95;
-      height: fit-content;
-    }
-
-    .scRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:10px;
-      margin-top: 10px;
-    }
-    @media (max-width: 860px){
-      .scRow{ grid-template-columns: 1fr; }
-    }
-    .scCard{
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding: 12px 12px 12px;
-    }
-    .scTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom: 6px;
-    }
-    .scName{
-      font-weight: 950;
-      font-size: 14px;
-      letter-spacing:.2px;
-    }
-    .tag{
-      font-size: 11px;
-      font-weight: 900;
-      padding: 6px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      opacity:.92;
-      white-space:nowrap;
-    }
-    .scVal{
-      font-size: 30px;
-      font-weight: 950;
-      letter-spacing:.2px;
-      margin: 2px 0 6px;
-    }
-    .line{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-size: 12.5px;
-      opacity:.78;
-      margin-top: 4px;
-    }
+    .divider{ height:1px; background: rgba(255,255,255,.22); margin: 12px 0; border-radius:999px; }
 
     .rangeCard{
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.12);
       padding: 12px;
-      margin-top: 10px;
     }
     .rangeTop{
       display:flex;
-      align-items:center;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 8px;
+    }
+    .rangeTitle{
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .rangePill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.90);
+      font-weight: 900;
+      font-size: 12.5px;
+    }
+    .rangeValue{
+      font-size: 22px;
+      font-weight: 980;
+      letter-spacing:.2px;
+      margin: 2px 0 0;
+    }
+    .scRow{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (min-width: 760px){
+      .scRow{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .scCard{
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.26);
+      background: rgba(255,255,255,.10);
+    }
+    .scTop{
+      display:flex;
+      align-items:baseline;
       justify-content:space-between;
       gap:10px;
       margin-bottom: 6px;
     }
-    .rangeTitle{
-      font-weight: 950;
-      font-size: 14px;
-    }
-    .rangePill{
+    .scName{ font-weight: 980; letter-spacing:.2px; }
+    .tag{
+      padding: 6px 10px;
+      border-radius: 999px;
       font-size: 12px;
       font-weight: 950;
-      padding: 6px 10px;
-      border-radius:999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      opacity:.92;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.92);
     }
-    .rangeValue{
+    .tag.good{ border-color: rgba(34,255,154,.55); background: rgba(34,255,154,.12); }
+    .tag.bad{ border-color: rgba(255,71,126,.55); background: rgba(255,71,126,.12); }
+    .bigVal{
       font-size: 22px;
-      font-weight: 950;
-      margin: 2px 0;
+      font-weight: 980;
+      margin: 4px 0 0;
     }
-    .footerNote{
-      margin-top: 10px;
-      font-size: 12.5px;
-      opacity:.72;
-      line-height:1.35;
+    .line{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      margin-top: 8px;
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      letter-spacing:.15px;
     }
+    .line span:first-child{ color: rgba(255,255,255,.68); font-weight: 850; }
 
-    /* Watchlist list */
+    .wlItem{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.26);
+      background: rgba(255,255,255,.10);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
     .wlHead{
       display:flex;
-      align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
-      margin-bottom: 10px;
+      align-items:flex-start;
+      gap: 10px;
     }
     .wlTitle{
-      font-weight: 950;
-      margin:0;
-      font-size: 14px;
+      font-weight: 980;
       letter-spacing:.2px;
+      margin:0;
+      font-size: 16px;
     }
     .wlMeta{
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12.6px;
-      font-weight: 750;
-      line-height: 1.35;
+      margin:2px 0 0;
+      color: rgba(255,255,255,.70);
+      font-weight: 800;
+      font-size: 13px;
     }
     .wlBtns{
       display:flex;
-      gap:8px;
+      gap: 8px;
       flex-wrap:wrap;
       justify-content:flex-end;
     }
     .miniBtn{
       padding: 8px 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      color: rgba(255,255,255,.90);
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.26);
+      color: rgba(255,255,255,.92);
       font-weight: 950;
       cursor:pointer;
       user-select:none;
-      font-size: 12.5px;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
     }
-    .miniBtn:hover{ background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.20); }
-    .miniBtn:active{ transform: translateY(1px); }
+    .miniBtn:hover{ filter: brightness(1.06); }
     .miniBtn.danger{
-      background: rgba(255,79,119,.10);
-      border-color: rgba(255,79,119,.18);
+      background: rgba(255,71,126,.18);
+      border-color: rgba(255,71,126,.45);
     }
 
-    .wlItem{
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.05);
-      padding: 12px;
-      margin-top: 10px;
+    .footerNote{
+      margin-top: 12px;
+      color: rgba(255,255,255,.72);
+      font-weight: 800;
+      line-height: 1.45;
+      font-size: 13.5px;
     }
-    .wlGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:10px;
-      margin-top: 8px;
-    }
-    @media (max-width: 860px){
-      .wlGrid{ grid-template-columns: 1fr; }
-    }
-    .muted{ opacity:.72; }
-
-    /* Small helper */
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="app" id="app">
 
-      <!-- TOP BAR (fixed across screens visually) -->
-      <div class="topBar">
-        <div class="brand">
-          <div class="logo">DCF</div>
-          <div class="brandTitle">
-            <div class="h">Analýza akcií — MVP</div>
-            <div class="s">DCF scénáře • watchlist • složené úročení</div>
-          </div>
+    <!-- HOME -->
+    <section id="screen-home" class="screen active">
+      <div class="topPillRow">
+        <div class="pill">
+          <span class="dot"></span>
+          <small>Analýza akcií • Beta</small>
         </div>
-        <div class="pill"><span class="dot"></span> Analýza akcií • Beta</div>
+        <div class="pill pillRight">MVP</div>
       </div>
 
-      <!-- HOME -->
-      <section id="screen-home" class="screen active">
-        <div class="hero">
-          <div class="heroCard">
-            <div class="badgeRow">
-              <div class="pill"><span class="dot"></span> Analýza akcií • Beta</div>
-              <div class="mvp">MVP</div>
-            </div>
-            <div class="heroTitle">Analýza akcií</div>
-            <p class="heroText">
-              Moderní nástroje pro investory: výpočet vnitřní hodnoty (DCF), watchlist, složené úročení
-              a jednoduché vysvětlení metodiky.
-            </p>
-          </div>
-        </div>
+      <div class="heroCard">
+        <div class="heroTitle">Analýza akcií</div>
+        <p class="heroSub">
+          Moderní nástroje pro investory: výpočet vnitřní hodnoty (DCF), watchlist,
+          složené úročení a jednoduché vysvětlení metodiky.
+        </p>
 
-        <div class="homeGrid">
-          <button class="homeCard" data-open="dcf">
-            <div class="homeLeft">
-              <div class="homeIcon">📈</div>
-              <div>
-                <div class="homeTitle">Analyzátor</div>
-                <div class="homeSub2">Odhad vnitřní hodnoty (Bear / Base / Bull)</div>
+        <div class="grid" style="margin-top:16px;">
+          <button class="drawer" data-open="dcf">
+            <div class="drawerRow">
+              <div class="ic">📈</div>
+              <div class="drawerTxt">
+                <p class="drawerTitle">Analyzátor</p>
+                <p class="drawerSub">Odhad vnitřní hodnoty (Bear / Base / Bull)</p>
               </div>
+              <div class="chev">›</div>
             </div>
-            <div class="homeArrow">›</div>
           </button>
 
-          <button class="homeCard" data-open="calc">
-            <div class="homeLeft">
-              <div class="homeIcon">🧮</div>
-              <div>
-                <div class="homeTitle">Kalkulačka</div>
-                <div class="homeSub2">Složené úročení + cílová částka</div>
+          <button class="drawer" data-open="calc">
+            <div class="drawerRow">
+              <div class="ic">🧮</div>
+              <div class="drawerTxt">
+                <p class="drawerTitle">Kalkulačka</p>
+                <p class="drawerSub">Složené úročení + cílová částka</p>
               </div>
+              <div class="chev">›</div>
             </div>
-            <div class="homeArrow">›</div>
           </button>
 
-          <button class="homeCard" data-open="watchlist">
-            <div class="homeLeft">
-              <div class="homeIcon">👀</div>
-              <div>
-                <div class="homeTitle">Watchlist</div>
-                <div class="homeSub2">Uložené analýzy (datum + výsledky)</div>
+          <button class="drawer" data-open="watchlist">
+            <div class="drawerRow">
+              <div class="ic">👀</div>
+              <div class="drawerTxt">
+                <p class="drawerTitle">Watchlist</p>
+                <p class="drawerSub">Uložené analýzy (datum + výsledky)</p>
               </div>
+              <div class="chev">›</div>
             </div>
-            <div class="homeArrow">›</div>
           </button>
 
-          <button class="homeCard" data-open="about">
-            <div class="homeLeft">
-              <div class="homeIcon">ℹ️</div>
-              <div>
-                <div class="homeTitle">Jak to funguje</div>
-                <div class="homeSub2">Metodika, vysvětlení vstupů, tipy</div>
+          <button class="drawer" data-open="about">
+            <div class="drawerRow">
+              <div class="ic">ℹ️</div>
+              <div class="drawerTxt">
+                <p class="drawerTitle">Jak to funguje</p>
+                <p class="drawerSub">Metodika, vysvětlení vstupů, tipy</p>
               </div>
+              <div class="chev">›</div>
             </div>
-            <div class="homeArrow">›</div>
           </button>
         </div>
 
-        <div class="tip">
-          Tip: Čísla můžeš psát i s mezerami a desetinnou čárkou (např. <span class="mono">1 234,56</span>).
-          Aplikace si to sama převede.
+        <!-- NA HOME schválně NIC o desetinné čárce / mezerách -->
+        <div class="footerNote">
+          Pozn.: Aplikace běží lokálně v prohlížeči. Uložené položky se ukládají do <b>localStorage</b>.
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- DCF -->
-      <section id="screen-dcf" class="screen">
-        <div class="headerRow">
-          <div class="backBtn" data-open="home">← Zpět</div>
-          <div class="miniPill">DCF (Bear / Base / Bull)</div>
+    <!-- DCF -->
+    <section id="screen-dcf" class="screen">
+      <div class="headerRow">
+        <div class="backBtn" data-open="home">← Zpět</div>
+        <div class="miniPill">DCF • Bear / Base / Bull</div>
+      </div>
+
+      <div class="card">
+        <div class="cardTitle">Vstupy (Base)</div>
+        <p class="subTitle">
+          Nejde o AI doporučení. Jde o transparentní výpočet. Uprav si růst, diskont a terminál a porovnej scénáře.
+        </p>
+
+        <!-- TIP je ZDE (ne na home) -->
+        <div class="rangeCard" style="margin-bottom:12px;">
+          <div class="rangeTop">
+            <div class="rangeTitle">Tip zadávání čísel</div>
+            <div class="rangePill">funguje i na mobilu</div>
+          </div>
+          <div class="hintInline">
+            Můžeš psát čísla s mezerami i desetinnou čárkou: <b>1 234,56</b> nebo <b>1234.56</b>.
+            Aplikace si to sama převede.
+          </div>
         </div>
 
-        <div class="card">
-          <div class="cardTitle">Vstupy</div>
-          <p class="subTitle">Vyplň základní scénář (Base). Bear a Bull můžeš upravit přímo (nebo nechat jako odchylku).</p>
-
-          <div class="formGrid two">
-            <div class="field">
-              <div class="labelRow">
-                <label for="d_ticker">Ticker / Název (volitelné)</label>
-                <details class="info"><summary>i</summary><div class="infoBody">Jen pro pojmenování analýzy ve watchlistu.</div></details>
-              </div>
-              <input id="d_ticker" type="text" placeholder="např. PLTR, AAPL…" />
+        <div class="formGrid two">
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_ticker">Ticker (volitelné)</label>
             </div>
+            <input id="d_ticker" type="text" placeholder="např. PLTR" />
+          </div>
 
-            <div class="field">
-              <div class="labelRow">
-                <label for="d_price">Aktuální cena (na porovnání)</label>
-                <details class="info"><summary>i</summary><div class="infoBody">Cena, vůči které se bude počítat “upside” a cílová cena s rezervou (MoS).</div></details>
-              </div>
-              <input id="d_price" type="text" inputmode="decimal" placeholder="např. 25,30" />
-              <div class="hintInline">Měna je čistě orientační (počítáme jen čísla).</div>
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_price">Aktuální cena</label>
             </div>
+            <input id="d_price" type="text" inputmode="decimal" placeholder="např. 25,40" />
+            <div class="hintInline">Slouží jen pro rychlé porovnání (podhodnocení / nadhodnocení).</div>
           </div>
 
-          <div class="divider"></div>
-
-          <div class="formGrid two">
-            <div class="field">
-              <div class="labelRow">
-                <label for="d_fcf">FCF na akcii (TTM / aktuální)</label>
-                <details class="info"><summary>i</summary><div class="infoBody">Volný cash flow přepočtený na 1 akcii. Pokud máš FCF firmy, vyděl počtem akcií (diluted shares).</div></details>
-              </div>
-              <input id="d_fcf" type="text" inputmode="decimal" placeholder="např. 1,20" />
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_fcf">FCF na akcii (TTM / odhad)</label>
             </div>
-
-            <div class="field">
-          <div class="labelRow">
-            <label for="d_years">Počet let projekce</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Projekční horizont, typicky 5–10 let.</div>
-            </details>
+            <input id="d_fcf" type="text" inputmode="decimal" placeholder="např. 1,20" />
           </div>
-          <input id="d_years" type="text" inputmode="numeric" placeholder="např. 8" />
-        </div>
-      </div>
 
-      <div class="divider"></div>
-
-      <div class="formGrid three">
-        <div class="field">
-          <div class="labelRow">
-            <label for="d_g">Růst FCF (Base) %</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Odhad ročního růstu FCF v projekci. Např. 12 znamená 12 % ročně.</div>
-            </details>
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_years">Počet let projekce</label>
+            </div>
+            <input id="d_years" type="text" inputmode="numeric" placeholder="např. 10" />
           </div>
-          <input id="d_g" type="text" inputmode="decimal" placeholder="např. 12" />
         </div>
 
-        <div class="field">
-          <div class="labelRow">
-            <label for="d_r">Diskont (Base) %</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Diskontní sazba (náklad kapitálu / požadovaný výnos). Často 8–12 %. U tebe typicky kolem 9 %.</div>
-            </details>
+        <div class="divider"></div>
+
+        <div class="cardTitle">Base parametry</div>
+        <div class="formGrid three">
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_g">Růst FCF (% p.a.)</label>
+            </div>
+            <input id="d_g" type="text" inputmode="decimal" placeholder="např. 12" />
           </div>
-          <input id="d_r" type="text" inputmode="decimal" placeholder="např. 9" />
-        </div>
-
-        <div class="field">
-          <div class="labelRow">
-            <label for="d_gt">Terminální růst (Base) %</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Dlouhodobý růst po projekci (typicky 2–3 %).</div>
-            </details>
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_r">Diskont (% p.a.)</label>
+            </div>
+            <input id="d_r" type="text" inputmode="decimal" placeholder="např. 9" />
+            <div class="hintInline">Můžeš mít klidně 9 % (jak chceš pro férovou hodnotu).</div>
           </div>
-          <input id="d_gt" type="text" inputmode="decimal" placeholder="např. 2,5" />
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="cardTitle">Scénáře (úpravy oproti Base)</div>
-      <p class="subTitle">
-        Bear je konzervativnější, Bull optimističtější. Můžeš upravit růst i diskont i terminál.
-        Když necháš prázdné, použijeme rozumnou odchylku.
-      </p>
-
-      <div class="formGrid three">
-        <div class="field">
-          <div class="labelRow"><label for="d_bear_g">Bear růst %</label><span class="muted">volit.</span></div>
-          <input id="d_bear_g" type="text" inputmode="decimal" placeholder="např. 8" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="d_bear_r">Bear diskont %</label><span class="muted">volit.</span></div>
-          <input id="d_bear_r" type="text" inputmode="decimal" placeholder="např. 10" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="d_bear_gt">Bear terminál %</label><span class="muted">volit.</span></div>
-          <input id="d_bear_gt" type="text" inputmode="decimal" placeholder="např. 2" />
-        </div>
-
-        <div class="field">
-          <div class="labelRow"><label for="d_bull_g">Bull růst %</label><span class="muted">volit.</span></div>
-          <input id="d_bull_g" type="text" inputmode="decimal" placeholder="např. 15" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="d_bull_r">Bull diskont %</label><span class="muted">volit.</span></div>
-          <input id="d_bull_r" type="text" inputmode="decimal" placeholder="např. 8,5" />
-        </div>
-        <div class="field">
-          <div class="labelRow"><label for="d_bull_gt">Bull terminál %</label><span class="muted">volit.</span></div>
-          <input id="d_bull_gt" type="text" inputmode="decimal" placeholder="např. 3" />
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="formGrid two">
-        <div class="field">
-          <div class="labelRow">
-            <label for="d_mos">Margin of Safety (rezerva) %</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Bezpečnostní polštář pro cílovou cenu. Např. 20 % → cílovka = FV × (1 − 0.20).</div>
-            </details>
+          <div class="field">
+            <div class="labelRow">
+              <label for="d_gt">Terminální růst (% p.a.)</label>
+            </div>
+            <input id="d_gt" type="text" inputmode="decimal" placeholder="např. 2,5" />
           </div>
-          <select id="d_mos">
-            <option value="10">10 %</option>
-            <option value="15">15 %</option>
-            <option value="20" selected>20 %</option>
-            <option value="25">25 %</option>
-            <option value="30">30 %</option>
-          </select>
-          <div class="hintInline">MoS ovlivní “cílovou cenu s rezervou”.</div>
         </div>
 
-        <div class="field">
-          <div class="labelRow">
-            <label>Rychlá kontrola</label>
-            <details class="info">
-              <summary>i</summary>
-              <div class="infoBody">Pokud se výpočet nepovede, bývá to typicky terminál ≥ diskont nebo nulové vstupy.</div>
-            </details>
+        <div class="divider"></div>
+
+        <div class="cardTitle">Scénáře (úpravy oproti Base)</div>
+        <p class="subTitle">Zadáváš přímo hodnoty pro Bear a Bull (ne delta).</p>
+
+        <div class="formGrid three">
+          <div class="field">
+            <div class="labelRow"><label for="d_bear_g">Bear růst (%)</label></div>
+            <input id="d_bear_g" type="text" inputmode="decimal" placeholder="např. 8" />
           </div>
-          <div class="hintInline">Doporučení: terminál 2–3 %, diskont ≥ 8 %, projekce 5–10 let.</div>
+          <div class="field">
+            <div class="labelRow"><label for="d_bear_r">Bear diskont (%)</label></div>
+            <input id="d_bear_r" type="text" inputmode="decimal" placeholder="např. 10" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="d_bear_gt">Bear terminál (%)</label></div>
+            <input id="d_bear_gt" type="text" inputmode="decimal" placeholder="např. 2" />
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label for="d_bull_g">Bull růst (%)</label></div>
+            <input id="d_bull_g" type="text" inputmode="decimal" placeholder="např. 15" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="d_bull_r">Bull diskont (%)</label></div>
+            <input id="d_bull_r" type="text" inputmode="decimal" placeholder="např. 8" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="d_bull_gt">Bull terminál (%)</label></div>
+            <input id="d_bull_gt" type="text" inputmode="decimal" placeholder="např. 3" />
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label for="d_mos">Margin of Safety</label></div>
+            <select id="d_mos">
+              <option value="10">10 %</option>
+              <option value="15">15 %</option>
+              <option value="20" selected>20 %</option>
+              <option value="25">25 %</option>
+              <option value="30">30 %</option>
+            </select>
+            <div class="hintInline">Použije se na „cílovou cenu“ (Fair Value se sníží o MoS).</div>
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label>Uložení</label></div>
+            <div class="hintInline">Po výpočtu můžeš uložit výsledek do Watchlistu jedním klikem.</div>
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label>Rychlá kontrola</label></div>
+            <div class="hintInline">Pokud vyjde diskont ≤ terminál, výpočet se zastaví.</div>
+          </div>
+      </select>
+            <div class="hintInline">Použije se na „cílovou cenu“ (Fair Value se sníží o MoS).</div>
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label>Uložení</label></div>
+            <div class="hintInline">Po výpočtu můžeš uložit výsledek do Watchlistu jedním klikem.</div>
+          </div>
+
+          <div class="field">
+            <div class="labelRow"><label>Rychlá kontrola</label></div>
+            <div class="hintInline">Pokud vyjde diskont ≤ terminál, výpočet se zastaví.</div>
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <button class="btn primary" id="btnDcfCalc">Spočítat</button>
+          <button class="btn" id="btnDcfFill">Doplnit příklad</button>
+          <button class="btn" id="btnDcfSave">Uložit do Watchlistu</button>
+          <button class="btn danger" id="btnDcfReset">Reset</button>
+        </div>
+
+        <div class="msg" id="dcfMsg"></div>
+
+        <div class="divider"></div>
+
+        <div class="card" id="dcfResultCard" style="display:none;">
+          <div class="resultHeader" style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:18px; font-weight:950;">Výsledek ocenění</h3>
+            <div class="rangePill" id="dcfBadge">—</div>
+          </div>
+
+          <div class="rangeCard">
+            <div class="rangeTop">
+              <div class="rangeTitle">Fair Value Range</div>
+              <div class="rangePill">Bear → Bull</div>
+            </div>
+            <div class="rangeValue" id="rangeVal">—</div>
+            <div class="hintInline" id="rangeMeta">—</div>
+          </div>
+
+          <div class="scRow" id="scRow"></div>
+
+          <div class="footerNote" id="dcfFooterNote"></div>
         </div>
       </div>
+    </section>
 
-      <div class="btnRow">
-        <button class="btn primary" id="btnDcfCalc">Spočítat</button>
-        <button class="btn" id="btnDcfSave">Uložit do watchlistu</button>
-        <button class="btn danger" id="btnDcfReset">Reset</button>
+    <!-- CALC -->
+    <section id="screen-calc" class="screen">
+      <div class="headerRow">
+        <div class="backBtn" data-open="home">← Zpět</div>
+        <div class="miniPill">Složené úročení</div>
       </div>
 
-      <div class="msg" id="dcfMsg"></div>
-    </div>
+      <div class="card">
+        <div class="cardTitle">Kalkulačka</div>
+        <p class="subTitle">
+          Spočítá budoucí hodnotu podle počáteční částky, měsíčního vkladu, ročního výnosu a délky.
+        </p>
 
-    <div class="card" id="dcfResultCard" style="margin-top:14px; display:none;">
-      <div class="resultHeader">
-        <div>
-          <div class="cardTitle">Výsledek ocenění</div>
-          <p class="subTitle" style="margin-bottom:0;">Výstup je orientační DCF (per-share). Ber to jako rámec pro scénáře.</p>
+        <div class="formGrid two">
+          <div class="field">
+            <div class="labelRow"><label for="c_start">Počáteční částka</label></div>
+            <input id="c_start" type="text" inputmode="decimal" placeholder="např. 50 000" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="c_monthly">Měsíční vklad</label></div>
+            <input id="c_monthly" type="text" inputmode="decimal" placeholder="např. 2 000" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="c_rate">Roční výnos (%)</label></div>
+            <input id="c_rate" type="text" inputmode="decimal" placeholder="např. 8" />
+          </div>
+          <div class="field">
+            <div class="labelRow"><label for="c_years">Délka (roky)</label></div>
+            <input id="c_years" type="text" inputmode="numeric" placeholder="např. 15" />
+          </div>
         </div>
-        <div class="summaryBadge" id="dcfSummary">—</div>
-      </div>
 
-      <div class="scRow" id="scRow"></div>
-
-      <div class="rangeCard" id="rangeCard">
-        <div class="rangeTop">
-          <div class="rangeTitle">Fair Value Range</div>
-          <div class="rangePill" id="rangePill">Bear ↔ Bull</div>
+        <div class="btnRow">
+          <button class="btn primary" id="btnCalc">Spočítat</button>
+          <button class="btn" id="btnCalcFill">Doplnit příklad</button>
+          <button class="btn danger" id="btnCalcReset">Reset</button>
         </div>
-        <div class="rangeValue" id="rangeValue">—</div>
-        <div class="line"><span>Aktuální cena</span><span id="curPrice">—</span></div>
-        <div class="line"><span>Cílová cena (Base − MoS)</span><span id="targetPrice">—</span></div>
-      </div>
 
-      <div class="footerNote">
-        Pozn.: Terminální hodnota je počítaná Gordonovým růstovým modelem. Pokud je terminální růst ≥ diskont, model to odmítne.
-      </div>
-    </div>
-  </section>
+        <div class="msg" id="calcMsg"></div>
 
-  <!-- WATCHLIST -->
-  <section id="screen-watchlist" class="screen">
-    <div class="headerRow">
-      <div class="backBtn" data-open="home">← Zpět</div>
-      <div class="miniPill">Watchlist</div>
-    </div>
+        <div class="divider"></div>
 
-    <div class="card">
-      <div class="wlHead">
-        <div>
-          <p class="wlTitle">Uložené analýzy (lokálně v prohlížeči)</p>
-          <div class="wlMeta">Ukládá se pouze do <span class="mono">localStorage</span>. Neodesílá se nikam na server.</div>
-        </div>
-        <div class="wlBtns">
-          <button class="miniBtn" id="btnWlRefresh">Obnovit</button>
-          <button class="miniBtn danger" id="btnWlClear">Smazat vše</button>
+        <div class="rangeCard" id="calcOut" style="display:none;">
+          <div class="rangeTop">
+            <div class="rangeTitle">Výsledek</div>
+            <div class="rangePill">měsíční kapitalizace</div>
+          </div>
+          <div class="rangeValue" id="calcFuture">—</div>
+          <div class="line"><span>Celkem vloženo</span><span id="calcInvested">—</span></div>
+          <div class="line"><span>Zisk</span><span id="calcGain">—</span></div>
+          <div class="hintInline">Pozn.: výpočet je zjednodušený, bez daní a poplatků.</div>
         </div>
       </div>
+    </section>
 
-      <div class="msg" id="wlMsg"></div>
-      <div id="wlList"></div>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="screen-about" class="screen">
-    <div class="headerRow">
-      <div class="backBtn" data-open="home">← Zpět</div>
-      <div class="miniPill">Jak to funguje</div>
-    </div>
-
-    <div class="card">
-      <div class="cardTitle">K čemu je tahle aplikace</div>
-      <p class="subTitle">
-        Aplikace slouží investorům, kteří si chtějí <b>rychle spočítat férovou (vnitřní) hodnotu</b> akcie pomocí DCF scénářů,
-        uložit si výsledky do watchlistu a mít po ruce jednoduché výpočty (např. složené úročení).
-      </p>
-
-      <div class="divider"></div>
-
-      <div class="cardTitle">Co je DCF model (jednoduše)</div>
-      <p class="subTitle">
-        DCF (<b>Discounted Cash Flow</b>) je metoda, která se snaží odhadnout hodnotu aktiva podle toho,
-        kolik <b>cash flow</b> může v budoucnu vytvořit. Budoucí cash flow se převádí na dnešní hodnotu
-        pomocí <b>diskontní sazby</b> (požadovaný výnos).
-      </p>
-
-      <div class="rangeCard">
-        <div class="rangeTop">
-          <div class="rangeTitle">Jak aplikace počítá</div>
-          <div class="rangePill">3 scénáře</div>
-        </div>
-        <div class="subTitle" style="margin:8px 0 0;">
-          <ul style="margin:0; padding-left:18px;">
-            <li><b>Projekce</b>: FCF/akcii roste o zadané % po dobu N let.</li>
-            <li><b>Diskont</b>: každé budoucí cash flow se diskontuje sazbou r.</li>
-            <li><b>Terminál</b>: po projekci se použije Gordonův model s terminálním růstem g<sub>T</sub>.</li>
-            <li><b>Bear/Base/Bull</b>: různé kombinace růstu, diskontu a terminálu → interval férové ceny.</li>
-          </ul>
-        </div>
+    <!-- WATCHLIST -->
+    <section id="screen-watchlist" class="screen">
+      <div class="headerRow">
+        <div class="backBtn" data-open="home">← Zpět</div>
+        <div class="miniPill">Watchlist</div>
       </div>
 
-      <div class="divider"></div>
+      <div class="card">
+        <div class="cardTitle">Uložené analýzy</div>
+        <p class="subTitle">
+          Uložené položky jsou pouze v tomto zařízení (localStorage). Můžeš je mazat po jedné nebo otevřít zpět do formuláře.
+        </p>
 
-      <div class="cardTitle">Pro koho to je (a pro koho ne)</div>
-      <p class="subTitle">
-        Je to pro lidi, co chtějí <b>rychle zkoušet scénáře</b> a mít transparentní rámec. Není to finanční poradenství
-        a neřeší to všechny detaily. Ber to jako <b>startovní kalkulačku</b>.
-      </p>
+        <div class="btnRow" style="margin-top:0;">
+          <button class="btn danger" id="btnWipe">Smazat vše</button>
+        </div>
 
-      <div class="divider"></div>
+        <div class="msg" id="wlMsg"></div>
 
-      <div class="cardTitle">Soukromí</div>
-      <p class="subTitle">
-        Watchlist se ukládá pouze do tvého prohlížeče (localStorage). Neodesílá se nikam na server.
-      </p>
-    </div>
-  </section>
+        <div class="divider"></div>
+        <div class="formGrid" id="wlList"></div>
+      </div>
+    </section>
 
-</div>
-</div>
+    <!-- ABOUT -->
+    <section id="screen-about" class="screen">
+      <div class="headerRow">
+        <div class="backBtn" data-open="home">← Zpět</div>
+        <div class="miniPill">Jak to funguje</div>
+      </div>
 
-<script>
-  // ========= Helpers =========
-  function parseNum(s){
-    if (s === null || s === undefined) return NaN;
-    const str = String(s).trim();
-    if (!str) return NaN;
-    let t = str.replace(/\s+/g, '');
-    const hasComma = t.includes(',');
-    const hasDot = t.includes('.');
-    if (hasComma && hasDot){
-      t = t.replace(/,/g, '');
-    } else if (hasComma && !hasDot){
-      t = t.replace(/,/g, '.');
-    }
-    t = t.replace(/[^0-9.\-]/g,'');
-    const n = Number(t);
-    return Number.isFinite(n) ? n : NaN;
-  }
+      <div class="card">
+        <div class="cardTitle">K čemu je tahle aplikace</div>
+        <p class="subTitle">
+          Tohle je jednoduchá „investorská kalkulačka“ pro rychlou orientaci. Neřeší predikce zpravodajství ani AI doporučení.
+          Cílem je mít <b>transparentní výpočet</b> a možnost uložit si výsledky do watchlistu.
+        </p>
 
-  function fmt(n, digits=2){
-    if (!Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
-  }
-  function fmt0(n){
-    if (!Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(n);
-  }
-  function todayStr(){
-    const d = new Date();
-    return d.toLocaleDateString('cs-CZ', { year:'numeric', month:'2-digit', day:'2-digit' });
-  }
+        <div class="divider"></div>
 
-  const LS_KEY = 'equity_analyzer_watchlist_v1';
-  function loadWatchlist(){
-    try{
-      const raw = localStorage.getItem(LS_KEY);
-      if(!raw) return [];
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    }catch(e){ return []; }
-  }
-  function saveWatchlist(arr){
-    localStorage.setItem(LS_KEY, JSON.stringify(arr));
-  }
-  function uid(){
-    return Math.random().toString(16).slice(2) + Date.now().toString(16);
-  }
-  function showMsg(el, text, kind='warn'){
-    el.className = 'msg show ' + (kind || '');
-    el.textContent = text;
-  }
-  function hideMsg(el){
-    el.className = 'msg';
-    el.textContent = '';
-  }
+        <div class="cardTitle">DCF model – princip</div>
+        <p class="subTitle">
+          DCF (Discounted Cash Flow) zjednodušeně říká: hodnota firmy je součet budoucích cash flow,
+          které převedeš do dnešních peněz přes <b>diskontní sazbu</b>.
+          V téhle verzi počítáme s <b>FCF na akcii</b> a projektujeme ho dopředu o zadaný růst.
+          Na konci použijeme „terminální hodnotu“ přes perpetuitu s terminálním růstem.
+        </p>
 
-  // ========= Navigation =========
-  const screens = {
-    home: document.getElementById('screen-home'),
-    dcf: document.getElementById('screen-dcf'),
-    calc: document.getElementById('screen-calc'),
-    watchlist: document.getElementById('screen-watchlist'),
-    about: document.getElementById('screen-about'),
-  };
+        <div class="rangeCard">
+          <div class="rangeTop">
+            <div class="rangeTitle">Pro koho to je</div>
+            <div class="rangePill">rychlý odhad</div>
+          </div>
+          <div class="hintInline">
+            Pro investory, kteří chtějí rychle otestovat scénáře (Bear/Base/Bull),
+            porovnat se současnou cenou a ukládat si výsledky.
+          </div>
+        </div>
 
-  function go(screenName){
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    const s = screens[screenName];
-    if(s) s.classList.add('active');
-    if(screenName === 'watchlist') renderWatchlist();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+        <div class="divider"></div>
 
-  document.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-open]');
-    if(!t) return;
-    const name = t.getAttribute('data-open');
-    if(name && screens[name]) go(name);
-  });
+        <div class="cardTitle">Poznámky a limity</div>
+        <p class="subTitle">
+          Výpočet je zjednodušený: neřeší dluh, diluci, reinvestice, cykličnost, změny marží, daňové efekty ani detailní WACC.
+          Ber to jako <b>orientační</b> nástroj a vždy si ověř předpoklady.
+        </p>
+      </div>
+    </section>
 
-  // ========= DCF =========
-  const d = (id) => document.getElementById(id);
-  const dcfMsg = d('dcfMsg');
-  const dcfResultCard = d('dcfResultCard');
-  const scRow = d('scRow');
-  const dcfSummary = d('dcfSummary');
-  const rangeValue = d('rangeValue');
-  const curPrice = d('curPrice');
-  const targetPrice = d('targetPrice');
+  </div>
 
-  function readDcfInputs(){
-    const ticker = d('d_ticker').value.trim();
-    const price = parseNum(d('d_price').value);
-    const fcf0 = parseNum(d('d_fcf').value);
-    const years = Math.round(parseNum(d('d_years').value));
-    const gBase = parseNum(d('d_g').value) / 100;
-    const rBase = parseNum(d('d_r').value) / 100;
-    const gtBase = parseNum(d('d_gt').value) / 100;
+  <script>
+    // ========= Helpers =========
+    const d = (id) => document.getElementById(id);
 
-    const gBearRaw = parseNum(d('d_bear_g').value);
-    const rBearRaw = parseNum(d('d_bear_r').value);
-    const gtBearRaw = parseNum(d('d_bear_gt').value);
-
-    const gBullRaw = parseNum(d('d_bull_g').value);
-    const rBullRaw = parseNum(d('d_bull_r').value);
-    const gtBullRaw = parseNum(d('d_bull_gt').value);
-
-    const mos = parseNum(d('d_mos').value) / 100;
-
-    const gBear = Number.isFinite(gBearRaw) ? (gBearRaw/100) : (gBase - 0.04);
-    const rBear = Number.isFinite(rBearRaw) ? (rBearRaw/100) : (rBase + 0.01);
-    const gtBear = Number.isFinite(gtBearRaw) ? (gtBearRaw/100) : (gtBase - 0.005);
-
-    const gBull = Number.isFinite(gBullRaw) ? (gBullRaw/100) : (gBase + 0.03);
-    const rBull = Number.isFinite(rBullRaw) ? (rBullRaw/100) : (rBase - 0.005);
-    const gtBull = Number.isFinite(gtBullRaw) ? (gtBullRaw/100) : (gtBase + 0.003);
-
-    return {
-      ticker, price, fcf0, years,
-      base: { g:gBase, r:rBase, gt:gtBase },
-      bear: { g:gBear, r:rBear, gt:gtBear },
-      bull: { g:gBull, r:rBull, gt:gtBull },
-      mos
-    };
-  }
-
-  function dcfPerShare(fcf0, years, g, r, gt){
-    if(!Number.isFinite(fcf0) || fcf0 <= 0) throw new Error('FCF na akcii musí být > 0.');
-    if(!Number.isFinite(years) || years < 1 || years > 50) throw new Error('Počet let projekce musí být 1–50.');
-    if(!Number.isFinite(g)) throw new Error('Růst musí být číslo.');
-    if(!Number.isFinite(r) || r <= 0) throw new Error('Diskont musí být > 0.');
-    if(!Number.isFinite(gt)) throw new Error('Terminální růst musí být číslo.');
-    if(gt >= r) throw new Error('Terminální růst musí být menší než diskont.');
-
-    let pv = 0;
-    let f = fcf0;
-
-    for(let t=1; t<=years; t++){
-      f = f * (1 + g);
-      pv += f / Math.pow(1 + r, t);
+    function showScreen(name){
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = d('screen-' + name);
+      if(el) el.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    const fN = f;
-    const tv = (fN * (1 + gt)) / (r - gt);
-    const pvTv = tv / Math.pow(1 + r, years);
+    // Klik na cokoliv s data-open (šuplíky + zpět)
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-open]');
+      if(!el) return;
+      const target = el.getAttribute('data-open');
+      if(!target) return;
+      showScreen(target);
+    });
 
-    return { fair: pv + pvTv, pvFcf: pv, pvTv, fN };
-  }
-
-  function dcfRating(price, baseFair){
-    if(!Number.isFinite(price) || price <= 0) return { label:'Bez ceny', kind:'' };
-    const upside = (baseFair / price) - 1;
-    if(upside >= 0.30) return { label:'Potenciálně podhodnocené', kind:'good' };
-    if(upside <= -0.20) return { label:'Potenciálně nadhodnocené', kind:'bad' };
-    return { label:'Blízko férové ceny', kind:'warn' };
-  }
-
-  function renderDcfResult(inputs, out){
-    dcfResultCard.style.display = 'block';
-
-    const price = inputs.price;
-    const baseFair = out.base.fair;
-    const rating = dcfRating(price, baseFair);
-
-    dcfSummary.textContent = rating.label;
-    dcfSummary.style.borderColor =
-      rating.kind === 'good' ? 'rgba(110,255,190,.28)' :
-      rating.kind === 'bad' ? 'rgba(255,140,170,.30)' :
-      'rgba(255,220,140,.26)';
-
-    scRow.innerHTML = '';
-    const makeCard = (name, tag, res, r, g, gt) => {
-      const upside = (Number.isFinite(price) && price>0) ? ((res.fair/price)-1) : NaN;
-      const el = document.createElement('div');
-      el.className = 'scCard';
-      el.innerHTML = `
-        <div class="scTop">
-          <div class="scName">${name}</div>
-          <div class="tag">${tag}</div>
-        </div>
-        <div class="scVal">${fmt(res.fair,2)}</div>
-        <div class="line"><span>PV FCF</span><span>${fmt(res.pvFcf,2)}</span></div>
-        <div class="line"><span>PV Terminál</span><span>${fmt(res.pvTv,2)}</span></div>
-        <div class="line"><span>Vstupy</span><span class="mono">${(g*100).toFixed(2)}% / ${(r*100).toFixed(2)}% / ${(gt*100).toFixed(2)}%</span></div>
-        <div class="line"><span>Upside vs cena</span><span>${Number.isFinite(upside) ? ( (upside>=0?'+':'') + (upside*100).toFixed(1) + ' %') : '—'}</span></div>
-      `;
-      return el;
-    };
-
-    scRow.appendChild(makeCard('Bear', 'Bear', out.bear, inputs.bear.r, inputs.bear.g, inputs.bear.gt));
-    scRow.appendChild(makeCard('Base', 'Base', out.base, inputs.base.r, inputs.base.g, inputs.base.gt));
-    scRow.appendChild(makeCard('Bull', 'Bull', out.bull, inputs.bull.r, inputs.bull.g, inputs.bull.gt));
-
-    const low = Math.min(out.bear.fair, out.base.fair, out.bull.fair);
-    const high = Math.max(out.bear.fair, out.base.fair, out.bull.fair);
-
-    rangeValue.textContent = `${fmt(low,2)} – ${fmt(high,2)}`;
-    curPrice.textContent = Number.isFinite(price) ? fmt(price,2) : '—';
-
-    const mosTarget = out.base.fair * (1 - inputs.mos);
-    targetPrice.textContent = fmt(mosTarget,2);
-  }
-
-  function computeDcf(){
-    hideMsg(dcfMsg);
-    const inputs = readDcfInputs();
-
-    if(!Number.isFinite(inputs.fcf0) || inputs.fcf0 <= 0){
-      showMsg(dcfMsg, 'Vyplň FCF na akcii (musí být > 0).', 'bad');
-      dcfResultCard.style.display = 'none';
-      return null;
+    function setMsg(el, text, tone){
+      el.className = 'msg show' + (tone ? (' ' + tone) : '');
+      el.textContent = text;
     }
-    if(!Number.isFinite(inputs.years) || inputs.years < 1){
-      showMsg(dcfMsg, 'Vyplň počet let projekce (min. 1).', 'bad');
-      dcfResultCard.style.display = 'none';
-      return null;
-    }
-    if(!Number.isFinite(inputs.base.g) || !Number.isFinite(inputs.base.r) || !Number.isFinite(inputs.base.gt)){
-      showMsg(dcfMsg, 'Vyplň Base růst, diskont a terminál (v %).', 'bad');
-      dcfResultCard.style.display = 'none';
-      return null;
+    function clearMsg(el){
+      el.className = 'msg';
+      el.textContent = '';
     }
 
-    try{
-      const out = {
-        bear: dcfPerShare(inputs.fcf0, inputs.years, inputs.bear.g, inputs.bear.r, inputs.bear.gt),
-        base: dcfPerShare(inputs.fcf0, inputs.years, inputs.base.g, inputs.base.r, inputs.base.gt),
-        bull: dcfPerShare(inputs.fcf0, inputs.years, inputs.bull.g, inputs.bull.r, inputs.bull.gt),
+    function formatMoney(x){
+      if(!isFinite(x)) return '—';
+      const rounded = Math.round((x + Number.EPSILON) * 100) / 100;
+      return rounded.toLocaleString('cs-CZ', { maximumFractionDigits: 2, minimumFractionDigits: 0 });
+    }
+
+    // Parse: "1 234,56" | "1234.56" | "1,234.56" (tolerant)
+    function parseNumber(input){
+      if(input === null || input === undefined) return NaN;
+      let s = String(input).trim();
+      if(!s) return NaN;
+
+      // remove spaces
+      s = s.replace(/\s+/g, '');
+
+      // If contains both ',' and '.', decide decimal separator as the last occurrence
+      const hasComma = s.includes(',');
+      const hasDot = s.includes('.');
+      if(hasComma && hasDot){
+        const lastComma = s.lastIndexOf(',');
+        const lastDot = s.lastIndexOf('.');
+        const decIsComma = lastComma > lastDot;
+
+        // remove thousand separators
+        if(decIsComma){
+          s = s.replace(/\./g, ''); // dots are thousands
+          s = s.replace(',', '.');  // comma becomes decimal
+        }else{
+          s = s.replace(/,/g, '');  // commas are thousands
+          // dot is decimal already
+        }
+      }else if(hasComma && !hasDot){
+        // comma as decimal
+        s = s.replace(',', '.');
+      }else{
+        // dot as decimal or none
+      }
+
+      // keep only valid characters
+      s = s.replace(/[^0-9.\-]/g, '');
+      return Number(s);
+    }
+
+    function todayISO(){
+      const dt = new Date();
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth()+1).padStart(2,'0');
+      const d2 = String(dt.getDate()).padStart(2,'0');
+      return `${y}-${m}-${d2}`;
+    }
+
+    // ========= Watchlist (localStorage) =========
+    const WL_KEY = 'equity_analyzer_watchlist_v2';
+
+    function loadWL(){
+      try{
+        const raw = localStorage.getItem(WL_KEY);
+        if(!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      }catch{
+        return [];
+      }
+    }
+    function saveWL(arr){
+      localStorage.setItem(WL_KEY, JSON.stringify(arr));
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    function renderWL(){
+      const list = d('wlList');
+      const msg = d('wlMsg');
+      clearMsg(msg);
+
+      const items = loadWL();
+      list.innerHTML = '';
+
+      if(items.length === 0){
+        setMsg(msg, 'Watchlist je prázdný. Ulož si výsledek z DCF analyzéru.', 'warn');
+        return;
+      }
+
+      items
+        .slice()
+        .sort((a,b) => (b.ts||0) - (a.ts||0))
+        .forEach((it) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'wlItem';
+
+          const title = `${it.ticker ? escapeHtml(it.ticker) : 'Bez tickeru'} • ${escapeHtml(it.date || '')}`;
+          const meta = `Fair Value range: ${formatMoney(it.fvBear)} – ${formatMoney(it.fvBull)} | Base: ${formatMoney(it.fvBase)}`;
+
+          wrap.innerHTML = `
+            <div class="wlHead">
+              <div>
+                <p class="wlTitle">${title}</p>
+                <p class="wlMeta">${meta}</p>
+              </div>
+              <div class="wlBtns">
+                <div class="miniBtn" data-action="open" data-id="${escapeHtml(it.id)}">Otevřít</div>
+                <div class="miniBtn danger" data-action="del" data-id="${escapeHtml(it.id)}">Smazat</div>
+              </div>
+            </div>
+          `;
+          list.appendChild(wrap);
+        });
+    }
+
+    d('btnWipe').addEventListener('click', () => {
+      saveWL([]);
+      renderWL();
+    });
+
+    // Click actions in watchlist
+    d('wlList').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-action]');
+      if(!b) return;
+      const action = b.getAttribute('data-action');
+      const id = b.getAttribute('data-id');
+      const items = loadWL();
+      const idx = items.findIndex(x => x.id === id);
+      if(idx < 0) return;
+
+      if(action === 'del'){
+        items.splice(idx,1);
+        saveWL(items);
+        renderWL();
+        return;
+      }
+
+      if(action === 'open'){
+        // load into DCF form
+        const it = items[idx];
+        d('d_ticker').value = it.ticker || '';
+        d('d_price').value  = it.price != null ? String(it.price) : '';
+        d('d_fcf').value    = it.fcf != null ? String(it.fcf) : '';
+        d('d_years').value  = it.years != null ? String(it.years) : '';
+
+        d('d_g').value      = it.base?.g != null ? String(it.base.g) : '';
+        d('d_r').value      = it.base?.r != null ? String(it.base.r) : '';
+        d('d_gt').value     = it.base?.gt != null ? String(it.base.gt) : '';
+
+        d('d_bear_g').value = it.bear?.g != null ? String(it.bear.g) : '';
+        d('d_bear_r').value = it.bear?.r != null ? String(it.bear.r) : '';
+        d('d_bear_gt').value= it.bear?.gt != null ? String(it.bear.gt) : '';
+
+        d('d_bull_g').value = it.bull?.g != null ? String(it.bull.g) : '';
+        d('d_bull_r').value = it.bull?.r != null ? String(it.bull.r) : '';
+        d('d_bull_gt').value= it.bull?.gt != null ? String(it.bull.gt) : '';
+
+        d('d_mos').value    = it.mos != null ? String(it.mos) : '20';
+
+        showScreen('dcf');
+        setMsg(d('dcfMsg'), 'Načteno z Watchlistu. Můžeš přepočítat nebo znovu uložit.', 'good');
+        return;
+      }
+    });
+
+    // ========= DCF =========
+    let lastDcfResult = null;
+
+    function dcfScenario(fcf0, years, gPct, rPct, gtPct){
+      const g = gPct/100;
+      const r = rPct/100;
+      const gt = gtPct/100;
+
+      if(!(r > gt)) return { ok:false, err:'Diskont musí být větší než terminální růst.' };
+
+      let pvSum = 0;
+      let fcf = fcf0;
+
+      for(let t=1; t<=years; t++){
+        fcf = fcf * (1+g);
+        pvSum += fcf / Math.pow(1+r, t);
+      }
+
+      // Terminal value at end of projection (year N) based on FCF_N * (1+gt) / (r-gt)
+      const fcfN = fcf; // already grown to year N
+      const tv = (fcfN * (1+gt)) / (r - gt);
+      const pvTv = tv / Math.pow(1+r, years);
+
+      const fairValue = pvSum + pvTv;
+      return {
+        ok:true,
+        fairValue,
+        pvProj: pvSum,
+        pvTerminal: pvTv
+      };
+    }
+
+    function calcDCF(){
+      const msg = d('dcfMsg');
+      clearMsg(msg);
+
+      const ticker = d('d_ticker').value.trim();
+      const price  = parseNumber(d('d_price').value);
+      const fcf    = parseNumber(d('d_fcf').value);
+      const years  = Math.round(parseNumber(d('d_years').value));
+
+      const base = {
+        g: parseNumber(d('d_g').value),
+        r: parseNumber(d('d_r').value),
+        gt: parseNumber(d('d_gt').value),
+      };
+      const bear = {
+        g: parseNumber(d('d_bear_g').value),
+        r: parseNumber(d('d_bear_r').value),
+        gt: parseNumber(d('d_bear_gt').value),
+      };
+      const bull = {
+        g: parseNumber(d('d_bull_g').value),
+        r: parseNumber(d('d_bull_r').value),
+        gt: parseNumber(d('d_bull_gt').value),
       };
 
-      renderDcfResult(inputs, out);
-      showMsg(dcfMsg, 'Hotovo. Pokud chceš, ulož výsledek do watchlistu.', 'good');
-      return { inputs, out };
+      const mos = parseNumber(d('d_mos').value);
 
-    }catch(err){
-      dcfResultCard.style.display = 'none';
-      showMsg(dcfMsg, err.message || 'Výpočet se nepovedl.', 'bad');
-      return null;
-    }
-  }
-
-  let lastDcf = null;
-
-  d('btnDcfCalc').addEventListener('click', () => { lastDcf = computeDcf(); });
-
-  d('btnDcfReset').addEventListener('click', () => {
-    [
-      'd_ticker','d_price','d_fcf','d_years','d_g','d_r','d_gt',
-      'd_bear_g','d_bear_r','d_bear_gt','d_bull_g','d_bull_r','d_bull_gt'
-    ].forEach(id => d(id).value = '');
-    d('d_mos').value = '20';
-    lastDcf = null;
-    dcfResultCard.style.display = 'none';
-    hideMsg(dcfMsg);
-    showMsg(dcfMsg, 'Reset hotový.', 'warn');
-  });
-
-  d('btnDcfSave').addEventListener('click', () => {
-    hideMsg(dcfMsg);
-    if(!lastDcf){
-      lastDcf = computeDcf();
-      if(!lastDcf) return;
-    }
-
-    const { inputs, out } = lastDcf;
-    const wl = loadWatchlist();
-
-    const item = {
-      id: uid(),
-      type: 'dcf',
-      createdAt: new Date().toISOString(),
-      dateLabel: todayStr(),
-      name: inputs.ticker || 'DCF analýza',
-      inputs: {
-        ticker: inputs.ticker,
-        price: inputs.price,
-        fcf0: inputs.fcf0,
-        years: inputs.years,
-        base: inputs.base,
-        bear: inputs.bear,
-        bull: inputs.bull,
-        mos: inputs.mos
-      },
-      result: {
-        bear: out.bear.fair,
-        base: out.base.fair,
-        bull: out.bull.fair
+      if(!isFinite(fcf) || fcf <= 0){
+        setMsg(msg, 'Zadej FCF na akcii (kladné číslo).', 'bad');
+        return null;
       }
-    };
+      if(!isFinite(years) || years < 3 || years > 40){
+        setMsg(msg, 'Zadej počet let projekce (doporučeně 5–20).', 'bad');
+        return null;
+      }
+      for(const k of ['g','r','gt']){
+        if(!isFinite(base[k])) { setMsg(msg, 'Doplň Base růst, diskont a terminál.', 'bad'); return null; }
+        if(!isFinite(bear[k])) { setMsg(msg, 'Doplň Bear růst, diskont a terminál.', 'bad'); return null; }
+        if(!isFinite(bull[k])) { setMsg(msg, 'Doplň Bull růst, diskont a terminál.', 'bad'); return null; }
+      }
 
-    wl.unshift(item);
-    saveWatchlist(wl);
-    showMsg(dcfMsg, 'Uloženo do watchlistu ✅', 'good');
-  });
+      const sBear = dcfScenario(fcf, years, bear.g, bear.r, bear.gt);
+      const sBase = dcfScenario(fcf, years, base.g, base.r, base.gt);
+      const sBull = dcfScenario(fcf, years, bull.g, bull.r, bull.gt);
 
-  // ========= Watchlist =========
-  const wlMsg = d('wlMsg');
-  const wlList = d('wlList');
+      if(!sBear.ok){ setMsg(msg, 'Bear: ' + sBear.err, 'bad'); return null; }
+      if(!sBase.ok){ setMsg(msg, 'Base: ' + sBase.err, 'bad'); return null; }
+      if(!sBull.ok){ setMsg(msg, 'Bull: ' + sBull.err, 'bad'); return null; }
 
-  function escapeHtml(s){
-c => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
-  );
-}
+      const fvBear = sBear.fairValue;
+      const fvBase = sBase.fairValue;
+      const fvBull = sBull.fairValue;
 
-function renderWatchlist(){
-  hideMsg(wlMsg);
-  const wl = loadWatchlist();
-  wlList.innerHTML = '';
+      const fvMin = Math.min(fvBear, fvBase, fvBull);
+      const fvMax = Math.max(fvBear, fvBase, fvBull);
 
-  if(wl.length === 0){
-    showMsg(wlMsg, 'Watchlist je prázdný. Ulož si analýzu v DCF obrazovce.', 'warn');
-    return;
-  }
+      const target = fvBase * (1 - (isFinite(mos)? mos/100 : 0));
 
-  wl.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'wlItem';
+      // Badge: compare to price if provided
+      let badge = 'Hotovo';
+      let badgeTone = 'warn';
+      if(isFinite(price) && price > 0){
+        const upside = (fvBase / price - 1) * 100;
+        if(upside >= 20){ badge = 'Podhodnocené'; badgeTone = 'good'; }
+        else if(upside <= -15){ badge = 'Nadhodnocené'; badgeTone = 'bad'; }
+        else { badge = 'Neutrální'; badgeTone = 'warn'; }
+      }
 
-    const price = item.inputs?.price;
-    const bear = item.result?.bear;
-    const base = item.result?.base;
-    const bull = item.result?.bull;
+      const res = {
+        ticker, price: isFinite(price)? price : null,
+        fcf, years, base, bear, bull,
+        mos: isFinite(mos)? mos : 20,
+        fvBear, fvBase, fvBull,
+        fvMin, fvMax,
+        target,
+        badge, badgeTone,
+        details: { sBear, sBase, sBull }
+      };
 
-    const low = Math.min(bear, base, bull);
-    const high = Math.max(bear, base, bull);
-    const upside = (Number.isFinite(price) && price>0 && Number.isFinite(base))
-      ? ((base/price)-1) : NaN;
+      return res;
+    }
 
-    el.innerHTML = `
-      <div class="wlHead">
-        <div>
-          <p class="wlTitle">${escapeHtml(item.name || 'DCF analýza')}</p>
-          <div class="wlMeta">
-            ${item.dateLabel || ''}${item.inputs?.ticker ? ' • '+escapeHtml(item.inputs.ticker) : ''}
+    function renderDCF(res){
+      lastDcfResult = res;
+      const card = d('dcfResultCard');
+      card.style.display = 'block';
+
+      const badge = d('dcfBadge');
+      badge.textContent = res.badge;
+      badge.className = 'rangePill ' + (res.badgeTone || '');
+
+      d('rangeVal').textContent = `${formatMoney(res.fvMin)} – ${formatMoney(res.fvMax)}`;
+
+      const metaParts = [];
+      if(res.ticker) metaParts.push(`Ticker: ${res.ticker}`);
+      metaParts.push(`FCF/akcie: ${formatMoney(res.fcf)}`);
+      metaParts.push(`Horizont: ${res.years} let`);
+      if(res.price != null) metaParts.push(`Cena: ${formatMoney(res.price)}`);
+      metaParts.push(`Cílová (MoS ${res.mos}%): ${formatMoney(res.target)}`);
+      d('rangeMeta').textContent = metaParts.join(' • ');
+
+      const scRow = d('scRow');
+      scRow.innerHTML = '';
+
+      const sc = [
+        { name:'Bear', tag:'Konzervativní', tone:'bad', fv: res.fvBear, p: res.details.sBear },
+        { name:'Base', tag:'Základní', tone:'warn', fv: res.fvBase, p: res.details.sBase },
+        { name:'Bull', tag:'Optimistický', tone:'good', fv: res.fvBull, p: res.details.sBull },
+      ];
+
+      sc.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'scCard';
+        el.innerHTML = `
+          <div class="scTop">
+            <div class="scName">${s.name}</div>
+            <div class="tag ${s.tone}">${s.tag}</div>
           </div>
-        </div>
-        <div class="wlBtns">
-          <button class="miniBtn" data-wl-open="${item.id}">Otevřít</button>
-          <button class="miniBtn danger" data-wl-del="${item.id}">Smazat</button>
-        </div>
-      </div>
+          <div class="bigVal">${formatMoney(s.fv)}</div>
+          <div class="line"><span>PV projekce</span><span>${formatMoney(s.p.pvProj)}</span></div>
+          <div class="line"><span>PV terminál</span><span>${formatMoney(s.p.pvTerminal)}</span></div>
+        `;
+        scRow.appendChild(el);
+      });
 
-      <div class="wlGrid">
-        <div class="scCard">
-          <div class="scTop"><div class="scName">Base</div><div class="tag">FV</div></div>
-          <div class="scVal">${fmt(base,2)}</div>
-          <div class="line"><span>Upside</span><span>${Number.isFinite(upside)?((upside>=0?'+':'')+(upside*100).toFixed(1)+' %'):'—'}</span></div>
-        </div>
-        <div class="scCard">
-          <div class="scTop"><div class="scName">Range</div><div class="tag">Bear↔Bull</div></div>
-          <div class="scVal">${fmt(low,2)}–${fmt(high,2)}</div>
-          <div class="line"><span>Bear</span><span>${fmt(bear,2)}</span></div>
-          <div class="line"><span>Bull</span><span>${fmt(bull,2)}</span></div>
-        </div>
-      </div>
-    `;
-    wlList.appendChild(el);
-  });
+      // footer note
+      let foot = `Pozn.: Zjednodušené DCF z FCF/akcii. `;
+      if(res.price != null){
+        const upside = (res.fvBase / res.price - 1) * 100;
+        foot += `Base vs cena: ${Math.round(upside)} %.`;
+      }else{
+        foot += `Pro porovnání s trhem doplň cenu.`;
+      }
+      d('dcfFooterNote').textContent = foot;
+    }
+
+    d('btnDcfCalc').addEventListener('click', () => {
+      const res = calcDCF();
+      if(res) renderDCF(res);
+    });
+
+    d('btnDcfFill').addEventListener('click', () => {
+      // pěkné defaulty
+      d('d_ticker').value = 'PLTR';
+      d('d_price').value = '25,40';
+      d('d_fcf').value = '1,20';
+      d('d_years').value = '10';
+
+      d('d_g').value = '12';
+      d('d_r').value = '9';
+      d('d_gt').value = '2,5';
+
+      d('d_bear_g').value = '8';
+      d('d_bear_r').value = '10';
+      d('d_bear_gt').value = '2';
+
+      d('d_bull_g').value = '15';
+      d('d_bull_r').value = '8';
+      d('d_bull_gt').value = '3';
+
+      d('d_mos').value = '20';
+      setMsg(d('dcfMsg'), 'Příklad vyplněn. Klikni Spočítat.', 'good');
+    });
+
+    d('btnDcfReset').addEventListener('click', () => {
+  [
+    'd_ticker','d_price','d_fcf','d_years',
+    'd_g','d_r','d_gt',
+    'd_bear_g','d_bear_r','d_bear_gt',
+    'd_bull_g','d_bull_r','d_bull_gt'
+  ].forEach(id => d(id).value = '');
+
+  d('d_mos').value = '20';
+  lastDcfResult = null;
+  d('dcfResultCard').style.display = 'none';
+  clearMsg(d('dcfMsg'));
+});
+
+d('btnDcfSave').addEventListener('click', () => {
+  const msg = d('dcfMsg');
+
+  // pokud není přepočítáno, zkus spočítat
+  let res = lastDcfResult;
+  if (!res) {
+    res = calcDCF();
+    if (!res) return;
+    renderDCF(res);
+  }
+
+  const item = {
+    id: (crypto?.randomUUID ? crypto.randomUUID() : (String(Date.now()) + '_' + Math.random().toString(16).slice(2))),
+    ts: Date.now(),
+    date: todayISO(),
+    ticker: (res.ticker || '').toUpperCase(),
+    price: res.price,
+    fcf: res.fcf,
+    years: res.years,
+    base: res.base,
+    bear: res.bear,
+    bull: res.bull,
+    mos: res.mos,
+    fvBear: res.fvBear,
+    fvBase: res.fvBase,
+    fvBull: res.fvBull,
+  };
+
+  const arr = loadWL();
+  arr.push(item);
+  saveWL(arr);
+
+  setMsg(msg, 'Uloženo do Watchlistu.', 'good');
+});
+
+
+// ========= Compounding calculator =========
+function calcComp(){
+  const msg = d('calcMsg');
+  clearMsg(msg);
+
+  const start = parseNumber(d('c_start').value);
+  const monthly = parseNumber(d('c_monthly').value);
+  const rate = parseNumber(d('c_rate').value);
+  const years = Math.round(parseNumber(d('c_years').value));
+
+  if(!isFinite(start) || start < 0){ setMsg(msg, 'Zadej počáteční částku (>= 0).', 'bad'); return null; }
+  if(!isFinite(monthly) || monthly < 0){ setMsg(msg, 'Zadej měsíční vklad (>= 0).', 'bad'); return null; }
+  if(!isFinite(rate) || rate < -50 || rate > 100){ setMsg(msg, 'Zadej roční výnos v % (rozumný rozsah).', 'bad'); return null; }
+  if(!isFinite(years) || years < 1 || years > 60){ setMsg(msg, 'Zadej délku v letech (1–60).', 'bad'); return null; }
+
+  const n = years * 12;
+  const r = (rate/100) / 12;
+
+  let value = start;
+  for(let i=0;i<n;i++){
+    value = value * (1+r) + monthly;
+  }
+
+  const invested = start + monthly*n;
+  const gain = value - invested;
+
+  return { value, invested, gain };
 }
 
-document.addEventListener('click', (e) => {
-  const del = e.target.closest('[data-wl-del]');
-  const open = e.target.closest('[data-wl-open]');
+function renderComp(out){
+  d('calcOut').style.display = 'block';
+  d('calcFuture').textContent = formatMoney(out.value);
+  d('calcInvested').textContent = formatMoney(out.invested);
+  d('calcGain').textContent = formatMoney(out.gain);
+}
 
-  if(del){
-    const id = del.getAttribute('data-wl-del');
-    const wl = loadWatchlist().filter(x => x.id !== id);
-    saveWatchlist(wl);
-    renderWatchlist();
-    showMsg(wlMsg, 'Položka smazána.', 'warn');
-  }
-
-  if(open){
-    const id = open.getAttribute('data-wl-open');
-    const wl = loadWatchlist();
-    const item = wl.find(x => x.id === id);
-    if(!item) return;
-
-    const inp = item.inputs || {};
-    d('d_ticker').value = inp.ticker || '';
-    d('d_price').value  = inp.price ?? '';
-    d('d_fcf').value    = inp.fcf0 ?? '';
-    d('d_years').value  = inp.years ?? '';
-
-    d('d_g').value  = inp.base?.g ? inp.base.g*100 : '';
-    d('d_r').value  = inp.base?.r ? inp.base.r*100 : '';
-    d('d_gt').value = inp.base?.gt ? inp.base.gt*100 : '';
-    d('d_mos').value = inp.mos ? inp.mos*100 : 20;
-
-    go('dcf');
-    setTimeout(() => computeDcf(), 50);
-  }
+d('btnCalc').addEventListener('click', () => {
+  const out = calcComp();
+  if(out) renderComp(out);
 });
 
-document.getElementById('btnWlClear').addEventListener('click', () => {
-  saveWatchlist([]);
-  renderWatchlist();
-  showMsg(wlMsg, 'Watchlist vymazán.', 'warn');
+d('btnCalcFill').addEventListener('click', () => {
+  d('c_start').value = '50 000';
+  d('c_monthly').value = '2 000';
+  d('c_rate').value = '8';
+  d('c_years').value = '15';
+  setMsg(d('calcMsg'), 'Příklad vyplněn. Klikni Spočítat.', 'good');
 });
 
-document.getElementById('btnWlRefresh').addEventListener('click', () => {
-  renderWatchlist();
-  showMsg(wlMsg, 'Obnoveno.', 'good');
+d('btnCalcReset').addEventListener('click', () => {
+  ['c_start','c_monthly','c_rate','c_years'].forEach(id => d(id).value='');
+  d('calcOut').style.display = 'none';
+  clearMsg(d('calcMsg'));
 });
 
-// výchozí hodnoty
-if(!d('d_r').value) d('d_r').value = '9';
-if(!d('d_gt').value) d('d_gt').value = '2,5';
 
+// ========= On load =========
+renderWL();
 </script>
 </body>
 </html>
     
+    
+
+
+
+
+    
+        
+
+
+
+
+
+
+
+
     
 
     
