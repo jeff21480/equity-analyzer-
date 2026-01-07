@@ -117,30 +117,34 @@ i<!doctype html>
       font-size: 16px;
     }
 
-    /* Home cards (šuplíky) */
-    .homeList{
-      margin-top: 14px;
-      display:grid;
-      gap: 14px;
-    }
-
     .homeCard{
-      width:100%;
-      border: 1px solid rgba(255,255,255,.22);
-      background: rgba(15, 10, 40, 0.9);
-border: 1px solid rgba(140, 110, 255, 0.35);
-      padding: 16px 16px;
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(14px);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 14px;
-      cursor:pointer;
-      color: var(--text);
-      text-align:left;
-      text-decoration:none;
-      -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  border-radius: 26px;
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+
+  /* TADY JE TEN DŮLEŽITÝ FIX */
+  background: linear-gradient(
+  180deg,
+  rgba(40, 28, 90, 0.92),
+  rgba(22, 16, 55, 0.95)
+);
+
+border: 1px solid rgba(150, 120, 255, 0.45);
+
+  /* ZRUŠÍME MLÉČNÝ EFEKT */
+  backdrop-filter: none;
+
+  box-shadow:
+    0 18px 45px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.04);
     }
     .homeCard:active{ transform: translateY(1px); }
     .homeCard:hover{ transform: translateY(-1px); box-shadow: 0 22px 60px rgba(10,6,30,.55); }
