@@ -1142,11 +1142,99 @@ vložit ZA PART 3/5
 </script>
 
 <!-- ============ END OF PART 4/5 ============ -->
+  <!-- =========================
+PART 5/5A – FINAL UI HELPERS
+vložit ZA END OF PART 4/5
+========================= -->
+<script>
+/* =========================
+   HELPERS
+========================= */
 
+function $(id){
+  return document.getElementById(id);
+}
 
+function qs(sel, root=document){
+  return root.querySelector(sel);
+}
 
+/* =========================
+   MOVE LANGUAGE + CURRENCY
+   INTO DCF HEADER
+========================= */
 
+function moveSwitchesIntoDCF(){
+  const dcf = $("screenDCF");
+  if(!dcf) return;
 
+  const head = qs(".screenHeader", dcf);
+  if(!head) return;
+
+  let row = qs(".dcfHeaderRow", dcf);
+  if(!row){
+    row = document.createElement("div");
+    row.className = "dcfHeaderRow";
+    row.style.display = "flex";
+    row.style.flexWrap = "wrap";
+    row.style.gap = "8px";
+    row.style.marginTop = "8px";
+
+    const h2 = qs("h2", head);
+    if(h2 && h2.parentNode){
+      h2.parentNode.insertBefore(row, h2.nextSibling);
+    } else {
+      head.appendChild(row);
+    }
+  }
+
+  const lang = qs(".langSwitch");
+  const cur  = qs(".currencySwitch");
+
+  if(lang) row.appendChild(lang);
+  if(cur)  row.appendChild(cur);
+}
+
+/* =========================
+   SAFE INIT
+========================= */
+
+function initPart5A(){
+  moveSwitchesIntoDCF();
+}
+</script>
+<!-- ===== END OF PART 5A ===== -->
+<!-- =========================
+PART 5/5B – FINAL INIT
+vložit POD PART 5A
+========================= -->
+<script>
+/* =========================
+   FINAL INIT
+========================= */
+
+function initPart5B(){
+  initPart5A();
+
+  // po přepnutí obrazovky znovu přesunout
+  window.addEventListener("hashchange", ()=>{
+    moveSwitchesIntoDCF();
+  });
+
+  // po prvním loadu
+  moveSwitchesIntoDCF();
+}
+
+/* =========================
+   RUN
+========================= */
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", initPart5B);
+}else{
+  initPart5B();
+}
+</script>
+<!-- ============ END OF PART 5/5 ============ -->
     
   
 
