@@ -996,20 +996,27 @@ vložit ZA PART 3/5
 
     // Fallback: když jsou to “karty” bez těch ID,
     // tak klik na prvky, které obsahují text drawerDCF / drawerWatch / drawerAbout
-    const body = document.body;
-    body.addEventListener("click", (e)=>{
-      const card = e.target.closest(".drawerItem, .drawerCard, .rowCard, .cardRow");
-      if(!card) return;
+    // Fallback: klik na "šuplík" (kartu) otevře správnou obrazovku
+const body = document.body;
 
-      const txt = (card.textContent || "").toLowerCase();
-      if(txt.includes("drawerdfc") || txt.includes("dcf")){
-        window.showScreen?.("dcf");
-      } else if(txt.includes("drawerwatch") || txt.includes("watch")){
-        window.showScreen?.("watch");
-      } else if(txt.includes("drawerabout") || txt.includes("about")){
-        window.showScreen?.("about");
-      }
-    }, true);
+body.addEventListener("click", (e)=>{
+  const card = e.target.closest(".drawerItem, .drawerCard, [data-screen]");
+  if(!card) return;
+
+  // 1) preferuj data-screen="dcf|watch|about|home"
+  const target = card.getAttribute("data-screen") || card.dataset.screen;
+  if(target){
+    window.showScreen?.(target);
+    location.hash = target;
+    return;
+  }
+
+  // 2) fallback podle id, kdybys neměl data-screen
+  const id = (card.id || "").toLowerCase();
+  if(id.includes("dcf"))   { window.showScreen?.("dcf");   location.hash="dcf"; return; }
+  if(id.includes("watch")) { window.showScreen?.("watch"); location.hash="watch"; return; }
+  if(id.includes("about")) { window.showScreen?.("about"); location.hash="about"; return; }
+}, true);
   }
 
   // ---------- Watchlist UI builder (když chybí tabulka/btns v HTML)
