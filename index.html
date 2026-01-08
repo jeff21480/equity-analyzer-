@@ -1,1248 +1,1432 @@
- <!doctype html>
+<!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Equity Analyzer – DCF</title>
   <style>
     :root{
-      --bg0:#070814;
-      --bg1:#0b0d22;
-      --card:#101339cc;
-      --card2:#0d1033cc;
-      --text:#eef0ff;
-      --muted:#aab0d6;
-      --muted2:#7d84b8;
-      --line:#232a5f;
-      --accent:#7c4dff;
-      --accent2:#00d1ff;
-      --good:#2ef2a7;
-      --warn:#ffd36a;
-      --bad:#ff5b8a;
-
-      --shadow: 0 18px 50px rgba(0,0,0,.35);
-      --radius: 18px;
-      --radius2: 26px;
+      --bg0:#070a1a;
+      --bg1:#0b1130;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text:#eaf0ff;
+      --muted: rgba(234,240,255,.72);
+      --muted2: rgba(234,240,255,.55);
+      --a:#7c3aed; /* purple */
+      --b:#2563eb; /* blue */
+      --good:#22c55e;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --shadow: 0 16px 50px rgba(0,0,0,.55);
+      --r: 18px;
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(124,77,255,.28), transparent 60%),
-        radial-gradient(900px 600px at 80% 15%, rgba(0,209,255,.20), transparent 55%),
-        radial-gradient(900px 600px at 60% 90%, rgba(124,77,255,.18), transparent 55%),
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,58,237,.25), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(37,99,235,.22), transparent 55%),
+        radial-gradient(700px 400px at 50% 100%, rgba(124,58,237,.12), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
     }
-
-    a{ color:inherit; text-decoration:none; }
     .wrap{
-      max-width: 1100px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 18px 14px 50px;
+      padding: 18px 14px 80px;
     }
-
-    .topbar{
+    .top{
       display:flex;
+      gap:12px;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      padding:16px 16px;
-      border:1px solid var(--line);
-      border-radius: var(--radius2);
-      background: linear-gradient(180deg, rgba(16,19,57,.75), rgba(9,10,26,.55));
+      padding: 16px 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
     }
-
     .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 220px;
-    }
-    .logo{
-      width:38px; height:38px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(124,77,255,.9), rgba(0,209,255,.75));
-      box-shadow: 0 10px 28px rgba(124,77,255,.25);
-      position:relative;
-    }
-    .logo:after{
-      content:"";
-      position:absolute; inset:10px;
-      border-radius: 10px;
-      background: rgba(9,10,26,.35);
-      border:1px solid rgba(255,255,255,.10);
-    }
-
-    h1{
-      margin:0;
-      font-size: clamp(18px, 2.5vw, 22px);
-      letter-spacing: .2px;
-      line-height:1.1;
-    }
-    .sub{
-      margin:2px 0 0 0;
-      color:var(--muted);
-      font-size: 13px;
-      line-height:1.3;
-      max-width: 52ch;
-    }
-
-    .ctrls{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 12px;
-      border:1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(8,10,24,.35);
-      backdrop-filter: blur(8px);
-    }
-
-    .seg{
-      display:flex;
-      border:1px solid var(--line);
-      border-radius: 999px;
-      overflow:hidden;
-      background: rgba(7,8,20,.55);
-    }
-    .seg button{
-      border:0;
-      padding:9px 12px;
-      color:var(--muted);
-      background: transparent;
-      cursor:pointer;
-      font-weight:600;
-      font-size: 13px;
-    }
-    .seg button.active{
-      color: var(--text);
-      background: linear-gradient(135deg, rgba(124,77,255,.9), rgba(0,209,255,.55));
-    }
-
-    .btn{
-      border:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(16,19,57,.75), rgba(9,10,26,.55));
-      color:var(--text);
-      padding:10px 12px;
-      border-radius: 14px;
-      cursor:pointer;
-      font-weight:700;
-      letter-spacing:.2px;
-      box-shadow: 0 12px 30px rgba(0,0,0,.28);
-    }
-    .btn:hover{ filter: brightness(1.08); }
-    .btn:active{ transform: translateY(1px); }
-
-    .btnPrimary{
-      border-color: rgba(124,77,255,.45);
-      background: linear-gradient(135deg, rgba(124,77,255,.95), rgba(0,209,255,.55));
-      box-shadow: 0 16px 40px rgba(124,77,255,.22);
-    }
-    .btnGhost{
-      background: rgba(10,12,35,.35);
-      box-shadow:none;
-    }
-
-    .grid{
-      margin-top: 16px;
-      display:grid;
-      gap:14px;
-      grid-template-columns: 1fr;
-    }
-
-    .drawerBar{
-      display:flex;
-      gap:12px;
-      margin-top: 14px;
-      flex-wrap:wrap;
-    }
-
-    .drawer{
-      flex:1 1 260px;
-      border:1px solid var(--line);
-      border-radius: var(--radius2);
-      background: linear-gradient(180deg, rgba(16,19,57,.60), rgba(9,10,26,.45));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      overflow:hidden;
-    }
-
-    .drawerHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 14px 14px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .drawerTitle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .tag{
-      font-size:12px;
-      color:var(--muted);
-      border:1px solid var(--line);
-      padding:4px 8px;
-      border-radius: 999px;
-      background: rgba(7,8,20,.35);
-    }
-    .chev{
-      width:34px; height:34px;
-      border-radius: 12px;
-      border:1px solid var(--line);
-      background: rgba(7,8,20,.35);
-      display:grid;
-      place-items:center;
-      color: var(--muted);
-      transition: transform .18s ease;
-    }
-    .drawer.open .chev{ transform: rotate(180deg); }
-
-    .drawerBody{
-      display:none;
-      border-top: 1px solid rgba(35,42,95,.75);
-      padding: 14px;
-    }
-    .drawer.open .drawerBody{ display:block; }
-
-    .card{
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(10,12,35,.45);
-      box-shadow: 0 18px 50px rgba(0,0,0,.25);
-      backdrop-filter: blur(10px);
-      padding: 14px;
-    }
-
-    .twoCol{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media(min-width: 900px){
-      .twoCol{ grid-template-columns: 1.2fr .8fr; }
-    }
-
-    .sectionTitle{
-      font-weight:900;
-      font-size: 14px;
-      margin: 0 0 10px 0;
-      color: var(--text);
-      letter-spacing:.2px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .hint{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight:600;
-    }
-
-    .form{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    @media(min-width: 700px){
-      .form{ grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .field{
-      border:1px solid var(--line);
-      border-radius: 16px;
-      padding: 10px 10px 8px;
-      background: rgba(7,8,20,.35);
-    }
-    .labelRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom: 6px;
-    }
-    label{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-    .helpBtn{
-      border:0;
-      cursor:pointer;
-      background: transparent;
-      color: var(--muted2);
-      font-weight:900;
-      font-size: 12px;
-      padding: 0;
-    }
-    .helpBtn:hover{ color: var(--text); }
-
-    input, select{
-      width:100%;
-      border:0;
-      outline:none;
-      background: transparent;
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 700;
-      padding: 6px 2px;
-    }
-    input::placeholder{ color: rgba(170,176,214,.65); }
-
-    .rowActions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top: 10px;
-    }
-
-    .resultsGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    @media(min-width: 700px){
-      .resultsGrid{ grid-template-columns: repeat(3, 1fr); }
-    }
-
-    .resCard{
-      border:1px solid rgba(124,77,255,.25);
-      border-radius: 18px;
-      background:
-        radial-gradient(400px 180px at 20% 0%, rgba(124,77,255,.20), transparent 60%),
-        radial-gradient(400px 180px at 80% 0%, rgba(0,209,255,.16), transparent 60%),
-        rgba(7,8,20,.35);
-      padding: 12px;
-      position:relative;
-      overflow:hidden;
-    }
-    .resTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      margin-bottom: 8px;
-    }
-    .resLabel{
-      font-weight: 1000;
-      letter-spacing:.2px;
-    }
-    .chip{
-      font-size: 12px;
-      font-weight: 900;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: var(--muted);
-    }
-    .chip.good{ color: var(--good); border-color: rgba(46,242,167,.25); }
-    .chip.warn{ color: var(--warn); border-color: rgba(255,211,106,.28); }
-    .chip.bad{ color: var(--bad); border-color: rgba(255,91,138,.25); }
-
-    .resValue{
-      font-size: 22px;
-      font-weight: 1000;
-      letter-spacing: .2px;
-      line-height:1.1;
-    }
-    .resSub{
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height:1.35;
-    }
-
-    .empty{
-      color: var(--muted);
-      padding: 14px;
-      text-align:center;
-      border: 1px dashed rgba(35,42,95,.8);
-      border-radius: 18px;
-      background: rgba(7,8,20,.25);
-    }
-
-    .watchItem{
-      border:1px solid var(--line);
-      border-radius: 18px;
-      padding: 12px;
-      background: rgba(7,8,20,.30);
-      display:flex;
-      gap:10px;
-      align-items:stretch;
-      justify-content:space-between;
-    }
-    .watchMain{
-      flex:1;
-      cursor:pointer;
+      display:flex; gap:12px; align-items:center;
       min-width: 0;
     }
-    .watchTitle{
-      font-weight: 1000;
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      background: linear-gradient(135deg,var(--a),var(--b));
+      box-shadow: 0 10px 28px rgba(124,58,237,.22);
+      display:grid;place-items:center;
+      flex:0 0 auto;
+    }
+    .logo::after{
+      content:"";
+      width:18px;height:18px;border-radius:7px;
+      background: rgba(255,255,255,.85);
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.25);
+    }
+    .brandText{min-width:0}
+    .h1{
+      margin:0;
+      font-size: 18px;
       letter-spacing:.2px;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
+    .sub{
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.25;
+      max-width: 52ch;
+    }
+    .toggles{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid var(--stroke);
+    }
+    .pillLabel{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .seg{
+      display:flex;
+      border-radius: 999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+    }
+    .seg button{
+      appearance:none;
+      border:0;
+      padding: 9px 12px;
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--muted);
+      background: transparent;
+      cursor:pointer;
+    }
+    .seg button.active{
+      color:#fff;
+      background: linear-gradient(135deg, rgba(124,58,237,.85), rgba(37,99,235,.85));
+    }
+
+    /* drawers (2 screens) */
+    .drawerBar{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .drawerBtn{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 10px 28px rgba(0,0,0,.25);
+      cursor:pointer;
+      user-select:none;
+    }
+    .drawerBtn:hover{background: rgba(255,255,255,.07)}
+    .drawerBtn .left{
+      display:flex; gap:10px; align-items:center; min-width:0;
+    }
+    .badgeMini{
+      font-size: 11px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .drawerBtn .ttl{
+      font-weight: 900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .chev{
+      width:38px;height:38px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      display:grid;place-items:center;
+      background: rgba(0,0,0,.18);
+      flex:0 0 auto;
+    }
+    .chev::after{
+      content:"›";
+      font-size: 22px;
+      color: rgba(255,255,255,.85);
+      transform: translateX(1px);
+    }
+
+    .screen{
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(37,99,235,.18), transparent 55%),
+        linear-gradient(180deg, rgba(7,10,26,.96), rgba(11,17,48,.96));
+      backdrop-filter: blur(10px);
+      transform: translateY(102%);
+      transition: transform .28s ease;
+      z-index: 10;
+      overflow:auto;
+      padding-bottom: 90px;
+    }
+    .screen.active{ transform: translateY(0); }
+
+    .screenTop{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 14px 14px 10px;
+      background: rgba(7,10,26,.65);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .screenTopIn{
+      max-width: 960px;
+      margin: 0 auto;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .backBtn{
+      display:flex; gap:10px; align-items:center;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .backBtn::before{content:"‹"; font-size:18px; opacity:.9}
+    .screenTitle{
+      font-weight: 1000;
+      letter-spacing:.2px;
+    }
+
+    .content{
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 12px 14px;
+    }
+
+    .card{
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 820px){
+      .row{grid-template-columns: 1fr;}
+      .drawerBar{grid-template-columns:1fr;}
+      .sub{max-width: 40ch;}
+    }
+    .sectionTitle{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+      text-transform: none;
+    }
+    .hint{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .field{
+      position: relative;
+      padding: 12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+    }
+    .lab{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .q{
+      width:26px;height:26px;border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      display:grid;place-items:center;
+      cursor:pointer;
+      font-weight: 1000;
+      flex:0 0 auto;
+    }
+    input{
+      width:100%;
+      border:0;
+      outline:none;
+      background: transparent;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 4px 0 2px;
+    }
+    input::placeholder{color: rgba(255,255,255,.30); font-weight:700}
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+    .btn{
+      border:0;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-weight: 1000;
+      color:#fff;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.92), rgba(37,99,235,.92));
+      border: 0;
+      box-shadow: 0 14px 34px rgba(37,99,235,.18);
+    }
+    .btn.ghost{
+      background: rgba(0,0,0,.18);
+    }
+
+    .resultsBox{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.16);
+    }
+    .resultsGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 820px){ .resultsGrid{grid-template-columns:1fr;} }
+    .resCard{
+      padding: 12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+    .resTop{display:flex;justify-content:space-between;align-items:center}
+    .resLabel{font-weight: 1000; letter-spacing:.2px}
+    .resValue{margin-top: 8px; font-size: 22px; font-weight: 1100}
+    .chip{
+      font-size: 11px;
+      font-weight: 1000;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      white-space:nowrap;
+    }
+    .chip.good{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12)}
+    .chip.bad{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12)}
+    .chip.warn{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.12)}
+
+    /* watchlist */
+    .empty{
+      color: var(--muted);
+      padding: 14px;
+      text-align:center;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.14);
+      background: rgba(0,0,0,.16);
+    }
+    .watchItem{
+      display:flex;
+      align-items:stretch;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      margin-bottom: 10px;
+    }
+    .watchMain{flex:1; min-width:0; cursor:pointer}
+    .watchTitle{
+      font-weight: 1100;
+      font-size: 14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-bottom: 4px;
+    }
     .watchSub{
-      margin-top: 4px;
       color: var(--muted);
       font-size: 12px;
       display:flex;
-      gap:8px;
+      gap:10px;
       flex-wrap:wrap;
+      align-items:center;
     }
     .watchVals{
       margin-top: 8px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      color: var(--muted);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
       font-size: 12px;
     }
-    .watchVals b{ color: var(--text); }
     .watchBtns{
       display:flex;
       flex-direction:column;
       gap:8px;
-      min-width: 120px;
+      flex:0 0 auto;
     }
-    .btnSmall{
-      padding:9px 10px;
+    .btnMini{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.20);
+      color:#fff;
+      padding: 10px 10px;
       border-radius: 14px;
+      cursor:pointer;
+      font-weight: 1000;
       font-size: 12px;
-      font-weight: 900;
+      white-space:nowrap;
     }
-    .btnDanger{
-      border-color: rgba(255,91,138,.25);
-      background: rgba(255,91,138,.12);
-      color: var(--text);
-      box-shadow:none;
+    .btnMini.danger{
+      border-color: rgba(239,68,68,.25);
+      background: rgba(239,68,68,.10);
     }
 
-    /* MODAL */
+    /* modal */
     .modalBack{
-      position:fixed;
+      position: fixed;
       inset:0;
+      background: rgba(0,0,0,.62);
       display:none;
-      background: rgba(0,0,0,.55);
-      padding: 18px;
-      z-index: 1000;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 30;
     }
-    .modalBack.show{ display:grid; place-items:center; }
+    .modalBack.show{display:flex}
     .modal{
       width:min(720px, 100%);
-      border:1px solid rgba(35,42,95,.9);
       border-radius: 22px;
-      background:
-        radial-gradient(800px 340px at 20% 0%, rgba(124,77,255,.22), transparent 60%),
-        radial-gradient(800px 340px at 80% 0%, rgba(0,209,255,.18), transparent 60%),
-        rgba(8,10,24,.92);
-      box-shadow: 0 24px 70px rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(10,14,34,.92);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
     .modalTop{
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      gap:10px;
-      padding: 14px 14px;
-      border-bottom: 1px solid rgba(35,42,95,.85);
+      align-items:center;
+      gap:12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
     }
-    .modalTitle{
-      font-weight: 1000;
-      letter-spacing:.2px;
-    }
+    .modalTitle{font-weight: 1100}
     .x{
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
-      border:1px solid rgba(35,42,95,.95);
-      background: rgba(7,8,20,.35);
-      color: var(--text);
+      width:40px;height:40px;border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
       cursor:pointer;
-      font-weight: 1000;
+      color:#fff;
+      font-size: 20px;
+      font-weight: 1100;
     }
     .modalBody{
       padding: 14px;
-      color: var(--text);
+      color: rgba(255,255,255,.92);
+      line-height: 1.45;
+      font-size: 14px;
     }
-    .modalBody p{ margin: 0 0 10px 0; color: var(--muted); line-height:1.5; }
-    .modalBody b{ color: var(--text); }
-    .modalBody ul{ margin: 8px 0 0 18px; color: var(--muted); }
+    .modalBody p{margin: 0 0 10px}
+    .modalBody ul{margin: 0 0 10px; padding-left: 18px}
 
-    /* PRINT (PDF) */
+    /* print */
     @media print{
-      body{ background:#fff !important; color:#111 !important; }
-      .noPrint{ display:none !important; }
+      body{background:#fff;color:#000}
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="topbar noPrint">
+
+    <div class="top">
       <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1 id="t_h1">Analýza akcií – DCF</h1>
-          <div class="sub" id="t_sub">Rychlý odhad férové ceny přes jednoduchý DCF (Bear/Base/Bull) + Watchlist.</div>
+        <div class="logo"></div>
+        <div class="brandText">
+          <h1 class="h1" data-i18n="h1">Analýza akcií – DCF</h1>
+          <p class="sub" data-i18n="sub">Rychlý odhad férové ceny přes jednoduchý DCF + Watchlist.</p>
         </div>
       </div>
 
-      <div class="ctrls">
+      <div class="toggles">
         <div class="pill">
-          <span style="font-weight:900;color:var(--muted);font-size:12px;" id="t_lang">Jazyk</span>
-          <div class="seg" role="tablist" aria-label="Language">
-            <button id="btnLangCS" class="active" onclick="setLang('cs')">CZ</button>
-            <button id="btnLangEN" onclick="setLang('en')">EN</button>
+          <div class="pillLabel" data-i18n="lang">Jazyk</div>
+          <div class="seg">
+            <button id="btnLangCS" type="button" class="active">CZ</button>
+            <button id="btnLangEN" type="button">EN</button>
           </div>
         </div>
-
         <div class="pill">
-          <span style="font-weight:900;color:var(--muted);font-size:12px;" id="t_ccy">Měna</span>
-          <div class="seg" role="tablist" aria-label="Currency">
-            <button id="btnCcyUSD" class="active" onclick="setCcy('USD')">USD</button>
-            <button id="btnCcyEUR" onclick="setCcy('EUR')">EUR</button>
-          </div>
-        </div>
-
-        <button class="btn btnGhost" onclick="openHelp('about')" id="btnAbout">O aplikaci</button>
-      </div>
-    </div>
-
-    <div class="drawerBar noPrint">
-      <div class="drawer open" id="drawerDCF">
-        <div class="drawerHead" onclick="toggleDrawer('drawerDCF')">
-          <div class="drawerTitle">
-            <span id="t_navDCF">DCF</span>
-            <span class="tag" id="t_navDCFtag">Výpočet</span>
-          </div>
-          <div class="chev">⌄</div>
-        </div>
-        <div class="drawerBody">
-          <div class="twoCol">
-            <div class="card">
-              <div class="sectionTitle">
-                <span id="t_inputs">Vstupy</span>
-                <span class="hint" id="t_inputsHint">Klikni na “?” pro vysvětlivku.</span>
-              </div>
-
-              <div class="form">
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_ticker">Ticker / Název</label>
-                    <button class="helpBtn" onclick="openHelp('ticker')" type="button">?</button>
-                  </div>
-                  <input id="inp_ticker" placeholder="AAPL / Apple" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_fcf">Poslední roční FCF</label>
-                    <button class="helpBtn" onclick="openHelp('fcf')" type="button">?</button>
-                  </div>
-                  <input id="inp_fcf" inputmode="decimal" placeholder="např. 9500000000" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_years">Počet let projekce</label>
-                    <button class="helpBtn" onclick="openHelp('years')" type="button">?</button>
-                  </div>
-                  <input id="inp_years" inputmode="numeric" placeholder="10" value="10" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_wacc">Diskontní sazba (WACC / r) %</label>
-                    <button class="helpBtn" onclick="openHelp('wacc')" type="button">?</button>
-                  </div>
-                  <input id="inp_wacc" inputmode="decimal" placeholder="9" value="9" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_tg">Terminal growth %</label>
-                    <button class="helpBtn" onclick="openHelp('tg')" type="button">?</button>
-                  </div>
-                  <input id="inp_tg" inputmode="decimal" placeholder="2.5" value="2.5" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_netDebt">Net debt / Cash úprava</label>
-                    <button class="helpBtn" onclick="openHelp('netDebt')" type="button">?</button>
-                  </div>
-                  <input id="inp_netDebt" inputmode="decimal" placeholder="0" value="0" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_shares">Počet akcií (Shares)</label>
-                    <button class="helpBtn" onclick="openHelp('shares')" type="button">?</button>
-                  </div>
-                  <input id="inp_shares" inputmode="decimal" placeholder="např. 16000000000" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_price">Aktuální cena (volitelné)</label>
-                    <button class="helpBtn" onclick="openHelp('price')" type="button">?</button>
-                  </div>
-                  <input id="inp_price" inputmode="decimal" placeholder="např. 190" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_bear">Růst FCF Bear %</label>
-                    <button class="helpBtn" onclick="openHelp('growth')" type="button">?</button>
-                  </div>
-                  <input id="inp_bear" inputmode="decimal" placeholder="např. 4" value="4" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_base">Růst FCF Base %</label>
-                    <button class="helpBtn" onclick="openHelp('growth')" type="button">?</button>
-                  </div>
-                  <input id="inp_base" inputmode="decimal" placeholder="např. 8" value="8" />
-                </div>
-
-                <div class="field">
-                  <div class="labelRow">
-                    <label id="lbl_bull">Růst FCF Bull %</label>
-                    <button class="helpBtn" onclick="openHelp('growth')" type="button">?</button>
-                  </div>
-                  <input id="inp_bull" inputmode="decimal" placeholder="např. 12" value="12" />
-                </div>
-              </div>
-
-              <div class="rowActions">
-                <button class="btn btnPrimary" onclick="calcDCF()" id="btnCalc">Spočítat</button>
-                <button class="btn" onclick="saveCurrent()" id="btnSave">Uložit do Watchlistu</button>
-                <button class="btn btnGhost" onclick="exportCurrentPDF()" id="btnPDF">PDF (tisk)</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="sectionTitle">
-                <span id="t_results">Výsledky</span>
-                <span class="hint" id="t_resultsHint">Bear / Base / Bull</span>
-              </div>
-
-              <div id="resultsBox">
-                <div class="empty" id="t_resultsEmpty">Zatím nic. Vyplň vstupy a klikni na „Spočítat“.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="drawer" id="drawerWATCH">
-        <div class="drawerHead" onclick="toggleDrawer('drawerWATCH')">
-          <div class="drawerTitle">
-            <span id="t_navWatch">Watchlist</span>
-            <span class="tag" id="t_navWatchtag">Uložené</span>
-          </div>
-          <div class="chev">⌄</div>
-        </div>
-
-        <div class="drawerBody">
-          <div class="card">
-            <div class="sectionTitle">
-              <span id="t_watchTitle">Uložené výpočty</span>
-              <span class="hint" id="t_watchHint">Klikni na položku pro načtení do DCF.</span>
-            </div>
-            <div id="watchBox"></div>
+          <div class="pillLabel" data-i18n="ccy">Měna</div>
+          <div class="seg">
+            <button id="btnUSD" type="button" class="active">USD</button>
+            <button id="btnEUR" type="button">EUR</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modalBack" id="modalBack" onclick="closeModalFromBg(event)">
-      <div class="modal" onclick="event.stopPropagation()">
-        <div class="modalTop">
-          <div class="modalTitle" id="modalTitle">Info</div>
-          <button class="x" onclick="closeModal()">×</button>
+    <div class="drawerBar">
+      <div class="drawerBtn" id="openDCF">
+        <div class="left">
+          <div class="badgeMini" data-i18n="tagCalc">Výpočet</div>
+          <div class="ttl" data-i18n="navDCF">DCF</div>
         </div>
-        <div class="modalBody" id="modalBody"></div>
+        <div class="chev"></div>
+      </div>
+
+      <div class="drawerBtn" id="openWatch">
+        <div class="left">
+          <div class="badgeMini" data-i18n="tagSaved">Uložené</div>
+          <div class="ttl" data-i18n="navWatch">Watchlist</div>
+        </div>
+        <div class="chev"></div>
       </div>
     </div>
 
   </div>
 
-<script>
-/* ========= State ========= */
-const STORE_KEY = 'equity_analyzer_watchlist_v2';
-let LANG = 'cs';
-let CCY = 'USD';
-let LAST = null;
+  <!-- SCREEN: DCF -->
+  <section class="screen" id="screenDCF" aria-hidden="true">
+    <div class="screenTop">
+      <div class="screenTopIn">
+        <button class="backBtn" type="button" id="backFromDCF" data-i18n="back">Zpět</button>
+        <div class="screenTitle" data-i18n="navDCF">DCF</div>
+        <div style="width:88px"></div>
+      </div>
+    </div>
 
-/* ========= i18n UI ========= */
-const UI = {
-  cs: {
-    h1: "Analýza akcií – DCF",
-    sub: "Rychlý odhad férové ceny přes jednoduchý DCF (Bear/Base/Bull) + Watchlist.",
-    lang: "Jazyk",
-    ccy: "Měna",
-    about: "O aplikaci",
-    navDCF: "DCF",
-    navDCFtag: "Výpočet",
-    navWatch: "Watchlist",
-    navWatchtag: "Uložené",
-    inputs: "Vstupy",
-    inputsHint: "Klikni na “?” pro vysvětlivku.",
-    results: "Výsledky",
-    resultsHint: "Bear / Base / Bull",
-    resultsEmpty: "Zatím nic. Vyplň vstupy a klikni na „Spočítat“.",
-    btnCalc: "Spočítat",
-    btnSave: "Uložit do Watchlistu",
-    btnPDF: "PDF (tisk)",
-    watchTitle: "Uložené výpočty",
-    watchHint: "Klikni na položku pro načtení do DCF.",
-    emptyWatch: "Zatím nic uloženého. Po výpočtu klikni na „Uložit do Watchlistu“.",
-    load: "Načíst",
-    pdf: "PDF",
-    del: "Smazat",
-    saved: "Uloženo",
-    cannotSave: "Nelze uložit",
-    needCalc: "<p>Nejdřív klikni na <b>Spočítat</b>, ať máme výsledky.</p>",
-    loaded: "Načteno",
-    loadedMsg: "<p>Výpočet byl načten z Watchlistu do DCF vstupů.</p>",
-    removed: "Smazáno",
-    removedMsg: "<p>Položka byla odstraněna z Watchlistu.</p>",
-    err: "Chyba",
-    errMsg: "<p>Něco se nepovedlo. Zkontroluj vstupy (čísla) a zkus to znovu.</p>",
-    fairPerShare: "Férová cena / akcii",
-    equityValue: "Equity value",
-    evValue: "Enterprise value",
-    noteNoShares: "Nemáš vyplněné Shares – zobrazujeme EV/Equity (bez ceny na akcii).",
-    lblPriceLine: "Cena: ",
-    discount: "Diskont",
-    upside: "Upside",
-    downside: "Downside",
-    printHint: "Otevře se report – v prohlížeči dej Tisk → Uložit jako PDF.",
-  },
-  en: {
-    h1: "Equity Analyzer – DCF",
-    sub: "Quick fair value estimate using a simple DCF (Bear/Base/Bull) + Watchlist.",
-    lang: "Language",
-    ccy: "Currency",
-    about: "About",
-    navDCF: "DCF",
-    navDCFtag: "Calculator",
-    navWatch: "Watchlist",
-    navWatchtag: "Saved",
-    inputs: "Inputs",
-    inputsHint: "Tap “?” for explanations.",
-    results: "Results",
-    resultsHint: "Bear / Base / Bull",
-    resultsEmpty: "No results yet. Fill inputs and click “Calculate”.",
-    btnCalc: "Calculate",
-    btnSave: "Save to Watchlist",
-    btnPDF: "PDF (print)",
-    watchTitle: "Saved calculations",
-    watchHint: "Click an item to load it back into the DCF inputs.",
-    emptyWatch: "Nothing saved yet. After calculating, click “Save to Watchlist”.",
-    load: "Load",
-    pdf: "PDF",
-    del: "Delete",
-    saved: "Saved",
-    cannotSave: "Cannot save",
-    needCalc: "<p>First click <b>Calculate</b> so we have results to store.</p>",
-    loaded: "Loaded",
-    loadedMsg: "<p>The calculation was loaded from Watchlist into the DCF inputs.</p>",
-    removed: "Deleted",
-    removedMsg: "<p>The item was removed from the Watchlist.</p>",
-    err: "Error",
-    errMsg: "<p>Something went wrong. Check numeric inputs and try again.</p>",
-    fairPerShare: "Fair value / share",
-    equityValue: "Equity value",
-    evValue: "Enterprise value",
-    noteNoShares: "Shares are missing — showing EV/Equity (no per-share value).",
-    lblPriceLine: "Price: ",
-    discount: "Discount",
-    upside: "Upside",
-    downside: "Downside",
-    printHint: "A report opens — use Print → Save as PDF in your browser.",
-  }
-};
+    <div class="content">
+      <div class="card">
+        <div class="sectionTitle">
+          <h2 data-i18n="inputs">Vstupy</h2>
+          <div class="hint" data-i18n="hintQ">Klikni na “?” pro vysvětlivku.</div>
+        </div>
 
-function t(key){
-  return (UI[LANG] && UI[LANG][key]) ? UI[LANG][key] : (UI.cs[key] || key);
-}
+        <div class="row">
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="ticker">Ticker / Název</span>
+              <button class="q" type="button" onclick="help('ticker')">?</button>
+            </div>
+            <input id="inp_ticker" placeholder="AAPL / Apple" />
+          </div>
 
-function setLang(l){
-  LANG = (l === 'en') ? 'en' : 'cs';
-  document.getElementById('btnLangCS').classList.toggle('active', LANG==='cs');
-  document.getElementById('btnLangEN').classList.toggle('active', LANG==='en');
-  applyText();
-  renderResults(LAST);
-  renderWatchlist();
-}
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="fcf">Poslední roční FCF</span>
+              <button class="q" type="button" onclick="help('fcf')">?</button>
+            </div>
+            <input id="inp_fcf" inputmode="decimal" placeholder="9500000" />
+          </div>
 
-function setCcy(c){
-  CCY = (c === 'EUR') ? 'EUR' : 'USD';
-  document.getElementById('btnCcyUSD').classList.toggle('active', CCY==='USD');
-  document.getElementById('btnCcyEUR').classList.toggle('active', CCY==='EUR');
-  renderResults(LAST);
-  renderWatchlist();
-}
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="years">Počet let projekce</span>
+              <button class="q" type="button" onclick="help('years')">?</button>
+            </div>
+            <input id="inp_years" inputmode="numeric" placeholder="10" />
+          </div>
 
-function applyText(){
-  document.documentElement.lang = LANG;
-  document.getElementById('t_h1').textContent = t('h1');
-  document.getElementById('t_sub').textContent = t('sub');
-  document.getElementById('t_lang').textContent = t('lang');
-  document.getElementById('t_ccy').textContent = t('ccy');
-  document.getElementById('btnAbout').textContent = t('about');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="wacc">Diskontní sazba (WACC / r) %</span>
+              <button class="q" type="button" onclick="help('wacc')">?</button>
+            </div>
+            <input id="inp_wacc" inputmode="decimal" placeholder="9" />
+          </div>
 
-  document.getElementById('t_navDCF').textContent = t('navDCF');
-  document.getElementById('t_navDCFtag').textContent = t('navDCFtag');
-  document.getElementById('t_navWatch').textContent = t('navWatch');
-  document.getElementById('t_navWatchtag').textContent = t('navWatchtag');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="tg">Terminal growth %</span>
+              <button class="q" type="button" onclick="help('tg')">?</button>
+            </div>
+            <input id="inp_tg" inputmode="decimal" placeholder="2.5" />
+          </div>
 
-  document.getElementById('t_inputs').textContent = t('inputs');
-  document.getElementById('t_inputsHint').textContent = t('inputsHint');
-  document.getElementById('t_results').textContent = t('results');
-  document.getElementById('t_resultsHint').textContent = t('resultsHint');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="netdebt">Net debt / cash úprava</span>
+              <button class="q" type="button" onclick="help('netDebt')">?</button>
+            </div>
+            <input id="inp_netdebt" inputmode="decimal" placeholder="0" />
+          </div>
 
-  const emptyEl = document.getElementById('t_resultsEmpty');
-  if (emptyEl) emptyEl.textContent = t('resultsEmpty');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="shares">Počet akcií (shares outstanding)</span>
+              <button class="q" type="button" onclick="help('shares')">?</button>
+            </div>
+            <input id="inp_shares" inputmode="decimal" placeholder="16000000" />
+          </div>
 
-  document.getElementById('btnCalc').textContent = t('btnCalc');
-  document.getElementById('btnSave').textContent = t('btnSave');
-  document.getElementById('btnPDF').textContent = t('btnPDF');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="price">Aktuální cena (volitelné)</span>
+              <button class="q" type="button" onclick="help('price')">?</button>
+            </div>
+            <input id="inp_price" inputmode="decimal" placeholder="190" />
+          </div>
 
-  document.getElementById('t_watchTitle').textContent = t('watchTitle');
-  document.getElementById('t_watchHint').textContent = t('watchHint');
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="gBear">Růst FCF Bear %</span>
+              <button class="q" type="button" onclick="help('growth')">?</button>
+            </div>
+            <input id="inp_bear" inputmode="decimal" placeholder="4" />
+          </div>
 
-  document.getElementById('lbl_ticker').textContent = (LANG==='cs') ? "Ticker / Název" : "Ticker / Name";
-  document.getElementById('lbl_fcf').textContent = (LANG==='cs') ? "Poslední roční FCF" : "Latest annual FCF";
-  document.getElementById('lbl_years').textContent = (LANG==='cs') ? "Počet let projekce" : "Projection years";
-  document.getElementById('lbl_wacc').textContent = (LANG==='cs') ? "Diskontní sazba (WACC / r) %" : "Discount rate (WACC / r) %";
-  document.getElementById('lbl_tg').textContent = (LANG==='cs') ? "Terminal growth %" : "Terminal growth %";
-  document.getElementById('lbl_netDebt').textContent = (LANG==='cs') ? "Net debt / Cash úprava" : "Net debt / Cash adjustment";
-  document.getElementById('lbl_shares').textContent = (LANG==='cs') ? "Počet akcií (Shares)" : "Shares outstanding";
-  document.getElementById('lbl_price').textContent = (LANG==='cs') ? "Aktuální cena (volitelné)" : "Current price (optional)";
-  document.getElementById('lbl_bear').textContent = (LANG==='cs') ? "Růst FCF Bear %" : "FCF growth Bear %";
-  document.getElementById('lbl_base').textContent = (LANG==='cs') ? "Růst FCF Base %" : "FCF growth Base %";
-  document.getElementById('lbl_bull').textContent = (LANG==='cs') ? "Růst FCF Bull %" : "FCF growth Bull %";
-}
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="gBase">Růst FCF Base %</span>
+              <button class="q" type="button" onclick="help('growth')">?</button>
+            </div>
+            <input id="inp_base" inputmode="decimal" placeholder="8" />
+          </div>
 
-/* ========= Drawers ========= */
-function toggleDrawer(id){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.toggle('open');
-}
+          <div class="field">
+            <div class="lab">
+              <span data-i18n="gBull">Růst FCF Bull %</span>
+              <button class="q" type="button" onclick="help('growth')">?</button>
+            </div>
+            <input id="inp_bull" inputmode="decimal" placeholder="12" />
+          </div>
+        </div>
 
-/* ========= Helpers / Parsing ========= */
-function num(v){
-  if(v === null || v === undefined) return null;
-  if(typeof v === 'number') return isFinite(v) ? v : null;
-  const s = String(v).trim().replace(/\s/g,'').replace(',', '.');
-  if(!s) return null;
-  const x = Number(s);
-  return isFinite(x) ? x : null;
-}
+        <div class="actions">
+          <button class="btn primary" type="button" id="btnCalc" data-i18n="btnCalc">Spočítat</button>
+          <button class="btn ghost" type="button" id="btnSave" data-i18n="btnSave">Uložit do Watchlistu</button>
+          <button class="btn" type="button" id="btnPDF" data-i18n="btnPDF">PDF (tisk)</button>
+        </div>
 
-function fmtMoney(x, decimals=0){
-  if(x === null || x === undefined || !isFinite(Number(x))) return "–";
-  const n = Number(x);
-  return n.toLocaleString(LANG==='cs' ? 'cs-CZ' : 'en-US', {
-    maximumFractionDigits: decimals,
-    minimumFractionDigits: decimals
-  }) + " " + CCY;
-}
+        <div class="resultsBox" id="resultsBox">
+          <div class="sectionTitle" style="margin-bottom:8px">
+            <h2 data-i18n="results">Výsledky</h2>
+            <div class="hint" data-i18n="bbb">Bear / Base / Bull</div>
+          </div>
+          <div id="resultsInner" class="empty" data-i18n="emptyRes">Zatím nic. Vyplň vstupy a klikni na „Spočítat“.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-function fmtPct(x, decimals=1){
-  if(x === null || x === undefined || !isFinite(Number(x))) return "–";
-  const n = Number(x);
-  return n.toLocaleString(LANG==='cs' ? 'cs-CZ' : 'en-US', {
-    maximumFractionDigits: decimals,
-    minimumFractionDigits: decimals
-  }) + "%";
-}
+  <!-- SCREEN: WATCHLIST -->
+  <section class="screen" id="screenWatch" aria-hidden="true">
+    <div class="screenTop">
+      <div class="screenTopIn">
+        <button class="backBtn" type="button" id="backFromWatch" data-i18n="back">Zpět</button>
+        <div class="screenTitle" data-i18n="navWatch">Watchlist</div>
+        <div style="width:88px"></div>
+      </div>
+    </div>
 
-function escapeHtml(s){
-  return String(s)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;");
-}
+    <div class="content">
+      <div class="card">
+        <div class="sectionTitle">
+          <h2 data-i18n="saved">Uložené</h2>
+          <div class="hint" data-i18n="hintWatch">Klikni na položku pro načtení zpět.</div>
+        </div>
+        <div id="watchBox"></div>
+      </div>
+    </div>
+  </section>
 
-/* ========= DCF Core ========= */
-function dcfScenario({fcf, g, years, r, tg}){
-  const N = years;
-  let pv = 0;
-  for(let t=1; t<=N; t++){
-    const fcf_t = fcf * Math.pow(1+g, t);
-    pv += fcf_t / Math.pow(1+r, t);
-  }
-  const fcfN1 = fcf * Math.pow(1+g, N+1);
-  const tv = fcfN1 / Math.max(1e-9, (r - tg));
-  const pvTV = tv / Math.pow(1+r, N);
-  return { ev: pv + pvTV, pvFCF: pv, pvTV };
-}
+  <!-- MODAL -->
+  <div class="modalBack" id="modalBack" onclick="closeModalFromBg(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalTop">
+        <div class="modalTitle" id="modalTitle">Info</div>
+        <button class="x" type="button" onclick="closeModal()">×</button>
+      </div>
+      <div class="modalBody" id="modalBody"></div>
+    </div>
+  </div>
 
-function calcDCF(){
-  try{
-    const ticker = document.getElementById('inp_ticker').value.trim();
-    const fcf = num(document.getElementById('inp_fcf').value);
-    const years = num(document.getElementById('inp_years').value);
-    const waccPct = num(document.getElementById('inp_wacc').value);
-    const tgPct = num(document.getElementById('inp_tg').value);
-    const netDebt = num(document.getElementById('inp_netDebt').value) ?? 0;
-    const shares = num(document.getElementById('inp_shares').value);
-    const price = num(document.getElementById('inp_price').value);
+  <script>
+    /* ===================== STATE ===================== */
+    const STORE_KEY = "equity_analyzer_watchlist_v2";
+    let LANG = "cs"; // cs | en
+    let CCY  = "USD"; // USD | EUR
+    let LAST = null;
 
-    const bearG = num(document.getElementById('inp_bear').value);
-    const baseG = num(document.getElementById('inp_base').value);
-    const bullG = num(document.getElementById('inp_bull').value);
+    /* ===================== i18n strings ===================== */
+    const UI = {
+      cs: {
+        h1:"Analýza akcií – DCF",
+        sub:"Rychlý odhad férové ceny přes jednoduchý DCF + Watchlist.",
+        lang:"Jazyk",
+        ccy:"Měna",
+        navDCF:"DCF",
+        navWatch:"Watchlist",
+        tagCalc:"Výpočet",
+        tagSaved:"Uložené",
+        back:"Zpět",
 
-    if(fcf === null || years === null || waccPct === null || tgPct === null || bearG===null || baseG===null || bullG===null){
-      openModal(t('err'), t('errMsg'));
-      return;
-    }
+        inputs:"Vstupy",
+        hintQ:"Klikni na “?” pro vysvětlivku.",
+        ticker:"Ticker / Název",
+        fcf:"Poslední roční FCF",
+        years:"Počet let projekce",
+        wacc:"Diskontní sazba (WACC / r) %",
+        tg:"Terminal growth %",
+        netdebt:"Net debt / cash úprava",
+        shares:"Počet akcií (shares outstanding)",
+        price:"Aktuální cena (volitelné)",
+        gBear:"Růst FCF Bear %",
+        gBase:"Růst FCF Base %",
+        gBull:"Růst FCF Bull %",
+        btnCalc:"Spočítat",
+        btnSave:"Uložit do Watchlistu",
+        btnPDF:"PDF (tisk)",
 
-    const r = waccPct / 100;
-    const tg = tgPct / 100;
+        results:"Výsledky",
+        bbb:"Bear / Base / Bull",
+        emptyRes:"Zatím nic. Vyplň vstupy a klikni na „Spočítat“.",
 
-    const resBear = dcfScenario({ fcf, g: bearG/100, years: Math.max(1, Math.round(years)), r, tg });
-    const resBase = dcfScenario({ fcf, g: baseG/100, years: Math.max(1, Math.round(years)), r, tg });
-    const resBull = dcfScenario({ fcf, g: bullG/100, years: Math.max(1, Math.round(years)), r, tg });
+        saved:"Uložené",
+        hintWatch:"Klikni na položku pro načtení zpět.",
+        emptyWatch:"Zatím tu nic není. Ulož výpočet z DCF.",
 
-    const toEquity = (ev) => ev - (netDebt ?? 0);
+        mSavedTitle:"Uloženo",
+        mSavedBody:"<p>Výpočet byl uložen do Watchlistu.</p>",
+        mNeedCalcTitle:"Nelze uložit",
+        mNeedCalcBody:"<p>Nejdřív klikni na <b>Spočítat</b>, ať máme výsledky.</p>",
+        mBadInputTitle:"Chybí vstupy",
+        mBadInputBody:"<p>Zkontroluj prosím, že máš vyplněné: FCF, roky, WACC, terminal growth, shares.</p>",
+        mLoadedTitle:"Načteno",
+        mLoadedBody:"<p>Načetl jsem položku z Watchlistu do DCF formuláře.</p>",
 
-    const eqBear = toEquity(resBear.ev);
-    const eqBase = toEquity(resBase.ev);
-    const eqBull = toEquity(resBull.ev);
+        lblBear:"Bear",
+        lblBase:"Base",
+        lblBull:"Bull",
+        lblFairPS:"Férová cena / akcii",
+        lblEquity:"Equity value",
+        lblEV:"Enterprise value",
+        lblPrice:"Cena",
+        lblVs:"vs. cena",
 
-    const fairPS = (eq) => (shares && shares>0) ? (eq / shares) : null;
-
-    LAST = {
-      ts: Date.now(),
-      ccy: CCY,
-      lang: LANG,
-      ticker,
-      inputs: {
-        fcf, years: Math.max(1, Math.round(years)),
-        waccPct, tgPct, netDebt, shares, price,
-        bearG, baseG, bullG
+        del:"Smazat",
+        pdf:"PDF",
       },
-      out: {
-        ev: { bear: resBear.ev, base: resBase.ev, bull: resBull.ev },
-        eq: { bear: eqBear, base: eqBase, bull: eqBull },
-        ps: { bear: fairPS(eqBear), base: fairPS(eqBase), bull: fairPS(eqBull) }
+      en: {
+        h1:"Equity Analyzer – DCF",
+        sub:"Quick fair value estimate using a simple DCF + Watchlist.",
+        lang:"Language",
+        ccy:"Currency",
+        navDCF:"DCF",
+        navWatch:"Watchlist",
+        tagCalc:"Calculator",
+        tagSaved:"Saved",
+        back:"Back",
+
+        inputs:"Inputs",
+        hintQ:"Tap “?” for an explanation.",
+        ticker:"Ticker / Name",
+        fcf:"Last annual FCF",
+        years:"Projection years",
+        wacc:"Discount rate (WACC / r) %",
+        tg:"Terminal growth %",
+        netdebt:"Net debt / cash adjustment",
+        shares:"Shares outstanding",
+        price:"Current price (optional)",
+        gBear:"FCF growth Bear %",
+        gBase:"FCF growth Base %",
+        gBull:"FCF growth Bull %",
+        btnCalc:"Calculate",
+        btnSave:"Save to Watchlist",
+        btnPDF:"PDF (print)",
+
+        results:"Results",
+        bbb:"Bear / Base / Bull",
+        emptyRes:"Nothing yet. Fill inputs and tap “Calculate”.",
+
+        saved:"Saved",
+        hintWatch:"Tap an item to load it back.",
+        emptyWatch:"No items yet. Save a DCF calculation.",
+
+        mSavedTitle:"Saved",
+        mSavedBody:"<p>Saved into Watchlist.</p>",
+        mNeedCalcTitle:"Cannot save",
+        mNeedCalcBody:"<p>Please tap <b>Calculate</b> first so we have results.</p>",
+        mBadInputTitle:"Missing inputs",
+        mBadInputBody:"<p>Please check you filled: FCF, years, WACC, terminal growth, shares.</p>",
+        mLoadedTitle:"Loaded",
+        mLoadedBody:"<p>Loaded Watchlist item into the DCF form.</p>",
+
+        lblBear:"Bear",
+        lblBase:"Base",
+        lblBull:"Bull",
+        lblFairPS:"Fair value / share",
+        lblEquity:"Equity value",
+        lblEV:"Enterprise value",
+        lblPrice:"Price",
+        lblVs:"vs. price",
+
+        del:"Delete",
+        pdf:"PDF",
       }
     };
 
-    renderResults(LAST);
+    const HELP = {
+      ticker: {
+        cs: { title:"Ticker / Název", body:`<p><b>Ticker</b> je zkratka akcie (např. AAPL). Můžeš vyplnit i název firmy.</p>`},
+        en: { title:"Ticker / Name", body:`<p><b>Ticker</b> is the stock symbol (e.g., AAPL). You can also type the company name.</p>`}
+      },
+      fcf: {
+        cs: { title:"FCF (Free Cash Flow)", body:`<p><b>FCF</b> = volné cash flow za poslední rok (stejná měna jako přepínač).</p><p>Tip: vezmi poslední roční FCF z cash-flow výkazu.</p>`},
+        en: { title:"FCF (Free Cash Flow)", body:`<p><b>FCF</b> is last year's free cash flow (same currency as the toggle).</p><p>Tip: use the latest annual FCF from the cash-flow statement.</p>`}
+      },
+      growth: {
+        cs: { title:"Růst FCF (Bear/Base/Bull)", body:`<p>Očekávaný roční růst FCF v projekci.</p><ul><li><b>Bear</b> = konzervativní</li><li><b>Base</b> = realistický</li><li><b>Bull</b> = optimistický</li></ul>`},
+        en: { title:"FCF growth (Bear/Base/Bull)", body:`<p>Expected annual FCF growth during the projection period.</p><ul><li><b>Bear</b> = conservative</li><li><b>Base</b> = realistic</li><li><b>Bull</b> = optimistic</li></ul>`}
+      },
+      years: {
+        cs: { title:"Počet let projekce", body:`<p>Kolik let dopředu projektujeme FCF. Typicky 5–10.</p>`},
+        en: { title:"Projection years", body:`<p>How many years you project FCF into the future. Typically 5–10.</p>`}
+      },
+      wacc: {
+        cs: { title:"Diskontní sazba", body:`<p>Požadovaný výnos (WACC / r). Vyšší sazba = nižší férová hodnota.</p><p>U tebe typicky kolem <b>9 %</b>.</p>`},
+        en: { title:"Discount rate", body:`<p>Required return (WACC / r). Higher rate = lower fair value.</p><p>You mentioned using around <b>9%</b>.</p>`}
+      },
+      tg: {
+        cs: { title:"Terminal growth", body:`<p>Dlouhodobý růst po skončení projekce (Gordon model).</p><p>Neměl by dlouhodobě výrazně převyšovat růst ekonomiky (typicky 2–3%).</p>`},
+        en: { title:"Terminal growth", body:`<p>Long-term growth after the projection period (Gordon model).</p><p>Usually ~2–3%.</p>`}
+      },
+      netDebt: {
+        cs: { title:"Net debt / cash úprava", body:`<p>Pokud počítáš <b>Enterprise Value</b>, na equity se dostaneš: <b>Equity = EV − Net Debt</b>.</p><p>Má-li firma čistou hotovost, dej sem záporné číslo.</p>`},
+        en: { title:"Net debt / cash adjustment", body:`<p>If you compute <b>Enterprise Value</b>, then: <b>Equity = EV − Net Debt</b>.</p><p>If the company has net cash, enter a negative number.</p>`}
+      },
+      shares: {
+        cs: { title:"Počet akcií", body:`<p>Shares outstanding. Férová cena = Equity / Shares.</p>`},
+        en: { title:"Shares outstanding", body:`<p>Shares outstanding. Fair value per share = Equity / Shares.</p>`}
+      },
+      price: {
+        cs: { title:"Aktuální cena", body:`<p>Volitelné. Pokud ji vyplníš, ukážeme štítek, zda je férová cena nad/pod cenou.</p>`},
+        en: { title:"Current price", body:`<p>Optional. If filled, we show whether fair value is above/below price.</p>`}
+      }
+    };
 
-    const d = document.getElementById('drawerDCF');
-    if(d && !d.classList.contains('open')) d.classList.add('open');
-  }catch(e){
-    openModal(t('err'), t('errMsg'));
-  }
-}
+    function t(key){ return (UI[LANG] && UI[LANG][key]) ? UI[LANG][key] : key; }
 
-function renderResults(res){
-  const box = document.getElementById('resultsBox');
-  if(!box) return;
-
-  if(!res){
-    box.innerHTML = `<div class="empty" id="t_resultsEmpty">${escapeHtml(t('resultsEmpty'))}</div>`;
-    return;
-  }
-
-  const prevCcy = CCY;
-  CCY = res.ccy || prevCcy;
-
-  const price = (res.inputs && res.inputs.price != null) ? Number(res.inputs.price) : null;
-  const shares = (res.inputs && res.inputs.shares != null) ? Number(res.inputs.shares) : null;
-  const hasPS = !!(shares && isFinite(shares) && shares > 0);
-
-  const badge = (fair) => {
-    if(price === null || !isFinite(price) || fair === null || !isFinite(fair) || price<=0)
-      return `<span class="chip">${escapeHtml(t('discount'))}: –</span>`;
-    const diff = (fair - price) / price * 100;
-    const sign = diff >= 0 ? "+" : "";
-    let cls = "warn";
-    if(diff >= 15) cls = "good";
-    if(diff <= -15) cls = "bad";
-    const label = diff >= 0 ? t('upside') : t('downside');
-    return `<span class="chip ${cls}">${escapeHtml(label)}: ${escapeHtml(sign + fmtPct(diff,1))}</span>`;
-  };
-
-  function card(label, fairPS, ev, eq){
-    const big = hasPS ? fmtMoney(fairPS, 2) : fmtMoney(eq, 0);
-    let sub = "";
-    if(hasPS){
-      sub += `<div>${escapeHtml(t('equityValue'))}: <b>${escapeHtml(fmtMoney(eq,0))}</b></div>`;
-      sub += `<div>${escapeHtml(t('evValue'))}: <b>${escapeHtml(fmtMoney(ev,0))}</b></div>`;
-      if(price !== null && isFinite(price)) sub += `<div>${escapeHtml(t('lblPriceLine'))}<b>${escapeHtml(fmtMoney(price,2))}</b></div>`;
-    }else{
-      sub += `<div class="resSub">${escapeHtml(t('noteNoShares'))}</div>`;
-      sub += `<div class="resSub">${escapeHtml(t('equityValue'))}: <b>${escapeHtml(fmtMoney(eq,0))}</b></div>`;
-      sub += `<div class="resSub">${escapeHtml(t('evValue'))}: <b>${escapeHtml(fmtMoney(ev,0))}</b></div>`;
+    /* ===================== helpers ===================== */
+    function parseNum(v){
+      if(v === null || v === undefined) return null;
+      const s = String(v).trim().replace(/\s+/g,"").replace(",",".");
+      if(!s) return null;
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    }
+    function moneyFmt(){
+      return new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+        style:"currency",
+        currency: CCY,
+        maximumFractionDigits: 0
+      });
+    }
+    function moneyFmt2(){
+      return new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+        style:"currency",
+        currency: CCY,
+        maximumFractionDigits: 2
+      });
+    }
+    function numFmt2(){
+      return new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", { maximumFractionDigits: 2 });
+    }
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;");
     }
 
-    const chip = hasPS ? badge(fairPS) : `<span class="chip">${escapeHtml(t('equityValue'))}</span>`;
+    /* ===================== modal ===================== */
+    function openModal(title, html){
+      const back = document.getElementById("modalBack");
+      const tt = document.getElementById("modalTitle");
+      const bb = document.getElementById("modalBody");
+      if(!back || !tt || !bb) return;
+      tt.textContent = title;
+      bb.innerHTML = html;
+      back.classList.add("show");
+    }
+    function closeModal(){
+      const back = document.getElementById("modalBack");
+      if(back) back.classList.remove("show");
+    }
+    function closeModalFromBg(e){
+      if(e && e.target && e.target.id === "modalBack") closeModal();
+    }
+    function help(key){
+      const item = HELP[key];
+      if(!item){ openModal("Help", "<p>No help.</p>"); return; }
+      const x = item[LANG] || item.cs;
+      openModal(x.title, x.body);
+    }
 
-    return `
-      <div class="resCard">
-        <div class="resTop">
-          <div class="resLabel">${escapeHtml(label)}</div>
-          ${chip}
-        </div>
-        <div class="resValue">${escapeHtml(big)}</div>
-        <div class="resSub">${hasPS ? escapeHtml(t('fairPerShare')) : ""}</div>
-        <div class="resSub">${sub}</div>
-      </div>
-    `;
-  }
+    /* ===================== navigation (2 screens) ===================== */
+    function showScreen(name){
+      const dcf = document.getElementById("screenDCF");
+      const w   = document.getElementById("screenWatch");
+      if(name === "dcf"){
+        dcf.classList.add("active");
+        dcf.setAttribute("aria-hidden","false");
+        w.classList.remove("active");
+        w.setAttribute("aria-hidden","true");
+      } else if(name === "watch"){
+        w.classList.add("active");
+        w.setAttribute("aria-hidden","false");
+        dcf.classList.remove("active");
+        dcf.setAttribute("aria-hidden","true");
+        renderWatchlist();
+      } else {
+        dcf.classList.remove("active");
+        dcf.setAttribute("aria-hidden","true");
+        w.classList.remove("active");
+        w.setAttribute("aria-hidden","true");
+      }
+      window.scrollTo({top:0, behavior:"instant"});
+    }
 
-  const out = res.out;
-  box.innerHTML = `
-    <div class="resultsGrid">
-      ${card("Bear", out.ps.bear, out.ev.bear, out.eq.bear)}
-      ${card("Base", out.ps.base, out.ev.base, out.eq.base)}
-      ${card("Bull", out.ps.bull, out.ev.bull, out.eq.bull)}
-    </div>
-  `;
+    /* ===================== DCF ===================== */
+    function calcScenario(fcf0, years, r, g, tg){
+      let pvSum = 0;
+      let fcf = fcf0;
+      for(let i=1;i<=years;i++){
+        fcf = fcf * (1 + g);
+        pvSum += fcf / Math.pow(1 + r, i);
+      }
+      const fcfN = fcf;
+      const denom = (r - tg);
+      const tv = denom > 0 ? (fcfN * (1 + tg) / denom) : NaN;
+      const pvTv = tv / Math.pow(1 + r, years);
+      const ev = pvSum + pvTv;
+      return { ev, pvSum, tv, pvTv };
+    }
 
-  CCY = prevCcy;
-}
+    function computeDCF(){
+      const ticker = document.getElementById("inp_ticker")?.value?.trim() || "";
+      const fcf   = parseNum(document.getElementById("inp_fcf")?.value);
+      const years = parseNum(document.getElementById("inp_years")?.value);
+      const waccP = parseNum(document.getElementById("inp_wacc")?.value);
+      const tgP   = parseNum(document.getElementById("inp_tg")?.value);
+      const netd  = parseNum(document.getElementById("inp_netdebt")?.value) ?? 0;
+      const shares= parseNum(document.getElementById("inp_shares")?.value);
+      const price = parseNum(document.getElementById("inp_price")?.value);
 
-/* ========= Watchlist (localStorage) ========= */
-function loadWatch(){
-  try{
-    const raw = localStorage.getItem(STORE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
-  }catch{
-    return [];
-  }
-}
+      const gBearP = parseNum(document.getElementById("inp_bear")?.value);
+      const gBaseP = parseNum(document.getElementById("inp_base")?.value);
+      const gBullP = parseNum(document.getElementById("inp_bull")?.value);
 
-function saveWatch(arr){
-  localStorage.setItem(STORE_KEY, JSON.stringify(arr));
-}
+      if(fcf===null || years===null || waccP===null || tgP===null || shares===null){
+        openModal(t("mBadInputTitle"), t("mBadInputBody"));
+        return null;
+      }
 
-function addToWatchlist(item){
-  const arr = loadWatch();
-  arr.unshift(item);
-  saveWatch(arr);
-  renderWatchlist();
-}
+      const r  = waccP / 100;
+      const tg = tgP / 100;
+      const gBear = (gBearP ?? 0) / 100;
+      const gBase = (gBaseP ?? 0) / 100;
+      const gBull = (gBullP ?? 0) / 100;
 
-function removeFromWatchlist(idx){
-  const arr = loadWatch();
-  arr.splice(idx, 1);
-  saveWatch(arr);
-  renderWatchlist();
-  openModal(t('removed'), t('removedMsg'));
-}
+      const sBear = calcScenario(fcf, years, r, gBear, tg);
+      const sBase = calcScenario(fcf, years, r, gBase, tg);
+      const sBull = calcScenario(fcf, years, r, gBull, tg);
 
-function loadItem(idx){
-  const arr = loadWatch();
-  const it = arr[idx];
-  if(!it) return;
+      function toFair(s){
+        const ev = s.ev;
+        const eq = ev - netd;
+        const fair = eq / shares;
+        return { fair, ev, eq };
+      }
 
-  if(it.ccy) setCcy(it.ccy);
+      const oBear = toFair(sBear);
+      const oBase = toFair(sBase);
+      const oBull = toFair(sBull);
 
-  document.getElementById('inp_ticker').value = it.ticker || "";
-  document.getElementById('inp_fcf').value = it.inputs?.fcf ?? "";
-  document.getElementById('inp_years').value = it.inputs?.years ?? 10;
-  document.getElementById('inp_wacc').value = it.inputs?.waccPct ?? 9;
-  document.getElementById('inp_tg').value = it.inputs?.tgPct ?? 2.5;
-  document.getElementById('inp_netDebt').value = it.inputs?.netDebt ?? 0;
-  document.getElementById('inp_shares').value = it.inputs?.shares ?? "";
-  document.getElementById('inp_price').value = it.inputs?.price ?? "";
-  document.getElementById('inp_bear').value = it.inputs?.bearG ?? 4;
-  document.getElementById('inp_base').value = it.inputs?.baseG ?? 8;
-  document.getElementById('inp_bull').value = it.inputs?.bullG ?? 12;
+      const inputs = { ticker, fcf, years, waccP, tgP, netd, shares, price, gBearP, gBaseP, gBullP };
+      const res = {
+        bear:oBear.fair, base:oBase.fair, bull:oBull.fair,
+        evBear:oBear.ev, evBase:oBase.ev, evBull:oBull.ev,
+        eqBear:oBear.eq, eqBase:oBase.eq, eqBull:oBull.eq,
+        price: (price ?? null),
+        ccy: CCY,
+        lang: LANG,
+        inputs
+      };
 
-  LAST = it;
+      LAST = res;
+      renderResults(res);
+      return res;
+    }
 
-  document.getElementById('drawerDCF').classList.add('open');
-  document.getElementById('drawerWATCH').classList.remove('open');
+    function badgeForFair(fair, price){
+      if(price === null || price === undefined) return "";
+      const p = Number(price), f = Number(fair);
+      if(!isFinite(p) || !isFinite(f) || p<=0) return "";
+      const diff = (f - p) / p * 100;
+      const sign = diff >= 0 ? "+" : "";
+      if(diff >= 10) return `<span class="chip good">${sign}${numFmt2().format(diff)}%</span>`;
+      if(diff <= -10) return `<span class="chip bad">${sign}${numFmt2().format(diff)}%</span>`;
+      return `<span class="chip warn">${sign}${numFmt2().format(diff)}%</span>`;
+    }
 
-  renderResults(LAST);
-  openModal(t('loaded'), t('loadedMsg'));
-}
+    function renderResults(res){
+      const box = document.getElementById("resultsInner");
+      if(!box) return;
 
-function renderWatchlist(){
-  const box = document.getElementById('watchBox');
-  if(!box) return;
+      const mf0 = moneyFmt();
+      const mf2 = moneyFmt2();
+      const price = res.price ?? null;
 
-  const arr = loadWatch();
-  if(!arr.length){
-    box.innerHTML = `<div class="empty">${escapeHtml(t('emptyWatch'))}</div>`;
-    return;
-  }
-
-  box.innerHTML = arr.map((it, i) => {
-    const title = escapeHtml(it.ticker || "—");
-    const dt = it.ts ? new Date(it.ts) : null;
-    const when = dt ? dt.toLocaleString(LANG==='cs' ? 'cs-CZ' : 'en-US') : "";
-    const ccy = it.ccy || CCY;
-
-    const prev = CCY;
-    CCY = ccy;
-
-    const hasPS = it.inputs?.shares && isFinite(Number(it.inputs.shares)) && Number(it.inputs.shares) > 0;
-    const bear = hasPS ? fmtMoney(it.out?.ps?.bear, 2) : fmtMoney(it.out?.eq?.bear, 0);
-    const base = hasPS ? fmtMoney(it.out?.ps?.base, 2) : fmtMoney(it.out?.eq?.base, 0);
-    const bull = hasPS ? fmtMoney(it.out?.ps?.bull, 2) : fmtMoney(it.out?.eq?.bull, 0);
-
-    CCY = prev;
-
-    return `
-      <div class="watchItem">
-        <div class="watchMain" onclick="loadItem(${i})" title="${title}">
-          <div class="watchTitle">${title}</div>
-          <div class="watchSub">
-            <span>${escapeHtml(when)}</span>
-            <span>•</span>
-            <span>${escapeHtml(ccy)}</span>
+      function card(label, fair, ev, eq){
+        const chip = badgeForFair(fair, price);
+        const sub = (price!==null && isFinite(Number(price)))
+          ? `<div style="margin-top:8px;color:rgba(255,255,255,.82);font-weight:900;font-size:12px">
+               ${escapeHtml(t("lblPrice"))}: ${escapeHtml(mf2.format(price))} <span style="opacity:.7">${escapeHtml(t("lblVs"))}</span>
+             </div>`
+          : "";
+        return `
+          <div class="resCard">
+            <div class="resTop">
+              <div class="resLabel">${escapeHtml(label)}</div>
+              ${chip}
+            </div>
+            <div class="resValue">${escapeHtml(mf2.format(fair))}</div>
+            <div style="margin-top:10px;color:rgba(234,240,255,.72);font-size:12px;line-height:1.25">
+              <div>${escapeHtml(t("lblEV"))}: <b style="color:#fff">${escapeHtml(mf0.format(ev))}</b></div>
+              <div>${escapeHtml(t("lblEquity"))}: <b style="color:#fff">${escapeHtml(mf0.format(eq))}</b></div>
+              ${sub}
+            </div>
           </div>
-          <div class="watchVals">
-            <span>Bear: <b>${escapeHtml(bear)}</b></span>
-            <span>Base: <b>${escapeHtml(base)}</b></span>
-            <span>Bull: <b>${escapeHtml(bull)}</b></span>
+        `;
+      }
+
+      box.className = "resultsGrid";
+      box.innerHTML = `
+        ${card(t("lblBear"), res.bear, res.evBear, res.eqBear)}
+        ${card(t("lblBase"), res.base, res.evBase, res.eqBase)}
+        ${card(t("lblBull"), res.bull, res.evBull, res.eqBull)}
+      `;
+    }
+
+    /* ===================== watchlist ===================== */
+    function loadWatch(){
+      try{
+        const raw = localStorage.getItem(STORE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch{
+        return [];
+      }
+    }
+    function saveWatch(arr){
+      localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+    }
+
+    function saveCurrent(){
+      if(!LAST){
+        openModal(t("mNeedCalcTitle"), t("mNeedCalcBody"));
+        return;
+      }
+      const item = {
+        ts: Date.now(),
+        ticker: (LAST.inputs.ticker || "").trim(),
+        ccy: CCY,
+        inputs: LAST.inputs,
+        results: {
+          bear: LAST.bear, base: LAST.base, bull: LAST.bull,
+          evBear: LAST.evBear, evBase: LAST.evBase, evBull: LAST.evBull,
+          eqBear: LAST.eqBear, eqBase: LAST.eqBase, eqBull: LAST.eqBull,
+          price: LAST.price ?? null
+        }
+      };
+      const arr = loadWatch();
+      arr.unshift(item);
+      saveWatch(arr);
+      openModal(t("mSavedTitle"), t("mSavedBody"));
+    }
+
+    function removeFromWatch(idx){
+      const arr = loadWatch();
+      arr.splice(idx, 1);
+      saveWatch(arr);
+      renderWatchlist();
+    }
+
+    function setVal(id, v){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.value = (v === null || v === undefined) ? "" : String(v);
+    }
+
+    function loadItem(idx){
+      const arr = loadWatch();
+      const it = arr[idx];
+      if(!it) return;
+
+      // set currency to saved ccy (no conversion)
+      CCY = it.ccy || CCY;
+      applyCcyButtons();
+
+      const inp = it.inputs || {};
+      setVal("inp_ticker", inp.ticker);
+      setVal("inp_fcf", inp.fcf);
+      setVal("inp_years", inp.years);
+      setVal("inp_wacc", inp.waccP);
+      setVal("inp_tg", inp.tgP);
+      setVal("inp_netdebt", inp.netd);
+      setVal("inp_shares", inp.shares);
+      setVal("inp_price", inp.price ?? "");
+      setVal("inp_bear", inp.gBearP ?? "");
+      setVal("inp_base", inp.gBaseP ?? "");
+      setVal("inp_bull", inp.gBullP ?? "");
+
+      showScreen("dcf");
+      const r = computeDCF();
+      if(r) openModal(t("mLoadedTitle"), t("mLoadedBody"));
+    }
+
+    function renderWatchlist(){
+      const box = document.getElementById("watchBox");
+      if(!box) return;
+      const arr = loadWatch();
+      if(!arr.length){
+        box.innerHTML = `<div class="empty">${t("emptyWatch")}</div>`;
+        return;
+      }
+
+      const dateFmt = new Intl.DateTimeFormat(LANG === "cs" ? "cs-CZ" : "en-US", { dateStyle:"medium" });
+
+      box.innerHTML = arr.map((it, i) => {
+        const mf2 = new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+          style:"currency",
+          currency: it.ccy || CCY,
+          maximumFractionDigits: 2
+        });
+
+        const title = escapeHtml(it.ticker || "—");
+        const dt = it.ts ? dateFmt.format(new Date(it.ts)) : "";
+        const ccy = escapeHtml(it.ccy || "");
+        const b = it.results?.bear, ba = it.results?.base, bu = it.results?.bull;
+
+        return `
+          <div class="watchItem">
+            <div class="watchMain" onclick="loadItem(${i})">
+              <div class="watchTitle">${title}</div>
+              <div class="watchSub">
+                <span>${escapeHtml(dt)}</span>
+                <span class="chip">${ccy}</span>
+              </div>
+              <div class="watchVals">
+                <span>${escapeHtml(t("lblBear"))}: <b>${escapeHtml(mf2.format(b))}</b></span>
+                <span>${escapeHtml(t("lblBase"))}: <b>${escapeHtml(mf2.format(ba))}</b></span>
+                <span>${escapeHtml(t("lblBull"))}: <b>${escapeHtml(mf2.format(bu))}</b></span>
+              </div>
+            </div>
+            <div class="watchBtns">
+              <button class="btnMini" type="button" onclick="event.stopPropagation(); pdfFromWatch(${i});">${t("pdf")}</button>
+              <button class="btnMini danger" type="button" onclick="event.stopPropagation(); removeFromWatch(${i});">${t("del")}</button>
+            </div>
           </div>
-        </div>
-        <div class="watchBtns">
-          <button class="btn btnSmall" onclick="event.stopPropagation(); loadItem(${i});">${escapeHtml(t('load'))}</button>
-          <button class="btn btnSmall btnGhost" onclick="event.stopPropagation(); exportItemPDF(${i});">${escapeHtml(t('pdf'))}</button>
-          <button class="btn btnSmall btnDanger" onclick="event.stopPropagation(); removeFromWatchlist(${i});">${escapeHtml(t('del'))}</button>
+        `;
+      }).join("");
+    }
+
+   /* ===================== PDF ===================== */
+    function buildPdfHtml(item){
+      const cc = item.ccy || CCY;
+
+      const mf0 = new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+        style:"currency", currency: cc, maximumFractionDigits: 0
+      });
+      const mf2 = new Intl.NumberFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+        style:"currency", currency: cc, maximumFractionDigits: 2
+      });
+
+      const dt = item.ts ? new Date(item.ts) : new Date();
+      const dateFmt = new Intl.DateTimeFormat(LANG === "cs" ? "cs-CZ" : "en-US", {
+        dateStyle:"medium", timeStyle:"short"
+      });
+
+      const inp = item.inputs || {};
+      const res = item.results || {};
+
+      const rows = [
+        [t("ticker"), inp.ticker || item.ticker || "—"],
+        [t("ccy"), cc],
+        [t("fcf"), inp.fcf != null ? mf0.format(inp.fcf) : "—"],
+        [t("years"), inp.years != null ? String(inp.years) : "—"],
+        [t("wacc"), inp.waccP != null ? (String(inp.waccP) + " %") : "—"],
+        [t("tg"), inp.tgP != null ? (String(inp.tgP) + " %") : "—"],
+        [t("netdebt"), inp.netd != null ? mf0.format(inp.netd) : "—"],
+        [t("shares"), inp.shares != null ? String(inp.shares) : "—"],
+        [t("price"), (inp.price != null && inp.price !== "") ? mf2.format(inp.price) : "—"],
+        [t("gBear"), inp.gBearP != null ? (String(inp.gBearP) + " %") : "—"],
+        [t("gBase"), inp.gBaseP != null ? (String(inp.gBaseP) + " %") : "—"],
+        [t("gBull"), inp.gBullP != null ? (String(inp.gBullP) + " %") : "—"],
+      ];
+
+      return `
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>DCF report</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;color:#111}
+    h1{margin:0 0 4px 0}
+    .muted{color:#555;margin:0 0 18px 0}
+    .box{border:1px solid #ddd;border-radius:14px;padding:14px;margin:14px 0}
+    table{width:100%;border-collapse:collapse}
+    td{padding:8px 6px;border-bottom:1px solid #eee;vertical-align:top}
+    td:first-child{width:240px;color:#444;font-weight:700}
+    .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .car{border:1px solid #ddd;border-radius:14px;padding:12px}
+    .label{font-weight:900}
+    .value{font-size:22px;font-weight:1000;margin-top:6px}
+    .small{color:#555;font-size:12px;margin-top:6px;line-height:1.25}
+    @media print{button{display:none}}
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(item.ticker || inp.ticker || "—")} – DCF</h1>
+  <p class="muted">${escapeHtml(dateFmt.format(dt))}</p>
+
+  <div class="box">
+    <h3 style="margin:0 0 10px 0">${escapeHtml(t("inputs"))}</h3>
+    <table>
+      ${rows.map(r => `<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(String(r[1]))}</td></tr>`).join("")}
+    </table>
+  </div>
+
+  <div class="box">
+    <h3 style="margin:0 0 10px 0">${escapeHtml(t("results"))}</h3>
+    <div class="grid">
+      <div class="car">
+        <div class="label">${escapeHtml(t("lblBear"))}</div>
+        <div class="value">${escapeHtml(mf2.format(res.bear))}</div>
+        <div class="small">
+          ${escapeHtml(t("lblEV"))}: <b>${escapeHtml(mf0.format(res.evBear))}</b><br/>
+          ${escapeHtml(t("lblEquity"))}: <b>${escapeHtml(mf0.format(res.eqBear))}</b>
         </div>
       </div>
-    `;
-  }).join("");
-}
-
-function saveCurrent(){
-  if(!LAST){
-    openModal(t('cannotSave'), t('needCalc'));
-    return;
-  }
-  addToWatchlist(LAST);
-  openModal(t('saved'), `<p><b>${escapeHtml(LAST.ticker || "—")}</b> — ${escapeHtml(t('saved'))}.</p>`);
-}
-
-/* ========= PDF Export (Print-to-PDF) ========= */
-function buildReportHTML(item){
-  const prevLang = LANG;
-  const prevCcy = CCY;
-
-  LANG = item.lang || LANG;
-  CCY = item.ccy || CCY;
-
-  const hasPS = item.inputs?.shares && isFinite(Number(item.inputs.shares)) && Number(item.inputs.shares) > 0;
-
-  const rows = [
-    ["Ticker", item.ticker || "—"],
-    [(LANG==='cs' ? "Měna" : "Currency"), item.ccy || "—"],
-    [(LANG==='cs' ? "FCF" : "FCF"), fmtMoney(item.inputs?.fcf, 0)],
-    [(LANG==='cs' ? "Růst Bear/Base/Bull" : "Growth Bear/Base/Bull"),
-      `${fmtPct(item.inputs?.bearG,1)} / ${fmtPct(item.inputs?.baseG,1)} / ${fmtPct(item.inputs?.bullG,1)}`],
-    [(LANG==='cs' ? "Roky" : "Years"), String(item.inputs?.years ?? "")],
-    [(LANG==='cs' ? "Diskont (WACC)" : "Discount (WACC)"), fmtPct(item.inputs?.waccPct,1)],
-    [(LANG==='cs' ? "Terminal growth" : "Terminal growth"), fmtPct(item.inputs?.tgPct,1)],
-    [(LANG==='cs' ? "Net debt" : "Net debt"), fmtMoney(item.inputs?.netDebt, 0)],
-    [(LANG==='cs' ? "Shares" : "Shares"), item.inputs?.shares ? item.inputs.shares.toLocaleString() : "—"],
-    [(LANG==='cs' ? "Aktuální cena" : "Current price"), item.inputs?.price ? fmtMoney(item.inputs?.price,2) : "—"]
-  ];
-
-  const bear = hasPS ? fmtMoney(item.out?.ps?.bear, 2) : fmtMoney(item.out?.eq?.bear, 0);
-  const base = hasPS ? fmtMoney(item.out?.ps?.base, 2) : fmtMoney(item.out?.eq?.base, 0);
-  const bull = hasPS ? fmtMoney(item.out?.ps?.bull, 2) : fmtMoney(item.out?.eq?.bull, 0);
-
-  const title = (LANG==='cs' ? "DCF report" : "DCF Report");
-  const subtitle = hasPS ? (LANG==='cs' ? "Férová cena / akcii" : "Fair value per share")
-                         : (LANG==='cs' ? "Equity value" : "Equity value");
-
-  const html = `
-  <!doctype html>
-  <html>
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>${escapeHtml(title)}</title>
-    <style>
-      body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding:24px; color:#111; }
-      h1{ margin:0 0 6px 0; }
-      .muted{ color:#555; margin:0 0 18px 0; }
-      .box{ border:1px solid #ddd; border-radius:14px; padding:14px; margin:14px 0; }
-      table{ width:100%; border-collapse:collapse; }
-      td{ padding:8px 6px; border-bottom:1px solid #eee; vertical-align:top; }
-      td:first-child{ width:240px; color:#444; font-weight:700; }
-      .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
-      .card{ border:1px solid #ddd; border-radius:14px; padding:12px; }
-      .label{ font-weight:900; }
-      .value{ font-size:20px; font-weight:1000; margin-top:6px; }
-      .small{ color:#555; font-size:12px; margin-top:6px; }
-      @media print{ button{ display:none; } }
-    </style>
-  </head>
-  <body>
-    <h1>${escapeHtml(item.ticker || "—")} — ${escapeHtml(title)}</h1>
-    <p class="muted">${escapeHtml(subtitle)} • ${escapeHtml(new Date(item.ts || Date.now()).toLocaleString(LANG==='cs'?'cs-CZ':'en-US'))}</p>
-
-    <div class="box">
-      <h3 style="margin:0 0 10px 0;">${escapeHtml(LANG==='cs' ? "Vstupy" : "Inputs")}</h3>
-      <table>
-        ${rows.map(r => `<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(String(r[1]))}</td></tr>`).join("")}
-      </table>
-    </div>
-
-    <div class="box">
-      <h3 style="margin:0 0 10px 0;">${escapeHtml(LANG==='cs' ? "Výsledky" : "Results")}</h3>
-      <div class="grid">
-        <div class="card"><div class="label">Bear</div><div class="value">${escapeHtml(bear)}</div></div>
-        <div class="card"><div class="label">Base</div><div class="value">${escapeHtml(base)}</div></div>
-        <div class="card"><div class="label">Bull</div><div class="value">${escapeHtml(bull)}</div></div>
+      <div class="car">
+        <div class="label">${escapeHtml(t("lblBase"))}</div>
+        <div class="value">${escapeHtml(mf2.format(res.base))}</div>
+        <div class="small">
+          ${escapeHtml(t("lblEV"))}: <b>${escapeHtml(mf0.format(res.evBase))}</b><br/>
+          ${escapeHtml(t("lblEquity"))}: <b>${escapeHtml(mf0.format(res.eqBase))}</b>
+        </div>
       </div>
-      <div class="small">${escapeHtml(t('printHint'))}</div>
-      <button onclick="window.print()" style="margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid #ddd;background:#f6f6f6;cursor:pointer;font-weight:800;">
-        ${escapeHtml(LANG==='cs' ? "Tisk / Uložit jako PDF" : "Print / Save as PDF")}
-      </button>
+      <div class="car">
+        <div class="label">${escapeHtml(t("lblBull"))}</div>
+        <div class="value">${escapeHtml(mf2.format(res.bull))}</div>
+        <div class="small">
+          ${escapeHtml(t("lblEV"))}: <b>${escapeHtml(mf0.format(res.evBull))}</b><br/>
+          ${escapeHtml(t("lblEquity"))}: <b>${escapeHtml(mf0.format(res.eqBull))}</b>
+        </div>
+      </div>
     </div>
-  </body>
-  </html>
-  `;
+  </div>
 
-  LANG = prevLang;
-  CCY = prevCcy;
-  return html;
-  }
+  <button onclick="window.print()">Print / Save as PDF</button>
+</body>
+</html>
+      `;
+    }
+
+    function openPdf(item){
+      const html = buildPdfHtml(item);
+      const w = window.open("", "_blank");
+      if(!w){
+        openModal("PDF", "<p>Pro otevření PDF povol v prohlížeči vyskakovací okna (popups).</p>");
+        return;
+      }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    }
+
+    function pdfFromCurrent(){
+      if(!LAST){
+        openModal(t("mNeedCalcTitle"), t("mNeedCalcBody"));
+        return;
+      }
+      const item = {
+        ts: Date.now(),
+        ticker: LAST.inputs.ticker || "",
+        ccy: CCY,
+        inputs: LAST.inputs,
+        results: {
+          bear: LAST.bear, base: LAST.base, bull: LAST.bull,
+          evBear: LAST.evBear, evBase: LAST.evBase, evBull: LAST.evBull,
+          eqBear: LAST.eqBear, eqBase: LAST.eqBase, eqBull: LAST.eqBull,
+          price: LAST.price ?? null
+        }
+      };
+      openPdf(item);
+    }
+
+    function pdfFromWatch(idx){
+      const arr = loadWatch();
+      const it = arr[idx];
+      if(!it) return;
+      openPdf(it);
+    }
+
+    /* ===================== apply language/currency ===================== */
+    function applyText(){
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        el.textContent = t(k);
+      });
+
+      // placeholder výsledků
+      const inner = document.getElementById("resultsInner");
+      if(inner && inner.classList.contains("empty")){
+        inner.textContent = t("emptyRes");
+      }
+
+      renderWatchlist();
+      if(LAST) renderResults(LAST);
+    }
+
+    function applyLangButtons(){
+      document.getElementById("btnLangCS")?.classList.toggle("active", LANG==="cs");
+      document.getElementById("btnLangEN")?.classList.toggle("active", LANG==="en");
+    }
+    function applyCcyButtons(){
+      document.getElementById("btnUSD")?.classList.toggle("active", CCY==="USD");
+      document.getElementById("btnEUR")?.classList.toggle("active", CCY==="EUR");
+    }
+
+    /* ===================== events ===================== */
+    function wire(){
+      document.getElementById("openDCF")?.addEventListener("click", () => showScreen("dcf"));
+      document.getElementById("openWatch")?.addEventListener("click", () => showScreen("watch"));
+
+      document.getElementById("backFromDCF")?.addEventListener("click", () => showScreen("home"));
+      document.getElementById("backFromWatch")?.addEventListener("click", () => showScreen("home"));
+
+      document.getElementById("btnLangCS")?.addEventListener("click", () => {
+        LANG = "cs";
+        applyLangButtons();
+        applyText();
+      });
+      document.getElementById("btnLangEN")?.addEventListener("click", () => {
+        LANG = "en";
+        applyLangButtons();
+        applyText();
+      });
+
+      document.getElementById("btnUSD")?.addEventListener("click", () => {
+        CCY = "USD";
+        applyCcyButtons();
+        if(LAST) renderResults(LAST);
+        renderWatchlist();
+      });
+      document.getElementById("btnEUR")?.addEventListener("click", () => {
+        CCY = "EUR";
+        applyCcyButtons();
+        if(LAST) renderResults(LAST);
+        renderWatchlist();
+      });
+
+      document.getElementById("btnCalc")?.addEventListener("click", computeDCF);
+      document.getElementById("btnSave")?.addEventListener("click", saveCurrent);
+      document.getElementById("btnPDF")?.addEventListener("click", pdfFromCurrent);
+
+      // enter = spočítat
+      ["inp_fcf","inp_years","inp_wacc","inp_tg","inp_netdebt","inp_shares","inp_price","inp_bear","inp_base","inp_bull"].forEach(id=>{
+        document.getElementById(id)?.addEventListener("keydown",(e)=>{
+          if(e.key==="Enter"){ e.preventDefault(); computeDCF(); }
+        });
+      });
+    }
+
+    /* ===================== init ===================== */
+    (function init(){
+      wire();
+      applyLangButtons();
+      applyCcyButtons();
+      applyText();
+      showScreen("home");
+      renderWatchlist();
+    })();
+  </script>
+</body>
+</html>
+    
+      
+    
+    
+
+
+    
+
+
+
+      
 
 
     
