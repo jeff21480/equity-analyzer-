@@ -502,162 +502,163 @@
     </div>
 
     <!-- SCREEN: DCF -->
-    <section class="glass screen" id="screenDCF" aria-hidden="true">
-      <div class="screenTop">
-        <button class="backBtn" type="button" id="backFromDCF">‹ <span data-i18n="back">Zpět</span></button>
-        <div class="screenTitle">DCF</div>
-        <div style="width:88px"></div>
-      </div>
-
-      <div class="content">
-        <div class="card">
-          <div class="sectionTitle">
-            <h2 data-i18n="inputs">Vstupy</h2>
-            <div class="hint" data-i18n="hintHelp">Klikni na “?” pro vysvětlivku.</div>
-          </div>
-
-          <div class="grid two">
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_ticker">Ticker / Název</div>
-                <button class="helpBtn" type="button" data-help="ticker">?</button>
-              </div>
-              <input id="inTicker" placeholder="AAPL / Apple" />
-              <div class="small" data-i18n="f_ticker_s">Volitelné (pro Watchlist/PDF).</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_price">Aktuální cena (volitelné)</div>
-                <button class="helpBtn" type="button" data-help="price">?</button>
-              </div>
-              <input id="inPrice" inputmode="decimal" placeholder="190" />
-              <div class="small" data-i18n="f_price_s">Použije se pro % pod-/nadhodnocení.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_fcf">Poslední roční FCF</div>
-                <button class="helpBtn" type="button" data-help="fcf">?</button>
-              </div>
-              <input id="inFCF" inputmode="decimal" placeholder="9500000" />
-              <div class="small" data-i18n="f_fcf_s">Ve stejné měně jako výpočet (USD/EUR).</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_years">Počet let projekce</div>
-                <button class="helpBtn" type="button" data-help="years">?</button>
-              </div>
-              <input id="inYears" inputmode="numeric" placeholder="10" value="10" />
-              <div class="small" data-i18n="f_years_s">Typicky 5–10 let.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_r">Diskontní sazba (WACC / r) %</div>
-                <button class="helpBtn" type="button" data-help="r">?</button>
-              </div>
-              <input id="inR" inputmode="decimal" placeholder="9" value="9" />
-              <div class="small" data-i18n="f_r_s">Musí být &gt; terminal growth.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_tg">Terminal growth %</div>
-                <button class="helpBtn" type="button" data-help="tg">?</button>
-              </div>
-              <input id="inTG" inputmode="decimal" placeholder="2.5" value="2.5" />
-              <div class="small" data-i18n="f_tg_s">Dlouhodobý růst (obvykle 1–3 %).</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_netd">Net debt / Cash (±)</div>
-                <button class="helpBtn" type="button" data-help="netd">?</button>
-              </div>
-              <input id="inNetD" inputmode="decimal" placeholder="0" value="0" />
-              <div class="small" data-i18n="f_netd_s">Když má firma více cash než dluh, může být záporné.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_shares">Počet akcií (Shares)</div>
-                <button class="helpBtn" type="button" data-help="shares">?</button>
-              </div>
-              <input id="inShares" inputmode="decimal" placeholder="16000000" />
-              <div class="small" data-i18n="f_shares_s">Používá se pro férovou cenu na akcii.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_bear">Růst FCF Bear %</div>
-                <button class="helpBtn" type="button" data-help="gbear">?</button>
-              </div>
-              <input id="inGBear" inputmode="decimal" placeholder="4" value="4" />
-              <div class="small" data-i18n="f_bear_s">Konzervativní scénář.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_base">Růst FCF Base %</div>
-                <button class="helpBtn" type="button" data-help="gbase">?</button>
-              </div>
-              <input id="inGBase" inputmode="decimal" placeholder="8" value="8" />
-              <div class="small" data-i18n="f_base_s">Nejpravděpodobnější scénář.</div>
-            </div>
-
-            <div class="field">
-              <div class="fieldRow">
-                <div class="label" data-i18n="f_bull">Růst FCF Bull %</div>
-                <button class="helpBtn" type="button" data-help="gbull">?</button>
-              </div>
-              <input id="inBull" inputmode="decimal" placeholder="12" value="12" />
-<div class="small" data-i18n="f_bull_s">Optimistický scénář.</div>
-</div> <!-- /field -->
-
-</div> <!-- /grid -->
-
-<div class="btnRow">
-  <button class="btn btnPrimary" type="button" id="btnCalc" data-i18n="calc">Spočítat</button>
-  <button class="btn btnGhost" type="button" id="btnSave" data-i18n="save">Uložit do Watchlistu</button>
-  <button class="btn btnGhost" type="button" id="btnPdf" data-i18n="pdf">PDF (tisk)</button>
-</div>
-
-</div> <!-- /card (inputs) -->
-
-<div class="card">
-  <div class="sectionTitle">
-    <h2 data-i18n="results">Výsledky</h2>
-    <div class="hint" data-i18n="bbb">Bear / Base / Bull</div>
+<section class="glass screen" id="screenDCF" aria-hidden="true">
+  <div class="screenTop">
+    <button class="backBtn" type="button" id="backFromDCF">‹ <span data-i18n="back">Zpět</span></button>
+    <div class="screenTitle">DCF</div>
+    <div style="width:88px"></div>
   </div>
 
-  <div class="results">
-    <div id="resultsBox" class="resultsGrid">
-      <div class="resCard">
-        <div class="mutedLine" data-i18n="emptyRes">
-          Zatím nic. Vyplň vstupy a klikni na „Spočítat“.
+  <div class="content">
+    <div class="card">
+      <div class="sectionTitle">
+        <h2 data-i18n="inputs">Vstupy</h2>
+        <div class="hint" data-i18n="hintHelp">Klikni na „?“ pro vysvětlivku.</div>
+      </div>
+
+      <div class="grid two">
+        <!-- Ticker -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_ticker">Ticker / Název</div>
+            <button class="helpBtn" type="button" data-help="ticker">?</button>
+          </div>
+          <input id="inTicker" inputmode="text" data-ph="ph_ticker" placeholder="AAPL / Apple" />
+          <div class="small" data-i18n="f_ticker_s">Volitelné – jen pro přehled ve Watchlistu.</div>
+        </div>
+
+        <!-- FCF -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_fcf">Poslední roční FCF</div>
+            <button class="helpBtn" type="button" data-help="fcf">?</button>
+          </div>
+          <input id="inFCF" inputmode="decimal" data-ph="ph_fcf" placeholder="9500000" />
+          <div class="small" data-i18n="f_fcf_s">Zadej roční Free Cash Flow (za poslední rok).</div>
+        </div>
+
+        <!-- Years -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_years">Počet let projekce</div>
+            <button class="helpBtn" type="button" data-help="years">?</button>
+          </div>
+          <input id="inYears" inputmode="numeric" data-ph="ph_years" placeholder="10" />
+          <div class="small" data-i18n="f_years_s">Typicky 5–10 let.</div>
+        </div>
+
+        <!-- WACC -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_wacc">Diskontní sazba (WACC / r) %</div>
+            <button class="helpBtn" type="button" data-help="wacc">?</button>
+          </div>
+          <input id="inWacc" inputmode="decimal" data-ph="ph_wacc" placeholder="9" />
+          <div class="small" data-i18n="f_wacc_s">Očekávaný výnos (např. 9 %).</div>
+        </div>
+
+        <!-- Terminal growth -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_tg">Terminal growth %</div>
+            <button class="helpBtn" type="button" data-help="tg">?</button>
+          </div>
+          <input id="inTG" inputmode="decimal" data-ph="ph_tg" placeholder="2.5" />
+          <div class="small" data-i18n="f_tg_s">Dlouhodobý růst po projekci (obvykle 1–3 %).</div>
+        </div>
+
+        <!-- Net debt -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_netd">Net debt / Cash (volitelně)</div>
+            <button class="helpBtn" type="button" data-help="netd">?</button>
+          </div>
+          <input id="inNetD" inputmode="decimal" data-ph="ph_netd" placeholder="0" />
+          <div class="small" data-i18n="f_netd_s">
+            Net debt = dluhy − cash. Pokud má firma čistý cash, dej záporné číslo.
+          </div>
+        </div>
+
+        <!-- Shares -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_shares">Počet akcií (Shares)</div>
+            <button class="helpBtn" type="button" data-help="shares">?</button>
+          </div>
+          <input id="inShares" inputmode="decimal" data-ph="ph_shares" placeholder="16000000" />
+          <div class="small" data-i18n="f_shares_s">Když vyplníš, dostaneš férovou cenu na 1 akcii.</div>
+        </div>
+
+        <!-- Price -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_price">Aktuální cena (volitelně)</div>
+            <button class="helpBtn" type="button" data-help="price">?</button>
+          </div>
+          <input id="inPrice" inputmode="decimal" data-ph="ph_price" placeholder="190" />
+          <div class="small" data-i18n="f_price_s">Když vyplníš, ukáže se podhodnocení/nadhodnocení.</div>
         </div>
       </div>
+
+      <div class="divider"></div>
+
+      <div class="grid two">
+        <!-- Growth Bear -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_bear">Růst FCF Bear %</div>
+            <button class="helpBtn" type="button" data-help="g">?</button>
+          </div>
+          <input id="inGBear" inputmode="decimal" data-ph="ph_bear" placeholder="4" />
+          <div class="small" data-i18n="f_bear_s">Konzervativní růst.</div>
+        </div>
+
+        <!-- Growth Base -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_base">Růst FCF Base %</div>
+            <button class="helpBtn" type="button" data-help="g">?</button>
+          </div>
+          <input id="inGBase" inputmode="decimal" data-ph="ph_base" placeholder="8" />
+          <div class="small" data-i18n="f_base_s">Realistický růst.</div>
+        </div>
+
+        <!-- Growth Bull -->
+        <div class="field">
+          <div class="fieldRow">
+            <div class="label" data-i18n="f_bull">Růst FCF Bull %</div>
+            <button class="helpBtn" type="button" data-help="g">?</button>
+          </div>
+          <input id="inGBull" inputmode="decimal" data-ph="ph_bull" placeholder="12" />
+          <div class="small" data-i18n="f_bull_s">Optimistický růst.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnCalc" type="button" data-i18n="btnCalc">Spočítat</button>
+        <button class="btn" id="btnSave" type="button" data-i18n="btnSave">Uložit do Watchlistu</button>
+        <button class="btn" id="btnPdfOne" type="button" data-i18n="btnPdfOne">PDF (tisk)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">
+        <h2 data-i18n="results">Výsledky</h2>
+        <div class="hint" data-i18n="bbb">Bear / Base / Bull</div>
+      </div>
+      <div id="resultsBox" class="resultsEmpty" data-i18n="resultsEmpty">
+        Zatím nic. Vyplň vstupy a klikni na „Spočítat“.
+      </div>
     </div>
   </div>
-</div> <!-- /card results -->
-
-</div> <!-- /content -->
 </section>
 
-<!-- =========================
-     SCREEN: WATCHLIST
-========================= -->
-<section class="screen" id="screenWatch" aria-hidden="true">
+<!-- SCREEN: WATCHLIST -->
+<section class="glass screen" id="screenWatch" aria-hidden="true">
   <div class="screenTop">
-    <div class="screenTopIn">
-      <button class="backBtn" type="button" id="backFromWatch">
-        ‹ <span data-i18n="back">Zpět</span>
-      </button>
-      <div class="screenTitle" data-i18n="watch">Watchlist</div>
-      <div style="width:88px"></div>
-    </div>
+    <button class="backBtn" type="button" id="backFromWatch">‹ <span data-i18n="back">Zpět</span></button>
+    <div class="screenTitle" data-i18n="watchTitle">Watchlist</div>
+    <button class="miniBtn" type="button" id="btnPdfAll" data-i18n="btnPdfAll">PDF</button>
   </div>
 
   <div class="content">
@@ -671,93 +672,865 @@
   </div>
 </section>
 
-<!-- =========================
-     SCREEN: ABOUT
-========================= -->
-<section class="screen" id="screenAbout" aria-hidden="true">
+<!-- SCREEN: ABOUT -->
+<section class="glass screen" id="screenAbout" aria-hidden="true">
   <div class="screenTop">
-    <div class="screenTopIn">
-      <button class="backBtn" type="button" id="backFromAbout">
-        ‹ <span data-i18n="back">Zpět</span>
-      </button>
-      <div class="screenTitle" data-i18n="about">O aplikaci</div>
-      <div style="width:88px"></div>
-    </div>
+    <button class="backBtn" type="button" id="backFromAbout">‹ <span data-i18n="back">Zpět</span></button>
+    <div class="screenTitle" data-i18n="aboutTitle">O aplikaci</div>
+    <div style="width:88px"></div>
   </div>
 
   <div class="content">
-    <div class="card">
-      <div class="sectionTitle">
-        <h2 data-i18n="aboutTitle">Pro koho je a jak funguje</h2>
-        <div class="hint">DCF • Watchlist • PDF</div>
-      </div>
-      <div class="aboutBody" data-i18n="aboutBody"></div>
-    </div>
+    <div class="card prose">
+      <h2 data-i18n="aboutH">Pro koho to je</h2>
+      <p data-i18n="aboutP1">
+        Aplikace je pro investory, kteří chtějí rychle odhadnout férovou cenu akcie pomocí jednoduchého DCF modelu
+        a ukládat si výsledky do Watchlistu.
+      </p>
 
-    <div class="card">
-      <div class="sectionTitle">
-        <h2 data-i18n="disclaimerTitle">Upozornění</h2>
-        <div class="hint" data-i18n="disclaimerHint">Nejde o investiční doporučení.</div>
+      <h3 data-i18n="aboutH2">Jak to počítá</h3>
+      <p data-i18n="aboutP2">
+        Zadáš poslední roční FCF, roční růst (Bear/Base/Bull), počet let projekce, diskontní sazbu a terminal growth.
+        Vypočítá se současná hodnota budoucích cash flow + terminal value. Poté se upraví o Net Debt (dluhy − cash).
+        Když vyplníš počet akcií, dostaneš férovou cenu na 1 akcii.
+      </p>
+
+      <div class="note" data-i18n="aboutNote">
+        Poznámka: Přepínač měny (USD/EUR) je primárně pro označení jednotek. Pokud chceš převod mezi měnami,
+        musíš zadat vstupy už v cílové měně.
       </div>
-      <div class="aboutBody" data-i18n="disclaimerBody"></div>
+
+      <h3 data-i18n="aboutH3">Tipy</h3>
+      <ul>
+        <li data-i18n="aboutLi1">Zkus více scénářů růstu a porovnej Bear/Base/Bull.</li>
+        <li data-i18n="aboutLi2">Dávej pozor, aby terminal growth nebyl vyšší než diskontní sazba.</li>
+        <li data-i18n="aboutLi3">Net Debt může být i záporný (firma má čistý cash).</li>
+      </ul>
+
+      <div class="divider"></div>
+      <div class="small muted" data-i18n="aboutDisclaimer">
+        Toto není investiční doporučení. Výsledky jsou jen orientační.
+      </div>
     </div>
   </div>
 </section>
 
-<!-- =========================
-     MODAL
-========================= -->
-<div class="modalBack" id="modalBack" onclick="closeModalFromBg(event)">
+<!-- MODAL (help) -->
+<div class="modalBack" id="modalBack" aria-hidden="true">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modalTop">
-      <div class="modalTitle" id="modalTitle">Help</div>
-      <button class="xBtn" type="button" onclick="closeModal()">×</button>
+      <h3 class="modalTitle" id="modalTitle">Help</h3>
+      <button class="x" type="button" id="modalClose">×</button>
     </div>
     <div class="modalBody" id="modalBody"></div>
   </div>
 </div>
 
-<div class="toast" id="toast">OK</div>
-
 <script>
-/* =========================================================
-   DŮLEŽITÉ:
-   - Níže musíš mít JS funkce: showScreen(), computeDCF(),
-     renderResults(), renderWatchlist(), saveToWatchlist(),
-     pdfCurrent() + i18n (t/applyI18n) a parseNum ochrany.
-   - Pokud už je máš výš, tak tenhle <script> sem NEDÁVEJ znovu.
-   - Když ti to uřízlo i v JS, napiš mi screenshot, kde to končí,
-     a já ti dodám pokračování přesně na tvoje funkce.
-========================================================= */
+/* =======================
+   State
+======================= */
+const STORE_KEY = "equity_analyzer_watchlist_v3";
+let LANG = "cs"; // cs | en
+let CCY  = "USD"; // USD | EUR
+let LAST = null;  // poslední výpočet (pro PDF/Save)
 
-document.getElementById("backFromWatch")?.addEventListener("click", () => showScreen("home"));
-document.getElementById("backFromAbout")?.addEventListener("click", () => showScreen("home"));
+/* =======================
+   i18n UI
+======================= */
+const UI = {
+  cs: {
+    pill: "DCF • Watchlist • O aplikaci",
+    h1: "Analýza akcií",
+    sub: "Appka pro investory: DCF odhad vnitřní hodnoty (Bear/Base/Bull) + Watchlist uložených výsledků.",
+    navDCF: "DCF Analýza",
+    navWatch: "Watchlist",
+    navAbout: "O aplikaci",
+    navDCFsub: "Vnitřní hodnota • Bear / Base / Bull",
+    navWatchsub: "Uložené analýzy • mazání po jedné",
+    navAboutsub: "Metodika • jak funguje DCF • tipy",
 
-document.getElementById("btnCalc")?.addEventListener("click", () => computeDCF());
-document.getElementById("btnSave")?.addEventListener("click", () => saveToWatchlist());
-document.getElementById("btnPdf") ?.addEventListener("click", () => pdfCurrent());
+    lang: "Jazyk", ccy: "Měna",
+    back: "Zpět",
 
-// Help buttons (?)
-document.querySelectorAll(".helpBtn").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    const k = btn.getAttribute("data-help");
-    if(typeof openHelp === "function") openHelp(k);
+    inputs: "Vstupy",
+    hintHelp: "Klikni na „?“ pro vysvětlivku.",
+    results: "Výsledky",
+    bbb: "Bear / Base / Bull",
+    resultsEmpty: "Zatím nic. Vyplň vstupy a klikni na „Spočítat“.",
+
+    btnCalc: "Spočítat",
+    btnSave: "Uložit do Watchlistu",
+    btnPdfOne: "PDF (tisk)",
+    btnPdfAll: "PDF",
+
+    watchTitle: "Watchlist",
+    saved: "Uložené",
+    watchHint: "Klikni na položku pro načtení zpět.",
+    emptyWatch: "Zatím nic uloženého.",
+
+    aboutTitle: "O aplikaci",
+    aboutH: "Pro koho to je",
+    aboutP1: "Aplikace je pro investory, kteří chtějí rychle odhadnout férovou cenu akcie pomocí jednoduchého DCF modelu a ukládat si výsledky do Watchlistu.",
+    aboutH2: "Jak to počítá",
+    aboutP2: "Zadáš poslední roční FCF, roční růst (Bear/Base/Bull), počet let projekce, diskontní sazbu a terminal growth. Vypočítá se současná hodnota budoucích cash flow + terminal value. Poté se upraví o Net Debt (dluhy − cash). Když vyplníš počet akcií, dostaneš férovou cenu na 1 akcii.",
+    aboutNote: "Poznámka: Přepínač měny (USD/EUR) je primárně pro označení jednotek. Pokud chceš převod mezi měnami, musíš zadat vstupy už v cílové měně.",
+    aboutH3: "Tipy",
+    aboutLi1: "Zkus více scénářů růstu a porovnej Bear/Base/Bull.",
+    aboutLi2: "Dávej pozor, aby terminal growth nebyl vyšší než diskontní sazba.",
+    aboutLi3: "Net Debt může být i záporný (firma má čistý cash).",
+    aboutDisclaimer: "Toto není investiční doporučení. Výsledky jsou jen orientační.",
+
+    // labels
+    f_ticker: "Ticker / Název",
+    f_ticker_s: "Volitelné – jen pro přehled ve Watchlistu.",
+    f_fcf: "Poslední roční FCF",
+    f_fcf_s: "Zadej roční Free Cash Flow (za poslední rok).",
+    f_years: "Počet let projekce",
+    f_years_s: "Typicky 5–10 let.",
+    f_wacc: "Diskontní sazba (WACC / r) %",
+    f_wacc_s: "Očekávaný výnos (např. 9 %).",
+    f_tg: "Terminal growth %",
+    f_tg_s: "Dlouhodobý růst po projekci (obvykle 1–3 %).",
+    f_netd: "Net debt / Cash (volitelně)",
+    f_netd_s: "Net debt = dluhy − cash. Pokud má firma čistý cash, dej záporné číslo.",
+    f_shares: "Počet akcií (Shares)",
+    f_shares_s: "Když vyplníš, dostaneš férovou cenu na 1 akcii.",
+    f_price: "Aktuální cena (volitelně)",
+    f_price_s: "Když vyplníš, ukáže se podhodnocení/nadhodnocení.",
+    f_bear: "Růst FCF Bear %",
+    f_bear_s: "Konzervativní růst.",
+    f_base: "Růst FCF Base %",
+    f_base_s: "Realistický růst.",
+    f_bull: "Růst FCF Bull %",
+    f_bull_s: "Optimistický růst.",
+
+    // placeholders
+    ph_ticker: "AAPL / Apple",
+    ph_fcf: "9500000",
+    ph_years: "10",
+    ph_wacc: "9",
+    ph_tg: "2.5",
+    ph_netd: "0",
+    ph_shares: "16000000",
+    ph_price: "190",
+    ph_bear: "4",
+    ph_base: "8",
+    ph_bull: "12",
+
+    // watchlist labels
+    lblBear: "Bear",
+    lblBase: "Base",
+    lblBull: "Bull",
+    del: "Smazat",
+    pdf: "PDF",
+    toastSaved: "Výpočet byl uložen do Watchlistu.",
+    toastDeleted: "Položka smazána.",
+    toastLoaded: "Načteno do DCF vstupů.",
+    errInputs: "Zkontroluj vstupy – FCF, roky, diskont a růsty musí dávat smysl.",
+    errRate: "Diskontní sazba musí být větší než terminal growth.",
+  },
+
+  en: {
+    pill: "DCF • Watchlist • About",
+    h1: "Equity Analyzer",
+    sub: "Quick intrinsic value estimate using a simple DCF (Bear/Base/Bull) + saved Watchlist.",
+    navDCF: "DCF Analysis",
+    navWatch: "Watchlist",
+    navAbout: "About",
+    navDCFsub: "Intrinsic value • Bear / Base / Bull",
+    navWatchsub: "Saved analyses • delete one by one",
+    navAboutsub: "Method • how DCF works • tips",
+
+    lang: "Language", ccy: "Currency",
+    back: "Back",
+
+    inputs: "Inputs",
+    hintHelp: "Tap “?” for explanations.",
+    results: "Results",
+    bbb: "Bear / Base / Bull",
+    resultsEmpty: "Nothing yet. Fill inputs and tap “Calculate”.",
+
+    btnCalc: "Calculate",
+    btnSave: "Save to Watchlist",
+    btnPdfOne: "PDF (print)",
+    btnPdfAll: "PDF",
+
+    watchTitle: "Watchlist",
+    saved: "Saved",
+    watchHint: "Tap an item to load it back.",
+    emptyWatch: "No saved items yet.",
+
+    aboutTitle: "About",
+    aboutH: "Who it’s for",
+    aboutP1: "This app is for investors who want a quick intrinsic value estimate using a simple DCF model and save results into a Watchlist.",
+    aboutH2: "How it calculates",
+    aboutP2: "Enter last annual FCF, growth (Bear/Base/Bull), projection years, discount rate and terminal growth. It discounts projected cash flows and terminal value to present value. Then it adjusts by Net Debt (debt − cash). If you provide shares outstanding, you get fair value per share.",
+    aboutNote: "Note: The USD/EUR switch mainly labels units. For FX conversion, enter inputs already in the target currency.",
+    aboutH3: "Tips",
+    aboutLi1: "Try multiple growth scenarios and compare Bear/Base/Bull.",
+    aboutLi2: "Make sure terminal growth is lower than the discount rate.",
+    aboutLi3: "Net Debt can be negative (net cash).",
+    aboutDisclaimer: "Not financial advice. Outputs are indicative only.",
+
+    f_ticker: "Ticker / Name",
+    f_ticker_s: "Optional – just for Watchlist clarity.",
+    f_fcf: "Last annual FCF",
+    f_fcf_s: "Enter annual Free Cash Flow (last year).",
+    f_years: "Projection years",
+    f_years_s: "Typically 5–10 years.",
+    f_wacc: "Discount rate (WACC / r) %",
+    f_wacc_s: "Required return (e.g., 9%).",
+    f_tg: "Terminal growth %",
+    f_tg_s: "Long-term growth after projection (usually 1–3%).",
+    f_netd: "Net debt / Cash (optional)",
+    f_netd_s: "Net debt = debt − cash. If net cash, use a negative value.",
+    f_shares: "Shares outstanding",
+    f_shares_s: "If provided, you get fair value per share.",
+    f_price: "Current price (optional)",
+    f_price_s: "If provided, shows upside/downside vs market.",
+    f_bear: "FCF growth Bear %",
+    f_bear_s: "Conservative growth.",
+    f_base: "FCF growth Base %",
+    f_base_s: "Realistic growth.",
+    f_bull: "FCF growth Bull %",
+    f_bull_s: "Optimistic growth.",
+
+    ph_ticker: "AAPL / Apple",
+    ph_fcf: "9500000",
+    ph_years: "10",
+    ph_wacc: "9",
+    ph_tg: "2.5",
+    ph_netd: "0",
+    ph_shares: "16000000",
+    ph_price: "190",
+    ph_bear: "4",
+    ph_base: "8",
+    ph_bull: "12",
+
+    lblBear: "Bear",
+    lblBase: "Base",
+    lblBull: "Bull",
+    del: "Delete",
+    pdf: "PDF",
+    toastSaved: "Saved to Watchlist.",
+    toastDeleted: "Item deleted.",
+    toastLoaded: "Loaded into DCF inputs.",
+    errInputs: "Check inputs – FCF, years, discount and growth must be reasonable.",
+    errRate: "Discount rate must be higher than terminal growth.",
+  }
+};
+
+const HELP = {
+  ticker: {
+    cs: { title: "Ticker / Název", body: "<p><b>Ticker</b> je zkratka akcie (např. AAPL). Můžeš napsat i název firmy.</p>" },
+    en: { title: "Ticker / Name", body: "<p><b>Ticker</b> is the stock symbol (e.g., AAPL). You can also type the company name.</p>" }
+  },
+  fcf: {
+    cs: { title: "FCF (Free Cash Flow)", body: "<p><b>FCF</b> je volný cash flow za poslední rok. DCF diskontuje budoucí FCF do současnosti.</p><p><i>Tip:</i> Ber poslední roční FCF z výkazů (Cash Flow).</p>" },
+    en: { title: "FCF (Free Cash Flow)", body: "<p><b>FCF</b> is last year's free cash flow. DCF discounts future FCF to present value.</p><p><i>Tip:</i> Use the last annual FCF from the cash flow statement.</p>" }
+  },
+  years: {
+    cs: { title: "Počet let projekce", body: "<p>Kolik let dopředu projekujeme FCF. Typicky 5–10 let.</p>" },
+    en: { title: "Projection years", body: "<p>How many years you project FCF. Typically 5–10 years.</p>" }
+  },
+  wacc: {
+    cs: { title: "Diskontní sazba (r)", body: "<p>Diskontní sazba = požadovaný výnos. Čím vyšší r, tím nižší současná hodnota.</p>" },
+    en: { title: "Discount rate (r)", body: "<p>Discount rate = required return. Higher r lowers present value.</p>" }
+  },
+  tg: {
+    cs: { title: "Terminal growth", body: "<p>Dlouhodobý růst po období projekce. Obvykle 1–3 %.</p><p><b>Musí platit:</b> r &gt; tg.</p>" },
+    en: { title: "Terminal growth", body: "<p>Long-term growth after projection. Usually 1–3%.</p><p><b>Must hold:</b> r &gt; tg.</p>" }
+  },
+  netd: {
+    cs: { title: "Net debt / Cash", body: "<p>Net debt = dluhy − cash. Pokud má firma více cash než dluhů, zadej záporné číslo.</p>" },
+    en: { title: "Net debt / Cash", body: "<p>Net debt = debt − cash. If the company has net cash, use a negative number.</p>" }
+  },
+  shares: {
+    cs: { title: "Počet akcií", body: "<p>Počet akcií v oběhu. Když je vyplníš, spočítá se férová cena na 1 akcii.</p>" },
+    en: { title: "Shares outstanding", body: "<p>Shares outstanding. If provided, the model computes fair value per share.</p>" }
+  },
+  price: {
+    cs: { title: "Aktuální cena", body: "<p>Volitelné. Pokud vyplníš, ukáže se % rozdíl mezi trhem a férovou cenou.</p>" },
+    en: { title: "Current price", body: "<p>Optional. If provided, shows % upside/downside vs fair value.</p>" }
+  },
+  g: {
+    cs: { title: "Růst FCF (CAGR)", body: "<p>Očekávaný roční růst FCF pro daný scénář (Bear/Base/Bull).</p>" },
+    en: { title: "FCF growth (CAGR)", body: "<p>Expected annual FCF growth for each scenario (Bear/Base/Bull).</p>" }
+  }
+};
+
+/* =======================
+   Helpers / protections
+======================= */
+function t(key){
+  const dict = UI[LANG] || UI.cs;
+  return dict[key] ?? (UI.cs[key] ?? key);
+}
+
+function clamp(n, a, b){
+  if(!isFinite(n)) return a;
+  return Math.min(b, Math.max(a, n));
+}
+
+function parseNum(v){
+  if(v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if(!s) return null;
+  // support: "1 234 567,89" and "1234567.89"
+  const cleaned = s.replace(/\s+/g, "").replace(",", ".");
+  const num = Number(cleaned);
+  return isFinite(num) ? num : null;
+}
+
+function fmtMoney(n, dec=2){
+  if(n === null || n === undefined || !isFinite(Number(n))) return "—";
+  const x = Number(n);
+  const locale = (LANG === "cs") ? "cs-CZ" : "en-US";
+  const val = x.toLocaleString(locale, { maximumFractionDigits: dec, minimumFractionDigits: dec });
+  const sym = (CCY === "EUR") ? "€" : "$";
+  return `${val} ${sym}`;
+}
+
+function fmtInt(n){
+  if(n === null || n === undefined || !isFinite(Number(n))) return "—";
+  const locale = (LANG === "cs") ? "cs-CZ" : "en-US";
+  return Number(n).toLocaleString(locale, { maximumFractionDigits: 0 });
+}
+
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function toast(msg){
+  const el = document.getElementById("toast");
+  if(!el){ alert(msg); return; }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> el.classList.remove("show"), 2200);
+}
+
+/* =======================
+   Navigation (3 screens)
+======================= */
+function showScreen(name){
+  const home  = document.getElementById("homeWrap");
+  const dcf   = document.getElementById("screenDCF");
+  const w     = document.getElementById("screenWatch");
+  const about = document.getElementById("screenAbout");
+
+  if(!home || !dcf || !w || !about) return;
+
+  const set = (el, on) => {
+    if(on){
+      el.classList.add("active");
+      el.setAttribute("aria-hidden","false");
+    } else {
+      el.classList.remove("active");
+      el.setAttribute("aria-hidden","true");
+    }
+  };
+
+  if(name === "dcf"){
+    home.style.display = "none";
+    set(dcf,true); set(w,false); set(about,false);
+  } else if(name === "watch"){
+    home.style.display = "none";
+    set(dcf,false); set(w,true); set(about,false);
+    renderWatchlist();
+  } else if(name === "about"){
+    home.style.display = "none";
+    set(dcf,false); set(w,false); set(about,true);
+  } else {
+    home.style.display = "";
+    set(dcf,false); set(w,false); set(about,false);
+  }
+
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+/* =======================
+   Modal help
+======================= */
+function openModal(title, html){
+  const back = document.getElementById("modalBack");
+  const tEl  = document.getElementById("modalTitle");
+  const bEl  = document.getElementById("modalBody");
+  if(!back || !tEl || !bEl) return;
+  tEl.textContent = title;
+  bEl.innerHTML = html;
+  back.classList.add("show");
+  back.setAttribute("aria-hidden","false");
+}
+function closeModal(){
+  const back = document.getElementById("modalBack");
+  if(!back) return;
+  back.classList.remove("show");
+  back.setAttribute("aria-hidden","true");
+}
+
+/* =======================
+   DCF math
+======================= */
+function calcScenario(fcf0, years, r, g, tg){
+  let pvSum = 0;
+  let fcf = fcf0;
+
+  for(let i=1;i<=years;i++){
+    fcf = fcf * (1 + g);
+    pvSum += fcf / Math.pow(1 + r, i);
+  }
+
+  const fcfN = fcf;
+  const denom = (r - tg);
+  const tv = denom > 0 ? (fcfN * (1 + tg) / denom) : null;
+  const pvTv = (tv === null) ? null : (tv / Math.pow(1 + r, years));
+  const ev = (pvTv === null) ? null : (pvSum + pvTv);
+
+  return { ev, pvSum, tv, pvTv };
+}
+
+function computeDCF(){
+  const ticker = (document.getElementById("inTicker")?.value || "").trim();
+
+  const fcf    = parseNum(document.getElementById("inFCF")?.value);
+  let years    = parseNum(document.getElementById("inYears")?.value);
+  const waccP  = parseNum(document.getElementById("inWacc")?.value);
+  const tgP    = parseNum(document.getElementById("inTG")?.value);
+  const netd   = parseNum(document.getElementById("inNetD")?.value) ?? 0;
+  const shares = parseNum(document.getElementById("inShares")?.value);
+  const price  = parseNum(document.getElementById("inPrice")?.value);
+
+  const gBearP = parseNum(document.getElementById("inGBear")?.value);
+  const gBaseP = parseNum(document.getElementById("inGBase")?.value);
+  const gBullP = parseNum(document.getElementById("inGBull")?.value);
+
+  years = clamp(Math.round(years ?? 0), 1, 30);
+
+  const r     = (waccP ?? NaN) / 100;
+  const tg    = (tgP ?? NaN) / 100;
+  const gBear = (gBearP ?? NaN) / 100;
+  const gBase = (gBaseP ?? NaN) / 100;
+  const gBull = (gBullP ?? NaN) / 100;
+
+  // protections
+  if(!(fcf>0) || !(years>=1) || !(r>0) || !(isFinite(tg)) || !(isFinite(gBear)) || !(isFinite(gBase)) || !(isFinite(gBull))){
+    toast(t("errInputs"));
+    return null;
+  }
+  if(!(r > tg)){
+    toast(t("errRate"));
+    return null;
+  }
+
+  const sBear = calcScenario(fcf, years, r, gBear, tg);
+  const sBase = calcScenario(fcf, years, r, gBase, tg);
+  const sBull = calcScenario(fcf, years, r, gBull, tg);
+
+  function enrich(s){
+    if(s.ev === null) return null;
+    const equity = s.ev - netd;     // net debt reduces equity; net cash increases
+    const fairPS = (shares && shares>0) ? (equity / shares) : null;
+    return { ...s, equity, fairPS };
+  }
+
+  const bear = enrich(sBear);
+  const base = enrich(sBase);
+  const bull = enrich(sBull);
+
+  const res = {
+    ticker,
+    ccy: CCY,
+    lang: LANG,
+    ts: Date.now(),
+    inputs: { ticker, fcf, years, waccP, tgP, netd, shares, price, gBearP, gBaseP, gBullP, ccy: CCY },
+    bear, base, bull
+  };
+
+  LAST = res;
+  renderResults(res);
+  return res;
+}
+
+function renderResults(res){
+  const box = document.getElementById("resultsBox");
+  if(!box) return;
+
+  const price = res.inputs.price ?? null;
+
+  const badge = (fair) => {
+    if(price === null || price === undefined) return "";
+    const p = Number(price);
+    const f = Number(fair);
+    if(!isFinite(p) || !isFinite(f) || p<=0) return "";
+    const diff = (f - p) / p * 100;
+    const sign = diff >= 0 ? "+" : "";
+    const cls = diff >= 10 ? "chip ok" : (diff <= -10 ? "chip bad" : "chip warn");
+    return `<span class="${cls}">${sign}${diff.toFixed(2)}%</span>`;
+  };
+
+  function card(labelKey, s){
+    if(!s) return "";
+    const hasPS = (s.fairPS !== null && isFinite(s.fairPS));
+    const title = t(labelKey);
+    const big = hasPS ? fmtMoney(s.fairPS, 2) : fmtMoney(s.equity, 0);
+    const sub = hasPS
+      ? `<div class="muted2">${fmtMoney(s.equity, 0)} • ${t("f_shares")}: ${fmtInt(res.inputs.shares)}</div>`
+      : `<div class="muted2">${t("f_shares_s")}</div>`;
+
+    const vs = (hasPS && price!==null && isFinite(Number(price)))
+      ? `<div class="muted2"><b>${t("f_price")}:</b> ${fmtMoney(price,2)} • ${escapeHtml(CCY)}</div>`
+      : "";
+
+    return `
+      <div class="resCard">
+        <div class="resTop">
+          <div class="resName">${escapeHtml(title)}</div>
+          ${hasPS ? badge(s.fairPS) : ""}
+        </div>
+        <div class="resBig">${big}</div>
+        <div class="resLines">
+          <div><span class="muted2">Enterprise value:</span> <b>${fmtMoney(s.ev,0)}</b></div>
+          <div><span class="muted2">Equity value:</span> <b>${fmtMoney(s.equity,0)}</b></div>
+          ${vs}
+          ${sub}
+        </div>
+      </div>
+    `;
+  }
+
+  box.classList.remove("resultsEmpty");
+  box.innerHTML = `
+    <div class="resultsGrid">
+      ${card("lblBear", res.bear)}
+      ${card("lblBase", res.base)}
+      ${card("lblBull", res.bull)}
+    </div>
+  `;
+}
+
+/* =======================
+   Watchlist
+======================= */
+function loadWatch(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch(e){
+    return [];
+  }
+}
+function saveWatch(list){
+  localStorage.setItem(STORE_KEY, JSON.stringify(list));
+}
+
+function addToWatch(res){
+  if(!res) return;
+  const list = loadWatch();
+  list.unshift(res);
+  saveWatch(list);
+  toast(t("toastSaved"));
+}
+
+function deleteFromWatch(ts){
+  const list = loadWatch().filter(x => x.ts !== ts);
+  saveWatch(list);
+  renderWatchlist();
+  toast(t("toastDeleted"));
+}
+
+function loadItemToInputs(item){
+  const I = item.inputs || {};
+  const setV = (id,val) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.value = (val === null || val === undefined) ? "" : String(val);
+  };
+
+  setV("inTicker", I.ticker ?? "");
+  setV("inFCF", I.fcf ?? "");
+  setV("inYears", I.years ?? "");
+  setV("inWacc", I.waccP ?? "");
+  setV("inTG", I.tgP ?? "");
+  setV("inNetD", I.netd ?? 0);
+  setV("inShares", I.shares ?? "");
+  setV("inPrice", I.price ?? "");
+  setV("inGBear", I.gBearP ?? "");
+  setV("inGBase", I.gBaseP ?? "");
+  setV("inGBull", I.gBullP ?? "");
+
+  if(I.ccy) CCY = I.ccy;
+
+  LAST = item;
+  renderResults(item);
+  toast(t("toastLoaded"));
+}
+
+function renderWatchlist(){
+  const box = document.getElementById("watchBox");
+  if(!box) return;
+
+  const list = loadWatch();
+  if(list.length === 0){
+    box.innerHTML = `<div class="empty">${t("emptyWatch")}</div>`;
+    return;
+  }
+
+  const locale = (LANG === "cs") ? "cs-CZ" : "en-US";
+
+  box.innerHTML = list.map(item => {
+    const dt = new Date(item.ts).toLocaleDateString(locale);
+    const ccy = item.ccy || "USD";
+    const tick = (item.ticker || item.inputs?.ticker || "—");
+    const bear = item.bear?.fairPS ?? item.bear?.equity ?? null;
+    const base = item.base?.fairPS ?? item.base?.equity ?? null;
+    const bull = item.bull?.fairPS ?? item.bull?.equity ?? null;
+
+    return `
+      <div class="watchItem">
+        <button class="watchMain" type="button" data-ts="${item.ts}">
+          <div class="watchTitle">${escapeHtml(tick)}</div>
+          <div class="watchSub">
+            <span>${escapeHtml(dt)}</span>
+            <span class="chip">${escapeHtml(ccy)}</span>
+          </div>
+          <div class="watchVals">
+            <span><b>${t("lblBear")}:</b> ${fmtMoney(bear,2)}</span>
+            <span><b>${t("lblBase")}:</b> ${fmtMoney(base,2)}</span>
+            <span><b>${t("lblBull")}:</b> ${fmtMoney(bull,2)}</span>
+          </div>
+        </button>
+        <div class="watchBtns">
+          <button class="btnMini" type="button" data-pdf="${item.ts}">${t("pdf")}</button>
+          <button class="btnMini danger" type="button" data-del="${item.ts}">${t("del")}</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // bind
+  box.querySelectorAll("[data-ts]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const ts = Number(btn.getAttribute("data-ts"));
+      const item = loadWatch().find(x => x.ts === ts);
+      if(item){
+        loadItemToInputs(item);
+        showScreen("dcf");
+      }
+    });
   });
+
+  box.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const ts = Number(btn.getAttribute("data-del"));
+      deleteFromWatch(ts);
+    });
+  });
+
+  box.querySelectorAll("[data-pdf]").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const ts = Number(btn.getAttribute("data-pdf"));
+      const item = loadWatch().find(x => x.ts === ts);
+      if(item) printPdfForItems([item]);
+    });
+  });
+}
+
+/* =======================
+   PDF (print) — one or all
+======================= */
+function buildPdfHTML(items){
+  const locale = (LANG === "cs") ? "cs-CZ" : "en-US";
+  const title = (LANG === "cs") ? "DCF report" : "DCF report";
+  const subtitle = (LANG === "cs")
+    ? "Rychlý výpis DCF výsledků (Watchlist)"
+    : "Quick DCF report (Watchlist)";
+
+  const rowsFor = (item) => {
+    const I = item.inputs || {};
+    const hasPS = !!(I.shares && isFinite(Number(I.shares)) && Number(I.shares)>0);
+    const p = I.price ?? null;
+
+    const line = (k,v) => `<tr><td>${escapeHtml(k)}</td><td><b>${escapeHtml(v)}</b></td></tr>`;
+
+    const bearFair = hasPS ? item.bear?.fairPS : item.bear?.equity;
+    const baseFair = hasPS ? item.base?.fairPS : item.base?.equity;
+    const bullFair = hasPS ? item.bull?.fairPS : item.bull?.equity;
+
+    const out = [];
+    out.push(line("Ticker", I.ticker || "—"));
+    out.push(line("Date", new Date(item.ts).toLocaleString(locale)));
+    out.push(line("Currency", item.ccy || CCY));
+    out.push(line("FCF", fmtMoney(I.fcf,0)));
+    out.push(line("Years", String(I.years ?? "—")));
+    out.push(line("Discount (r)", `${I.waccP ?? "—"} %`));
+    out.push(line("Terminal growth", `${I.tgP ?? "—"} %`));
+    out.push(line("Net debt", fmtMoney(I.netd ?? 0,0)));
+    out.push(line("Shares", I.shares ? fmtInt(I.shares) : "—"));
+    out.push(line("Market price", (p!==null) ? fmtMoney(p,2) : "—"));
+
+    out.push(line("Bear", fmtMoney(bearFair,2)));
+    out.push(line("Base", fmtMoney(baseFair,2)));
+    out.push(line("Bull", fmtMoney(bullFair,2)));
+
+    return out.join("");
+  };
+
+  const cards = items.map(item => `
+    <div class="card">
+      <h2>${escapeHtml(item.inputs?.ticker || item.ticker || "—")}</h2>
+      <div class="muted">${escapeHtml(subtitle)}</div>
+      <div class="box">
+        <table>${rowsFor(item)}</table>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>${escapeHtml(title)}</title>
+  <style>
+    body{ font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:18px; }
+    h1{ margin:0 0 10px; }
+    h2{ margin:0 0 6px; }
+    .muted{ color:#555; margin:0 0 16px; }
+    .card{ border:1px solid #ddd; border-radius:14px; padding:14px; margin:0 0 14px; }
+    .box{ border:1px solid #eee; border-radius:12px; padding:10px; }
+    table{ width:100%; border-collapse:collapse; }
+    td{ padding:8px 6px; border-bottom:1px solid #eee; vertical-align:top; }
+    td:first-child{ width:240px; color:#444; }
+    @media print{ button{display:none;} }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <p class="muted">${escapeHtml(subtitle)}</p>
+  ${cards}
+  <script>window.print();<\/script>
+</body>
+</html>
+  `;
+}
+
+function printPdfForItems(items){
+  const html = buildPdfHTML(items);
+  const w = window.open("", "_blank");
+  if(!w){ alert("Pop-up blocked"); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+/* =======================
+   Apply language
+======================= */
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    el.textContent = t(k);
+  });
+  document.querySelectorAll("[data-ph]").forEach(el=>{
+    const k = el.getAttribute("data-ph");
+    el.setAttribute("placeholder", t(k));
+  });
+
+  // rerender locale-sensitive parts
+  if(LAST) renderResults(LAST);
+  renderWatchlist();
+}
+
+/* =======================
+   Bindings (buttons)
+======================= */
+document.addEventListener("click", (e)=>{
+  const helpBtn = e.target.closest?.(".helpBtn");
+  if(helpBtn){
+    const key = helpBtn.getAttribute("data-help");
+    const pack = HELP[key];
+    if(pack){
+      const info = pack[LANG] || pack.cs;
+      openModal(info.title, info.body);
+    }
+  }
 });
 
-// expose for inline calls (pokud používáš onclick ve watchlistu)
-window.closeModal = window.closeModal || function(){
-  document.getElementById("modalBack")?.classList.remove("show");
-};
-window.closeModalFromBg = window.closeModalFromBg || function(e){
-  if(e?.target?.id === "modalBack") window.closeModal();
-};
+document.getElementById("modalBack")?.addEventListener("click", closeModal);
+document.getElementById("modalClose")?.addEventListener("click", closeModal);
+
+document.getElementById("btnCalc")?.addEventListener("click", ()=> computeDCF());
+document.getElementById("btnSave")?.addEventListener("click", ()=>{
+  const res = LAST || computeDCF();
+  if(res) addToWatch(res);
+});
+document.getElementById("btnPdfOne")?.addEventListener("click", ()=>{
+  const res = LAST || computeDCF();
+  if(res) printPdfForItems([res]);
+});
+
+document.getElementById("btnPdfAll")?.addEventListener("click", ()=>{
+  const items = loadWatch();
+  if(items.length) printPdfForItems(items);
+  else toast(t("emptyWatch"));
+});
+
+document.getElementById("backFromDCF")?.addEventListener("click", ()=> showScreen("home"));
+document.getElementById("backFromWatch")?.addEventListener("click", ()=> showScreen("home"));
+document.getElementById("backFromAbout")?.addEventListener("click", ()=> showScreen("home"));
+
+document.getElementById("navGoDCF")?.addEventListener("click", ()=> showScreen("dcf"));
+document.getElementById("navGoWatch")?.addEventListener("click", ()=> showScreen("watch"));
+document.getElementById("navGoAbout")?.addEventListener("click", ()=> showScreen("about"));
+
+document.getElementById("btnLangCZ")?.addEventListener("click", ()=>{
+  LANG = "cs";
+  document.getElementById("btnLangCZ")?.classList.add("on");
+  document.getElementById("btnLangEN")?.classList.remove("on");
+  applyLang();
+});
+document.getElementById("btnLangEN")?.addEventListener("click", ()=>{
+  LANG = "en";
+  document.getElementById("btnLangEN")?.classList.add("on");
+  document.getElementById("btnLangCZ")?.classList.remove("on");
+  applyLang();
+});
+
+document.getElementById("btnCcyUSD")?.addEventListener("click", ()=>{
+  CCY = "USD";
+  document.getElementById("btnCcyUSD")?.classList.add("on");
+  document.getElementById("btnCcyEUR")?.classList.remove("on");
+  if(LAST){ LAST.ccy = CCY; renderResults(LAST); }
+  renderWatchlist();
+});
+document.getElementById("btnCcyEUR")?.addEventListener("click", ()=>{
+  CCY = "EUR";
+  document.getElementById("btnCcyEUR")?.classList.add("on");
+  document.getElementById("btnCcyUSD")?.classList.remove("on");
+  if(LAST){ LAST.ccy = CCY; renderResults(LAST); }
+  renderWatchlist();
+});
+
+/* =======================
+   Init
+======================= */
+applyLang();
+renderWatchlist();
 </script>
 
 </body>
 </html>
-
-      
 
       
 
