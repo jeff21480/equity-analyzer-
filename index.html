@@ -1,171 +1,179 @@
-<!-- =========================
-     EQUITY ANALYZER (MVP)
-     PART 1/5  (HTML + CSS + HOME + placeholders)
-     Vložit jako ZAČÁTEK souboru index.html
-========================= -->
 <!doctype html>
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Equity Analyzér</title>
+  <title>Equity Analyzer</title>
+  <meta name="theme-color" content="#0b1024" />
 
-  <!-- Chart.js načteme později (díl 4/5), zatím NE -->
   <style>
     :root{
-      --bg0:#070816;
-      --bg1:#0b0d22;
-      --card:#10143a;
-      --card2:#0e1233;
-      --stroke:rgba(255,255,255,.10);
-      --stroke2:rgba(255,255,255,.14);
-      --txt:#f3f6ff;
-      --muted:rgba(243,246,255,.72);
-      --muted2:rgba(243,246,255,.55);
-
-      --violet:#6b5cff;
-      --blue:#3aa6ff;
-      --good:#20d38a;
-      --bad:#ff5b6e;
-
-      --shadow: 0 20px 60px rgba(0,0,0,.45);
-      --r:22px;
-      --r2:16px;
+      --bg0:#070a16;
+      --bg1:#0b1024;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.085);
+      --stroke: rgba(255,255,255,.12);
+      --stroke2: rgba(255,255,255,.18);
+      --txt: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+      --accent: #6ea8ff;
+      --accent2:#8d7dff;
+      --good:#58e39a;
+      --bad:#ff6b6b;
+      --r: 18px;
+      --r2: 22px;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--txt);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--txt);
       background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(107,92,255,.28), transparent 55%),
-        radial-gradient(1000px 600px at 80% 20%, rgba(58,166,255,.22), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+        radial-gradient(1100px 700px at 20% -10%, rgba(110,168,255,.28), transparent 60%),
+        radial-gradient(900px 600px at 85% 5%, rgba(141,125,255,.22), transparent 55%),
+        radial-gradient(900px 700px at 50% 115%, rgba(88,227,154,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .wrap{
       max-width: 980px;
       margin: 0 auto;
-      padding: 18px 14px 40px;
+      padding: 18px 14px 34px;
     }
 
-    .topCard{
-      border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border-radius: calc(var(--r) + 6px);
-      padding: 18px;
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .badgeRow{
+    .topBar{
       display:flex;
       align-items:center;
-      gap:10px;
-      margin-bottom: 10px;
+      justify-content:space-between;
+      gap:12px;
+      margin: 10px 0 14px;
     }
+    .brand{
+      display:flex; flex-direction:column; gap:2px;
+    }
+    .brand h1{
+      margin:0;
+      font-size: 26px;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin:0;
+      color: var(--muted2);
+      font-size: 14px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
     .pill{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding: 7px 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
       border-radius: 999px;
-      border:1px solid var(--stroke2);
-      background: rgba(10,12,30,.55);
-      color: var(--muted);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 10px 28px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .pill .label{
+      color: var(--muted2);
       font-size: 13px;
     }
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background: linear-gradient(135deg, var(--violet), var(--blue));
-      box-shadow: 0 0 16px rgba(107,92,255,.45);
+
+    .seg{
+      display:flex;
+      border:1px solid var(--stroke);
+      border-radius: 999px;
+      overflow:hidden;
+      background: rgba(255,255,255,.04);
+    }
+    .seg button{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color: var(--muted);
+      padding: 10px 12px;
+      font-weight: 650;
+      font-size: 13px;
+      cursor:pointer;
+    }
+    .seg button.active{
+      color: var(--txt);
+      background: linear-gradient(135deg, rgba(110,168,255,.35), rgba(141,125,255,.24));
+    }
+    .seg button:active{ transform: translateY(1px); }
+
+    .card{
+      border:1px solid var(--stroke);
+      background: var(--card);
+      border-radius: var(--r2);
+      box-shadow: var(--shadow);
     }
 
-    h1{
-      margin: 8px 0 6px;
-      font-size: 36px;
-      letter-spacing:.2px;
-    }
-    .desc{
-      margin:0;
-      color: var(--muted);
-      line-height: 1.35;
-      max-width: 62ch;
-      font-size: 15px;
+    .homeHero{
+      padding: 16px 16px 14px;
+      margin-bottom: 14px;
     }
 
     .drawerList{
-      margin-top: 16px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
+      display:grid;
+      gap:10px;
+      margin-top: 14px;
     }
-
     .drawerBtn{
       width:100%;
+      text-align:left;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      border-radius: var(--r2);
+      padding: 14px 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      border:1px solid var(--stroke);
-      border-radius: var(--r);
-      padding: 14px 14px;
-      background: linear-gradient(180deg, rgba(107,92,255,.14), rgba(58,166,255,.06));
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
-      color: var(--txt);
+      gap:12px;
       cursor:pointer;
-      text-align:left;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
     }
+    .drawerBtn:hover{ border-color: var(--stroke2); background: rgba(255,255,255,.07); }
     .drawerBtn:active{ transform: translateY(1px); }
+
     .drawerLeft{
-      display:flex; align-items:center; gap:12px;
-      min-width:0;
+      display:flex; align-items:center; gap:12px; min-width:0;
     }
     .iconBox{
-      width:44px;height:44px;border-radius: 14px;
+      width:44px; height:44px;
+      border-radius: 14px;
       border:1px solid var(--stroke2);
       background: rgba(12,14,35,.55);
-      display:grid; place-items:center;
+      display:grid;
+      place-items:center;
       flex:0 0 auto;
-    }
-    .drawerText{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .drawerTitle{
-      font-weight: 700;
-      font-size: 18px;
-      line-height: 1.1;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      color: var(--txt);
-    }
-    .drawerSub{
-      font-size: 13px;
       color: var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
     }
-    .chev{
-      width:28px;height:28px;border-radius:10px;
-      border:1px solid var(--stroke2);
-      display:grid; place-items:center;
-      color: var(--muted);
-      flex:0 0 auto;
-    }
+    .drawerText{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .drawerTitle{ font-weight: 800; font-size: 17px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .drawerSub{ color: var(--muted2); font-size: 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* screens */
-    .screen{
-      display:none;
-      margin-top: 14px;
-    }
+    .chev{
+      width:28px; height:28px; border-radius: 999px;
+      border:1px solid var(--stroke);
+      display:grid; place-items:center;
+      color: var(--muted);
+      flex: 0 0 auto;
+    }/* screens */
+    .screen{ display:none; margin-top: 14px; }
     .screen.active{ display:block; }
 
     .screenHead{
@@ -173,7 +181,7 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      margin: 12px 0;
+      padding: 14px 14px;
     }
     .screenTitle{
       margin:0;
@@ -181,1069 +189,1159 @@
       letter-spacing:.2px;
     }
 
-    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; }
     .btn{
+      appearance:none;
       border:1px solid var(--stroke2);
-      background: rgba(12,14,35,.55);
+      background: rgba(255,255,255,.06);
       color: var(--txt);
       padding: 10px 14px;
-      border-radius: 14px;
+      border-radius: 999px;
+      font-weight: 750;
       cursor:pointer;
-      font-weight: 600;
     }
     .btn.primary{
-      background: linear-gradient(135deg, rgba(107,92,255,.95), rgba(58,166,255,.85));
       border-color: rgba(255,255,255,.18);
+      background: linear-gradient(135deg, rgba(110,168,255,.45), rgba(141,125,255,.28));
+    }
+    .btn.danger{
+      border-color: rgba(255,107,107,.25);
+      background: rgba(255,107,107,.12);
     }
     .btn:active{ transform: translateY(1px); }
 
-    .card{
-      border:1px solid var(--stroke);
-      background: rgba(12,14,35,.55);
-      border-radius: var(--r);
-      padding: 14px;
-      box-shadow: 0 14px 40px rgba(0,0,0,.35);
+    .bodyPad{ padding: 14px 14px 16px; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
     }
 
-    .note{
-      color: var(--muted);
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .labelRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .field label{
+      font-weight: 750;
+      color: var(--txt);
       font-size: 14px;
-      line-height: 1.35;
-      margin: 0;
+    }
+    .hint{
+      font-size: 13px;
+      color: var(--muted2);
+      line-height: 1.25;
+    }
+    input{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid var(--stroke2);
+      background: rgba(8,10,30,.55);
+      color: var(--txt);
+      font-size: 15px;
+      outline:none;
+    }
+    input:focus{
+      border-color: rgba(110,168,255,.55);
+      box-shadow: 0 0 0 4px rgba(110,168,255,.12);
     }
 
-    /* small helper for mobile */
-    @media (max-width:520px){
-      h1{ font-size: 30px; }
-      .drawerTitle{ font-size: 17px; }
-      .wrap{ padding: 14px 12px 34px; }
+    .infoBtn{
+      width:26px; height:26px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      display:grid; place-items:center;
+      cursor:pointer;
+      flex:0 0 auto;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(10,12,32,.92);
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 10px 12px;
+      max-width: min(520px, calc(100% - 24px));
+      box-shadow: var(--shadow);
+      display:none;
+      z-index: 50;
+    }
+    .toast.show{ display:block; }
+    .toast .t1{ font-weight:800; margin:0 0 2px; }
+    .toast .t2{ margin:0; color: var(--muted2); font-size: 13px; }
+
+    .tipBubble{
+      position: fixed;
+      z-index: 60;
+      max-width: min(360px, calc(100% - 22px));
+      background: rgba(10,12,32,.96);
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      display:none;
+    }
+    .tipBubble.show{ display:block; }
+    .tipBubble .k{ font-weight: 850; margin:0 0 3px; }
+    .tipBubble .v{ margin:0; color: var(--muted2); font-size: 13px; line-height:1.25; }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 16px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+    }
+    th,td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-size: 14px;
+    }
+    th{ text-align:left; color: var(--muted); font-weight:800; }
+    tr:last-child td{ border-bottom:0; }
+    .right{ text-align:right; }
+    .muted{ color: var(--muted2); }
+
+    .resultBox{
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.045);
+    }
+    .kpiRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
+    .kpi{
+      padding: 10px 10px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .kpi .a{ color: var(--muted2); font-size: 12px; margin:0 0 4px; }
+    .kpi .b{ font-weight: 900; font-size: 18px; margin:0; }
+
+    @media (max-width: 720px){
+      .grid2, .grid3{ grid-template-columns: 1fr; }
+      .kpiRow{ grid-template-columns: 1fr; }
+      .brand h1{ font-size: 24px; }
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-
-    <!-- HOME -->
-    <section id="screenHome" class="screen active" aria-hidden="false">
-      <div class="topCard">
-        <div class="badgeRow">
-          <span class="pill"><span class="dot"></span><span id="t_beta">Analýza akcií • Beta</span></span>
-          <span class="pill" id="t_mvp">MVP</span>
-        </div>
-
-        <h1 id="t_appTitle">Analýza akcií</h1>
-        <p class="desc" id="t_appDesc">
-          Appka pro investory: DCF odhad vnitřní hodnoty (Bear/Base/Bull) + Watchlist uložených výsledků.
-        </p>
-
-        <div class="drawerList">
-          <button class="drawerBtn" id="goDCF" type="button">
-            <div class="drawerLeft">
-              <div class="iconBox" aria-hidden="true">📈</div>
-              <div class="drawerText">
-                <div class="drawerTitle" id="t_drawerDCF">DCF Analýza</div>
-                <div class="drawerSub" id="t_drawerDCFSub">Vnitřní hodnota • Bear / Base / Bull</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">›</div>
-          </button>
-
-          <button class="drawerBtn" id="goWatch" type="button">
-            <div class="drawerLeft">
-              <div class="iconBox" aria-hidden="true">👀</div>
-              <div class="drawerText">
-                <div class="drawerTitle" id="t_drawerWatch">Watchlist</div>
-                <div class="drawerSub" id="t_drawerWatchSub">Uložené analýzy • kopie do Excelu • PDF</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">›</div>
-          </button>
-
-          <button class="drawerBtn" id="goAbout" type="button">
-            <div class="drawerLeft">
-              <div class="iconBox" aria-hidden="true">ℹ️</div>
-              <div class="drawerText">
-                <div class="drawerTitle" id="t_drawerAbout">O aplikaci</div>
-                <div class="drawerSub" id="t_drawerAboutSub">Metodika • tipy • pro koho to je</div>
-              </div>
-            </div>
-            <div class="chev" aria-hidden="true">›</div>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- DCF (zatím jen hlavička + placeholder, UI doplníme v dílu 2/5) -->
-    <section id="screenDCF" class="screen" aria-hidden="true">
-      <div class="screenHead">
-        <h2 class="screenTitle" id="t_dcfTitle">DCF analýza</h2>
-        <div class="btnRow">
-          <button class="btn" id="btnBackDCF" type="button">Zpět</button>
-        </div>
+    <div class="topBar">
+      <div class="brand">
+        <h1 id="t_appTitle">Equity Analyzer</h1>
+        <p id="t_appDesc">DCF odhad férové hodnoty + watchlist</p>
       </div>
 
-      <div class="card">
-        <p class="note">
-          (DCF formulář + přepínač CZ/EN + USD/EUR bude v <b>DÍLU 2/5</b>)
-        </p>
-      </div>
-    </section>
-
-    <!-- WATCHLIST (doplníme v dílu 3/5) -->
-    <section id="screenWatch" class="screen" aria-hidden="true">
-      <div class="screenHead">
-        <h2 class="screenTitle" id="t_watchTitle">Watchlist</h2>
-        <div class="btnRow">
-          <button class="btn" id="btnBackWatch" type="button">Zpět</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <p class="note">
-          (Seznam uložených výpočtů + kopie do Excelu + PDF bude v <b>DÍLU 3/5</b>)
-        </p>
-      </div>
-    </section>
-
-    <!-- ABOUT (doplníme v dílu 3/5 nebo 4/5 podle velikosti) -->
-    <section id="screenAbout" class="screen" aria-hidden="true">
-      <div class="screenHead">
-        <h2 class="screenTitle" id="t_aboutTitle">O aplikaci</h2>
-        <div class="btnRow">
-          <button class="btn" id="btnBackAbout" type="button">Zpět</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <p class="note">
-          (Popis aplikace, pro koho je, jak funguje DCF – bude v <b>DÍLU 3/5</b>)
-        </p>
-      </div>
-    </section>
-
-    <!-- JS přijde v dalších dílech -->
-  </div>
-
-<!-- ============ END OF PART 1/5 ============ -->
-<!-- =========================
-     PART 2/5 – DCF UI + NAVIGATION
-     vložit PŘED </body>
-========================= -->
-<script>
-/* =========================
-   BASIC NAVIGATION
-========================= */
-const screens = {
-  home: document.getElementById("screenHome"),
-  dcf: document.getElementById("screenDCF"),
-  watch: document.getElementById("screenWatch"),
-  about: document.getElementById("screenAbout"),
-};
-
-function showScreen(name){
-  Object.values(screens).forEach(s=>{
-    s.classList.remove("active");
-    s.setAttribute("aria-hidden","true");
-  });
-  screens[name].classList.add("active");
-  screens[name].setAttribute("aria-hidden","false");
-  window.scrollTo({top:0, behavior:"instant"});
-}
-
-// drawer buttons
-document.getElementById("goDCF").onclick   = ()=>showScreen("dcf");
-document.getElementById("goWatch").onclick = ()=>showScreen("watch");
-document.getElementById("goAbout").onclick = ()=>showScreen("about");
-
-// back buttons
-document.getElementById("btnBackDCF").onclick   = ()=>showScreen("home");
-document.getElementById("btnBackWatch").onclick = ()=>showScreen("home");
-document.getElementById("btnBackAbout").onclick = ()=>showScreen("home");
-
-/* =========================
-   LANG + CURRENCY STATE
-========================= */
-let LANG = "cs";
-let CCY  = "USD";
-
-function setLang(l){
-  LANG = l;
-  document.getElementById("langCS").classList.toggle("primary", l==="cs");
-  document.getElementById("langEN").classList.toggle("primary", l==="en");
-}
-
-function setCcy(c){
-  CCY = c;
-  document.getElementById("ccyUSD").classList.toggle("primary", c==="USD");
-  document.getElementById("ccyEUR").classList.toggle("primary", c==="EUR");
-}
-</script>
-
-<style>
-/* =========================
-   DCF FORM
-========================= */
-.dcfGrid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:14px;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.field label{
-  font-weight:600;
-  color:var(--txt);
-}
-.field .hint{
-  font-size:13px;
-  color:var(--muted2);
-}
-.field input{
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid var(--stroke2);
-  background:rgba(8,10,30,.6);
-  color:var(--txt);
-  font-size:15px;
-}
-
-.switchRow{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.switchRow .btn{
-  padding:8px 14px;
-  font-size:14px;
-}
-</style>
-
-<script>
-/* =========================
-   DCF UI INSERT
-========================= */
-const dcfCard = document.querySelector("#screenDCF .card");
-dcfCard.innerHTML = `
-  <div class="dcfGrid">
-
-    <div class="switchRow">
-      <button id="langCS" class="btn primary" onclick="setLang('cs')">CZ</button>
-      <button id="langEN" class="btn" onclick="setLang('en')">EN</button>
-    </div>
-
-    <div class="switchRow">
-      <button id="ccyUSD" class="btn primary" onclick="setCcy('USD')">USD</button>
-      <button id="ccyEUR" class="btn" onclick="setCcy('EUR')">EUR</button>
-    </div>
-
-    <div class="field">
-      <label>Ticker</label>
-      <input id="inTicker" placeholder="AAPL">
-      <div class="hint">Symbol akcie</div>
-    </div>
-
-    <div class="field">
-      <label>FCF (poslední rok)</label>
-      <input id="inFCF" inputmode="decimal" placeholder="1000000000">
-      <div class="hint">Free Cash Flow</div>
-    </div>
-
-    <div class="field">
-      <label>Počet akcií</label>
-      <input id="inShares" inputmode="decimal" placeholder="16000000000">
-      <div class="hint">Shares outstanding</div>
-    </div>
-
-    <div class="field">
-      <label>Diskontní sazba (%)</label>
-      <input id="inR" inputmode="decimal" placeholder="9">
-      <div class="hint">r</div>
-    </div>
-
-    <div class="field">
-      <label>Růst FCF – Bear (%)</label>
-      <input id="inBear" inputmode="decimal" placeholder="2">
-    </div>
-
-    <div class="field">
-      <label>Růst FCF – Base (%)</label>
-      <input id="inBase" inputmode="decimal" placeholder="5">
-    </div>
-
-    <div class="field">
-      <label>Růst FCF – Bull (%)</label>
-      <input id="inBull" inputmode="decimal" placeholder="8">
-    </div>
-
-    <div class="switchRow">
-      <button class="btn primary" id="btnCalc">Spočítat</button>
-      <button class="btn" id="btnSave">Uložit</button>
-    </div>
-
-    <p class="note">
-      Výpočet, graf a ukládání se přidá v dalším kroku.
-    </p>
-
-  </div>
-`;
-</script>
-<!-- ============ END OF PART 2/5 ============ -->
-<!-- =========================
-PART 3/5 – DCF LOGIC + WATCHLIST (LocalStorage) + EXPORT
-vložit ZA PART 2/5
-========================= -->
-<script>
-(function(){
-  "use strict";
-
-  // =========================
-  // Helpers / protections
-  // =========================
-  const $ = (id)=>document.getElementById(id);
-  const esc = (s)=>String(s ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-
-  const parseNum = (v)=>{
-    if(v===null || v===undefined) return NaN;
-    const s = String(v).trim()
-      .replace(/\s+/g,"")
-      .replace(",",".");
-    if(!s) return NaN;
-    return Number(s);
-  };
-
-  const fmt = (n, digits=2)=>{
-    if(!isFinite(n)) return "—";
-    return n.toLocaleString(
-      (window.LANG==="en" ? "en-US" : "cs-CZ"),
-      { maximumFractionDigits: digits, minimumFractionDigits: digits }
-    );
-  };
-
-  const fmtMoney = (n)=>{
-    if(!isFinite(n)) return "—";
-    const ccy = (window.CCY || "USD");
-    return `${fmt(n,2)} ${ccy}`;
-  };
-
-  const toast = (title, msg)=>{
-    // fallback – když nemáš toast komponentu
-    alert((title? title + "\n\n" : "") + (msg||""));
-  };
-
-  // =========================
-  // LocalStorage – Watchlist
-  // =========================
-  const KEY = "equity_analyzer_watchlist_v1";
-
-  function loadWatchlist(){
-    try {
-      const raw = localStorage.getItem(KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch(e){
-      return [];
-    }
-  }
-
-  function saveWatchlist(arr){
-    try{
-      localStorage.setItem(KEY, JSON.stringify(arr));
-    }catch(e){
-      // storage může být plný / zakázaný
-      toast("Uložení selhalo", "LocalStorage není dostupný nebo je plný.");
-    }
-  }
-
-  function addToWatchlist(item){
-    const arr = loadWatchlist();
-    arr.unshift(item);
-    if(arr.length > 100) arr.length = 100; // max 100 záznamů
-    saveWatchlist(arr);
-    renderWatchlist();
-  }
-
-  function removeFromWatchlist(idx){
-    const arr = loadWatchlist();
-    arr.splice(idx, 1);
-    saveWatchlist(arr);
-    renderWatchlist();
-  }
-
-  function clearWatchlist(){
-    saveWatchlist([]);
-    renderWatchlist();
-  }
-
-  // =========================
-  // DCF math (Bear/Base/Bull)
-  // =========================
-  function calcScenario(fcf0, years, r, g, tg, netDebt){
-    let pvSum = 0;
-    let fcf = fcf0;
-
-    for(let i=1; i<=years; i++){
-      fcf = fcf * (1 + g);
-      pvSum += fcf / Math.pow(1 + r, i);
-    }
-
-    // Terminal value
-    const denom = (r - tg);
-    const tv = denom > 0 ? (fcf * (1 + tg)) / denom : NaN;
-    const pvTv = isFinite(tv) ? tv / Math.pow(1 + r, years) : NaN;
-
-    const ev = pvSum + (isFinite(pvTv) ? pvTv : 0);
-    const eq = ev - netDebt;
-    return { pvSum, tv, pvTv, ev, eq, fcfN: fcf };
-  }
-
-  function dcfCompute(){
-    const ticker = ($("inTicker")?.value || "").trim().toUpperCase();
-    const years  = parseInt(($("inYears")?.value || "10"), 10);
-
-    const fcf0   = parseNum($("inFcf")?.value);
-    const r      = parseNum($("inR")?.value) / 100;
-    const tg     = parseNum($("inTg")?.value) / 100;
-
-    const netDebt = parseNum($("inNetd")?.value || "0");
-    const shares  = parseNum($("inShares")?.value);
-    const price   = parseNum($("inPrice")?.value);
-
-    const gBear = parseNum($("inBear")?.value) / 100;
-    const gBase = parseNum($("inBase")?.value) / 100;
-    const gBull = parseNum($("inBull")?.value) / 100;
-
-    // validace
-    if(!ticker){
-      toast("Chybí ticker", "Zadej ticker (např. AAPL).");
-      return null;
-    }
-    if(!isFinite(fcf0) || fcf0<=0){
-      toast("Chybí FCF", "Zadej FCF0 (aktuální volné cash flow).");
-      return null;
-    }
-    if(!isFinite(r) || r<=0){
-      toast("Chybí diskont", "Zadej diskontní sazbu r (%).");
-      return null;
-    }
-    if(!isFinite(shares) || shares<=0){
-      toast("Chybí počet akcií", "Zadej počet akcií (Shares outstanding).");
-      return null;
-    }
-
-    const scBear = calcScenario(fcf0, years, r, gBear, tg, netDebt);
-    const scBase = calcScenario(fcf0, years, r, gBase, tg, netDebt);
-    const scBull = calcScenario(fcf0, years, r, gBull, tg, netDebt);
-
-    const fairBear = scBear.eq / shares;
-    const fairBase = scBase.eq / shares;
-    const fairBull = scBull.eq / shares;
-
-    const now = new Date();
-    const item = {
-      ts: now.toISOString(),
-      date: now.toLocaleString(window.LANG==="en" ? "en-US" : "cs-CZ"),
-      ticker,
-      ccy: (window.CCY || "USD"),
-      inputs: { years, fcf0, r, tg, netDebt, shares, price, gBear, gBase, gBull },
-      results: { fairBear, fairBase, fairBull, evBase: scBase.ev, eqBase: scBase.eq }
-    };
-
-    // vypsání do UI (pokud existuje)
-    const resBox = $("resBox");
-    if(resBox){
-      resBox.classList.add("show");
-      const el = (id, txt)=>{ const n=$(id); if(n) n.textContent = txt; };
-      el("outTicker", ticker);
-      el("outBear", fmtMoney(fairBear));
-      el("outBase", fmtMoney(fairBase));
-      el("outBull", fmtMoney(fairBull));
-      el("outPrice", isFinite(price) ? fmtMoney(price) : "—");
-      el("outDate", item.date);
-    }
-
-    // jednoduchý “graf” pokud nemáš chart.js v part1 (jen text)
-    const chartSub = $("t_chartSub");
-    if(chartSub){
-      chartSub.textContent =
-        (window.LANG==="en")
-          ? "Bear/Base/Bull fair value per share"
-          : "Férová hodnota na akcii (Bear/Base/Bull)";
-    }
-
-    // pokud máš Chart.js připojený v PART 1, zkusíme ho použít
-    try{
-      const canvas = $("dcfChart");
-      if(canvas && window.Chart){
-        const ctx = canvas.getContext("2d");
-        if(window.__dcfChart) window.__dcfChart.destroy();
-        window.__dcfChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: ["Bear","Base","Bull"],
-            datasets: [{
-              label: (window.LANG==="en" ? "Fair value" : "Férová hodnota"),
-              data: [fairBear, fairBase, fairBull]
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: { legend: { display: true } }
-          }
-        });
-      }
-    }catch(e){
-      // ignoruj – graf není kritický
-    }
-
-    return item;
-  }
-
-  // =========================
-  // WATCHLIST render (UI)
-  // =========================
-  function renderWatchlist(){
-    const wrap = $("watchList");
-    const empty = $("t_emptyWatch");
-    if(!wrap) return;
-
-    const arr = loadWatchlist();
-    if(empty) empty.style.display = arr.length ? "none" : "block";
-
-    // pokud máš tabulku
-    const tbody = $("watchTbody");
-    if(tbody){
-      tbody.innerHTML = "";
-      arr.forEach((it, idx)=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${esc(it.ticker)}</td>
-          <td>${esc(it.date || "")}</td>
-          <td>${fmtMoney(it.results?.fairBear)}</td>
-          <td>${fmtMoney(it.results?.fairBase)}</td>
-          <td>${fmtMoney(it.results?.fairBull)}</td>
-          <td>
-            <button class="btn sm" data-act="copy" data-idx="${idx}">${window.LANG==="en"?"Copy":"Kopírovat"}</button>
-            <button class="btn sm" data-act="del" data-idx="${idx}">${window.LANG==="en"?"Delete":"Smazat"}</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tbody.onclick = async (e)=>{
-        const b = e.target.closest("button");
-        if(!b) return;
-        const idx = parseInt(b.getAttribute("data-idx"), 10);
-        const act = b.getAttribute("data-act");
-        const item = loadWatchlist()[idx];
-        if(!item) return;
-
-        if(act==="del"){
-          removeFromWatchlist(idx);
-        }
-        if(act==="copy"){
-          const line = [
-            item.ticker,
-            item.date,
-            item.ccy,
-            item.results?.fairBear,
-            item.results?.fairBase,
-            item.results?.fairBull
-          ].join("\t");
-          try{
-            await navigator.clipboard.writeText(line);
-            toast("OK", window.LANG==="en" ? "Copied to clipboard." : "Zkopírováno do schránky.");
-          }catch(err){
-            toast("Kopie", line);
-          }
-        }
-      };
-      return;
-    }
-
-    // fallback – když nemáš tabulku, vyrobíme jednoduchý seznam
-    wrap.innerHTML = "";
-    arr.forEach((it, idx)=>{
-      const div = document.createElement("div");
-      div.className = "wlItem";
-      div.innerHTML = `
-        <div class="wlMain">
-          <div class="wlTop"><strong>${esc(it.ticker)}</strong> <span class="muted">${esc(it.date||"")}</span></div>
-          <div class="wlVals">
-            <span>Bear: <b>${fmtMoney(it.results?.fairBear)}</b></span>
-            <span>Base: <b>${fmtMoney(it.results?.fairBase)}</b></span>
-            <span>Bull: <b>${fmtMoney(it.results?.fairBull)}</b></span>
+      <div class="controls">
+        <div class="pill">
+          <span class="label" id="t_langLabel">Jazyk</span>
+          <div class="seg" id="langSeg">
+            <button type="button" data-lang="cs" class="active">CZ</button>
+            <button type="button" data-lang="en">EN</button>
           </div>
         </div>
-        <div class="wlBtns">
-          <button class="btn sm" data-act="del" data-idx="${idx}">${window.LANG==="en"?"Delete":"Smazat"}</button>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <section id="screenHome" class="screen active">
+      <div class="card homeHero bodyPad">
+        <div class="muted" id="t_homeLead">Tři šuplíky: DCF výpočet, Watchlist, O aplikaci.</div>
+
+        <div class="drawerList">
+          <button class="drawerBtn" id="btnGoDCF" data-screen="dcf" type="button">
+            <div class="drawerLeft">
+              <div class="iconBox">Σ</div>
+              <div class="drawerText">
+                <div class="drawerTitle" id="t_drawerDCF">DCF výpočet</div>
+                <div class="drawerSub" id="t_drawerDCFSub">Spočítej férovou hodnotu akcie</div>
+              </div>
+            </div>
+            <div class="chev">›</div>
+          </button>
+
+          <button class="drawerBtn" id="btnGoWatch" data-screen="watch" type="button">
+            <div class="drawerLeft">
+              <div class="iconBox">★</div>
+              <div class="drawerText">
+                <div class="drawerTitle" id="t_drawerWatch">Watchlist</div>
+                <div class="drawerSub" id="t_drawerWatchSub">Uložené výsledky + export</div>
+              </div>
+            </div>
+            <div class="chev">›</div>
+          </button>
+
+          <button class="drawerBtn" id="btnGoAbout" data-screen="about" type="button">
+            <div class="drawerLeft">
+              <div class="iconBox">i</div>
+              <div class="drawerText">
+                <div class="drawerTitle" id="t_drawerAbout">O aplikaci</div>
+                <div class="drawerSub" id="t_drawerAboutSub">Jak to funguje + tipy</div>
+              </div>
+            </div>
+            <div class="chev">›</div>
+          </button>
         </div>
-      `;
-      wrap.appendChild(div);
-    });
+      </div>
+    </section>
+  
+<!-- DCF -->
+    <section id="screenDCF" class="screen">
+      <div class="card">
+        <div class="screenHead">
+          <h2 class="screenTitle" id="t_dcfTitle">DCF výpočet</h2>
+          <button class="btn" type="button" id="btnBackFromDCF">Zpět</button>
+        </div>
 
-    wrap.onclick = (e)=>{
-      const b = e.target.closest("button");
-      if(!b) return;
-      const idx = parseInt(b.getAttribute("data-idx"), 10);
-      const act = b.getAttribute("data-act");
-      if(act==="del") removeFromWatchlist(idx);
-    };
-  }
+        <div class="bodyPad">
+          <div class="grid2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="ticker" id="t_tickerLbl">Symbol akcie</label>
+                <button class="infoBtn" type="button" data-tip="ticker">?</button>
+              </div>
+              <input id="ticker" placeholder="AAPL" inputmode="text" />
+              <div class="hint" id="t_tickerHint">Jen pro popisek a uložení do watchlistu.</div>
+            </div>
 
-  // =========================
-  // EXPORT – PDF / COPY
-  // =========================
-  async function exportWatchlistToClipboard(){
-    const arr = loadWatchlist();
-    if(!arr.length){
-      toast("Watchlist", window.LANG==="en" ? "No items." : "Watchlist je prázdný.");
-      return;
-    }
-    const header = ["Ticker","Date","CCY","Bear","Base","Bull"].join("\t");
-    const rows = arr.map(it=>[
-      it.ticker,
-      it.date || "",
-      it.ccy || "",
-      (it.results?.fairBear ?? ""),
-      (it.results?.fairBase ?? ""),
-      (it.results?.fairBull ?? "")
-    ].join("\t"));
-    const text = [header, ...rows].join("\n");
+            <div class="field">
+              <div class="labelRow">
+                <label for="years" id="t_yearsLbl">Počet let projekce</label>
+                <button class="infoBtn" type="button" data-tip="years">?</button>
+              </div>
+              <input id="years" value="10" inputmode="numeric" />
+              <div class="hint" id="t_yearsHint">Typicky 5–10 let.</div>
+            </div>
+          </div>
 
-    try{
-      await navigator.clipboard.writeText(text);
-      toast("OK", window.LANG==="en" ? "Watchlist copied." : "Watchlist zkopírován (TSV).");
-    }catch(e){
-      toast("Kopie (TSV)", text);
-    }
-  }
+          <div class="grid2" style="margin-top:12px;">
+            <div class="field">
+              <div class="labelRow">
+                <label for="fcf0" id="t_fcfLbl">FCF (poslední rok)</label>
+                <button class="infoBtn" type="button" data-tip="fcf0">?</button>
+              </div>
+              <input id="fcf0" placeholder="např. 100000000" inputmode="decimal" />
+              <div class="hint" id="t_fcfHint">Volné cash flow (nejlépe TTM nebo poslední FY).</div>
+            </div>
 
-  function exportWatchlistToPDF(){
-    // nejjednodušší “PDF export” přes print dialog (funguje všude)
-    // doporučuju mít v CSS @media print, ale i bez toho to projde
-    window.print();
-  }
+            <div class="field">
+              <div class="labelRow">
+                <label for="shares" id="t_sharesLbl">Počet akcií</label>
+                <button class="infoBtn" type="button" data-tip="shares">?</button>
+              </div>
+              <input id="shares" placeholder="např. 16000000000" inputmode="decimal" />
+              <div class="hint" id="t_sharesHint">Shares outstanding (diluted, pokud chceš být konzervativní).</div>
+            </div>
+          </div>
 
-  // =========================
-  // Bind UI events (pokud ID existují)
-  // =========================
-  function bind(){
-    // DCF buttons
-    $("btnCalc")?.addEventListener("click", ()=>{
-      dcfCompute();
-    });
+          <div class="grid3" style="margin-top:12px;">
+            <div class="field">
+              <div class="labelRow">
+                <label for="disc" id="t_discLbl">Diskontní sazba (%)</label>
+                <button class="infoBtn" type="button" data-tip="disc">?</button>
+              </div>
+              <input id="disc" value="9" inputmode="decimal" />
+              <div class="hint" id="t_discHint">Např. 8–12 % podle rizika.</div>
+            </div>
 
-    $("btnSave")?.addEventListener("click", ()=>{
-      const item = dcfCompute();
-      if(item){
-        addToWatchlist(item);
-        toast("Uloženo", window.LANG==="en" ? "Saved to watchlist." : "Uloženo do watchlistu.");
-      }
-    });
+            <div class="field">
+              <div class="labelRow">
+                <label for="term" id="t_termLbl">Terminální růst (%)</label>
+                <button class="infoBtn" type="button" data-tip="term">?</button>
+              </div>
+              <input id="term" value="2.5" inputmode="decimal" />
+              <div class="hint" id="t_termHint">Dlouhodobý růst (často 2–3 %).</div>
+            </div>
 
-    // Watchlist buttons (pokud je máš ve své HTML)
-    $("btnExportPdf")?.addEventListener("click", exportWatchlistToPDF);
-    $("btnCopyAll")?.addEventListener("click", exportWatchlistToClipboard);
-    $("btnClearWatch")?.addEventListener("click", ()=>{
-      if(confirm(window.LANG==="en" ? "Clear watchlist?" : "Smazat celý watchlist?")){
-        clearWatchlist();
-      }
-    });
+            <div class="field">
+              <div class="labelRow">
+                <label for="netDebt" id="t_netDebtLbl">Net debt (volit.)</label>
+                <button class="infoBtn" type="button" data-tip="netDebt">?</button>
+              </div>
+              <input id="netDebt" value="0" inputmode="decimal" />
+              <div class="hint" id="t_netDebtHint">Dluh − cash. Zadej 0, pokud neřešíš.</div>
+            </div>
+          </div>
 
-    // vždy po načtení
-    renderWatchlist();
-  }
+          <div class="grid3" style="margin-top:12px;">
+            <div class="field">
+              <div class="labelRow">
+                <label for="gBear" id="t_gBearLbl">Růst FCF – Bear (%)</label>
+                <button class="infoBtn" type="button" data-tip="gBear">?</button>
+              </div>
+              <input id="gBear" value="2" inputmode="decimal" />
+              <div class="hint" id="t_gBearHint">Konzervativní scénář.</div>
+            </div>
 
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", bind);
-  } else {
-    bind();
-  }
+            <div class="field">
+              <div class="labelRow">
+                <label for="gBase" id="t_gBaseLbl">Růst FCF – Base (%)</label>
+                <button class="infoBtn" type="button" data-tip="gBase">?</button>
+              </div>
+              <input id="gBase" value="5" inputmode="decimal" />
+              <div class="hint" id="t_gBaseHint">Neutrální scénář.</div>
+            </div>
 
-  // expose pro další části
-  window.renderWatchlist = renderWatchlist;
-  window.addToWatchlist = addToWatchlist;
+            <div class="field">
+              <div class="labelRow">
+                <label for="gBull" id="t_gBullLbl">Růst FCF – Bull (%)</label>
+                <button class="infoBtn" type="button" data-tip="gBull">?</button>
+              </div>
+              <input id="gBull" value="8" inputmode="decimal" />
+              <div class="hint" id="t_gBullHint">Optimistický scénář.</div>
+            </div>
+          </div>
 
-})();
-</script>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+            <button class="btn primary" id="btnCalc" type="button">Spočítat</button>
+            <button class="btn" id="btnSave" type="button">Uložit</button>
+            <button class="btn" id="btnPrintDCF" type="button">Tisk / PDF</button>
+          </div>
 
-<!-- ============ END OF PART 3/5 ============ -->
-<!-- =========================
-PART 4/5 – UI FIXES (DRAWER, SWITCHES) + WATCHLIST UI BUILD
-vložit ZA PART 3/5
-========================= -->
-<style>
-  /* --- Drawer (home cards) fix: čitelnost + klikatelnost */
-  .drawerItem, .drawerCard, .drawerRow, .rowCard {
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .drawerItem *, .drawerCard * { pointer-events: none; } /* klik projde na kartu */
-  .drawerItem, .drawerCard {
-    color: rgba(255,255,255,.92) !important;
-  }
-  .drawerItem .sub, .drawerCard .sub, .drawerItem small, .drawerCard small {
-    color: rgba(255,255,255,.65) !important;
-  }
+          <div class="resultBox" id="resultBox" style="display:none;">
+            <div class="kpiRow">
+              <div class="kpi">
+                <p class="a" id="t_kpiBear">Bear (na akcii)</p>
+                <p class="b" id="kpiBear">—</p>
+              </div>
+              <div class="kpi">
+                <p class="a" id="t_kpiBase">Base (na akcii)</p>
+                <p class="b" id="kpiBase">—</p>
+              </div>
+              <div class="kpi">
+                <p class="a" id="t_kpiBull">Bull (na akcii)</p>
+                <p class="b" id="kpiBull">—</p>
+              </div>
+            </div>
 
-  /* --- Horní přepínače: ať nejsou uřízlý a jsou vidět */
-  .topRow, .headerRow, .switchTop, .pillRow {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .pill, .chip, .togglePill, .langPill, .ccyPill {
-    min-width: 72px;
-    text-align: center;
-  }
+            <div style="margin-top:12px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th id="t_tblScenario">Scénář</th>
+                    <th class="right" id="t_tblEV">Enterprise Value</th>
+                    <th class="right" id="t_tblEq">Equity Value</th>
+                    <th class="right" id="t_tblPS">Na akcii</th>
+                  </tr>
+                </thead>
+                <tbody id="dcfTableBody"></tbody>
+              </table>
+              <div class="hint" style="margin-top:8px;" id="t_noteMath">
+                Pozn.: Jednoduchý DCF: projekce FCF + terminální hodnota (Gordon). Net debt se odečítá pro equity value.
+              </div>
+            </div>
+          </div>
 
-  /* --- Watchlist UI */
-  .wlToolbar{
-    display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px;
-  }
-  .wlTable{
-    width:100%;
-    border-collapse: collapse;
-    overflow:hidden;
-    border-radius:14px;
-  }
-  .wlTable th, .wlTable td{
-    padding:10px 10px;
-    font-size: 14px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    color: rgba(255,255,255,.92);
-  }
-  .wlTable th{
-    color: rgba(255,255,255,.7);
-    font-weight: 600;
-    letter-spacing: .02em;
-  }
-  .wlTable tr:last-child td{ border-bottom:none; }
-  .btn.sm{ padding:8px 10px; border-radius:12px; font-size: 13px; }
-  .muted{ color: rgba(255,255,255,.65); }
-  .note{ color: rgba(255,255,255,.75); }
-</style>
+        </div>
+      </div>
+    </section>
+  
+<!-- WATCHLIST -->
+    <section id="screenWatch" class="screen">
+      <div class="card">
+        <div class="screenHead">
+          <h2 class="screenTitle" id="t_watchTitle">Watchlist</h2>
+          <button class="btn" type="button" id="btnBackFromWatch">Zpět</button>
+        </div>
 
+        <div class="bodyPad">
+          <div class="muted" id="t_watchLead">Uložené výpočty v prohlížeči (LocalStorage).</div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn" type="button" id="btnCopyTSV">Kopírovat vše (TSV)</button>
+            <button class="btn" type="button" id="btnPrintWatch">Tisk / PDF</button>
+            <button class="btn danger" type="button" id="btnClearWatch">Smazat vše</button>
+          </div>
+
+          <div style="margin-top:12px;">
+            <table>
+              <thead>
+                <tr>
+                  <th id="t_wTicker">Ticker</th>
+                  <th id="t_wDate">Datum</th>
+                  <th class="right" id="t_wBear">Bear</th>
+                  <th class="right" id="t_wBase">Base</th>
+                  <th class="right" id="t_wBull">Bull</th>
+                  <th class="right" id="t_wAct">Akce</th>
+                </tr>
+              </thead>
+              <tbody id="watchBody"></tbody>
+            </table>
+            <p class="hint" id="t_watchEmpty" style="margin-top:10px;">Zatím nic uloženého.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="screenAbout" class="screen">
+      <div class="card">
+        <div class="screenHead">
+          <h2 class="screenTitle" id="t_aboutTitle">O aplikaci</h2>
+          <button class="btn" type="button" id="btnBackFromAbout">Zpět</button>
+        </div>
+
+        <div class="bodyPad">
+          <div class="card bodyPad" style="background:rgba(255,255,255,.04); box-shadow:none;">
+            <p class="muted" id="t_aboutP1" style="margin:0 0 10px;">
+              Tohle je jednoduchý DCF kalkulátor: zadáš FCF, počet akcií, diskont, růstové scénáře a terminální růst.
+              Výsledek je férová hodnota na akcii pro Bear/Base/Bull.
+            </p>
+
+            <ul style="margin:0; padding-left:18px; color:var(--muted); line-height:1.35;">
+              <li id="t_aboutLi1">Pro přesnost používej FCF TTM nebo poslední FY a konzervativní počet akcií (diluted).</li>
+              <li id="t_aboutLi2">Diskont nastav podle rizika (např. 9 % je častý kompromis).</li>
+              <li id="t_aboutLi3">Terminální růst drž nízko (2–3 %), aby výsledek nebyl přestřelený.</li>
+              <li id="t_aboutLi4">Net debt: dluh − hotovost. Pokud ho neřešíš, nech 0.</li>
+            </ul>
+
+            <p class="hint" id="t_aboutP2" style="margin:10px 0 0;">
+              Tip: klikni na „?“ u polí – vysvětlí, co přesně zadat.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <p class="t1" id="toastT1">OK</p>
+      <p class="t2" id="toastT2">…</p>
+    </div>
+
+    <!-- Tooltip bubble -->
+    <div class="tipBubble" id="tipBubble">
+      <p class="k" id="tipK">Tip</p>
+      <p class="v" id="tipV">…</p>
+    </div>
+
+  </div> <!-- /wrap -->
 <script>
-(function(){
-  "use strict";
+    // ---------- i18n ----------
+    const I18N = {
+      cs: {
+        appTitle: "Equity Analyzer",
+        appDesc: "DCF odhad férové hodnoty + watchlist",
+        langLabel: "Jazyk",
+        homeLead: "Tři šuplíky: DCF výpočet, Watchlist, O aplikaci.",
 
-  // ---------- translations (jen ty nejdůležitější texty)
-  const T = {
-    cs: {
-      dcf: "DCF analýza",
-      watch: "Watchlist",
-      about: "O aplikaci",
-      copy: "Kopírovat",
-      del: "Smazat",
-      clear: "Smazat vše",
-      copyAll: "Kopírovat vše (TSV)",
-      exportPdf: "Export do PDF",
-      empty: "Zatím tu nic není. Ulož první výpočet v DCF.",
-      wlTitle: "Uložené výsledky",
-    },
-    en: {
-      dcf: "DCF analysis",
-      watch: "Watchlist",
-      about: "About",
-      copy: "Copy",
-      del: "Delete",
-      clear: "Clear all",
-      copyAll: "Copy all (TSV)",
-      exportPdf: "Export to PDF",
-      empty: "Nothing here yet. Save your first DCF result.",
-      wlTitle: "Saved results",
+        drawerDCF: "DCF výpočet",
+        drawerDCFSub: "Spočítej férovou hodnotu akcie",
+        drawerWatch: "Watchlist",
+        drawerWatchSub: "Uložené výsledky + export",
+        drawerAbout: "O aplikaci",
+        drawerAboutSub: "Jak to funguje + tipy",
+
+        dcfTitle: "DCF výpočet",
+        watchTitle: "Watchlist",
+        aboutTitle: "O aplikaci",
+        back: "Zpět",
+
+        tickerLbl: "Symbol akcie",
+        tickerHint: "Jen pro popisek a uložení do watchlistu.",
+        yearsLbl: "Počet let projekce",
+        yearsHint: "Typicky 5–10 let.",
+
+        fcfLbl: "FCF (poslední rok)",
+        fcfHint: "Volné cash flow (nejlépe TTM nebo poslední FY).",
+        sharesLbl: "Počet akcií",
+        sharesHint: "Shares outstanding (diluted, pokud chceš být konzervativní).",
+
+        discLbl: "Diskontní sazba (%)",
+        discHint: "Např. 8–12 % podle rizika.",
+        termLbl: "Terminální růst (%)",
+        termHint: "Dlouhodobý růst (často 2–3 %).",
+        netDebtLbl: "Net debt (volit.)",
+        netDebtHint: "Dluh − cash. Zadej 0, pokud neřešíš.",
+
+        gBearLbl: "Růst FCF – Bear (%)",
+        gBearHint: "Konzervativní scénář.",
+        gBaseLbl: "Růst FCF – Base (%)",
+        gBaseHint: "Neutrální scénář.",
+        gBullLbl: "Růst FCF – Bull (%)",
+        gBullHint: "Optimistický scénář.",
+
+        calc: "Spočítat",
+        save: "Uložit",
+        print: "Tisk / PDF",
+
+        kpiBear: "Bear (na akcii)",
+        kpiBase: "Base (na akcii)",
+        kpiBull: "Bull (na akcii)",
+
+        tblScenario: "Scénář",
+        tblEV: "Enterprise Value",
+        tblEq: "Equity Value",
+        tblPS: "Na akcii",
+        noteMath: "Pozn.: Jednoduchý DCF: projekce FCF + terminální hodnota (Gordon). Net debt se odečítá pro equity value.",
+
+        watchLead: "Uložené výpočty v prohlížeči (LocalStorage).",
+        copyTSV: "Kopírovat vše (TSV)",
+        clearAll: "Smazat vše",
+        wTicker: "Ticker",
+        wDate: "Datum",
+        wBear: "Bear",
+        wBase: "Base",
+        wBull: "Bull",
+        wAct: "Akce",
+        watchEmpty: "Zatím nic uloženého.",
+        copy: "Kopírovat",
+        del: "Smazat",
+
+        aboutP1: "Tohle je jednoduchý DCF kalkulátor: zadáš FCF, počet akcií, diskont, růstové scénáře a terminální růst. Výsledek je férová hodnota na akcii pro Bear/Base/Bull.",
+        aboutLi1: "Pro přesnost používej FCF TTM nebo poslední FY a konzervativní počet akcií (diluted).",
+        aboutLi2: "Diskont nastav podle rizika (např. 9 % je častý kompromis).",
+        aboutLi3: "Terminální růst drž nízko (2–3 %), aby výsledek nebyl přestřelený.",
+        aboutLi4: "Net debt: dluh − hotovost. Pokud ho neřešíš, nech 0.",
+        aboutP2: "Tip: klikni na „?“ u polí – vysvětlí, co přesně zadat.",
+
+        // tips
+        tipTitles: {
+          ticker: "Ticker",
+          years: "Projekce (roky)",
+          fcf0: "FCF",
+          shares: "Počet akcií",
+          disc: "Diskontní sazba",
+          term: "Terminální růst",
+          netDebt: "Net debt",
+          gBear: "Růst Bear",
+          gBase: "Růst Base",
+          gBull: "Růst Bull",
+        },
+        tipBodies: {
+          ticker: "Např. AAPL. Používá se jen pro popisek a watchlist.",
+          years: "Kolik let promítáme růst FCF. Nejčastěji 5 až 10.",
+          fcf0: "Volné cash flow (Free Cash Flow). Ideálně TTM nebo poslední rok.",
+          shares: "Počet akcií v oběhu. Konzervativně používej diluted shares.",
+          disc: "Požadovaná návratnost / rizikovost. Vyšší = nižší férová cena.",
+          term: "Dlouhodobý růst po skončení projekce. Typicky 2–3 %.",
+          netDebt: "Dluh − hotovost. Odečítá se při přechodu z EV na Equity Value.",
+          gBear: "Roční růst FCF pro konzervativní scénář.",
+          gBase: "Roční růst FCF pro střední scénář.",
+          gBull: "Roční růst FCF pro optimistický scénář.",
+        },
+
+        errTitle: "Chyba",
+        errMissing: "Chybí povinné hodnoty. Zadej FCF a počet akcií.",
+        errBad: "Zkontroluj čísla (musí být > 0) a že diskont > terminální růst.",
+        saved: "Uloženo",
+        savedMsg: "Výsledek byl uložen do watchlistu.",
+        copied: "Zkopírováno",
+        copiedMsg: "Data jsou v schránce.",
+        cleared: "Smazáno",
+        clearedMsg: "Watchlist byl vymazán.",
+      },
+
+      en: {
+        appTitle: "Equity Analyzer",
+        appDesc: "DCF fair value + watchlist",
+        langLabel: "Language",
+        homeLead: "Three drawers: DCF, Watchlist, About.",
+
+        drawerDCF: "DCF Calculator",
+        drawerDCFSub: "Estimate fair value per share",
+        drawerWatch: "Watchlist",
+        drawerWatchSub: "Saved results + export",
+        drawerAbout: "About",
+        drawerAboutSub: "How it works + tips",
+
+        dcfTitle: "DCF Calculator",
+        watchTitle: "Watchlist",
+        aboutTitle: "About",
+        back: "Back",
+
+        tickerLbl: "Ticker",
+        tickerHint: "Only for labeling & watchlist.",
+        yearsLbl: "Projection years",
+        yearsHint: "Usually 5–10 years.",
+
+        fcfLbl: "FCF (last year)",
+        fcfHint: "Free Cash Flow (TTM or last FY).",
+        sharesLbl: "Shares outstanding",
+        sharesHint: "Use diluted shares if you want to be conservative.",
+
+        discLbl: "Discount rate (%)",
+        discHint: "E.g., 8–12% depending on risk.",
+        termLbl: "Terminal growth (%)",
+        termHint: "Long-term growth (often 2–3%).",
+        netDebtLbl: "Net debt (opt.)",
+        netDebtHint: "Debt − cash. Use 0 if you ignore it.",
+
+        gBearLbl: "FCF growth – Bear (%)",
+        gBearHint: "Conservative scenario.",
+        gBaseLbl: "FCF growth – Base (%)",
+        gBaseHint: "Neutral scenario.",
+        gBullLbl: "FCF growth – Bull (%)",
+        gBullHint: "Optimistic scenario.",
+
+        calc: "Calculate",
+        save: "Save",
+        print: "Print / PDF",
+
+        kpiBear: "Bear (per share)",
+        kpiBase: "Base (per share)",
+        kpiBull: "Bull (per share)",
+
+        tblScenario: "Scenario",
+        tblEV: "Enterprise Value",
+        tblEq: "Equity Value",
+        tblPS: "Per share",
+        noteMath: "Note: Simple DCF: projected FCF + terminal value (Gordon). Net debt is subtracted to get equity value.",
+
+        watchLead: "Saved locally in your browser (LocalStorage).",
+        copyTSV: "Copy all (TSV)",
+        clearAll: "Clear all",
+        wTicker: "Ticker",
+        wDate: "Date",
+        wBear: "Bear",
+        wBase: "Base",
+        wBull: "Bull",
+        wAct: "Actions",
+        watchEmpty: "Nothing saved yet.",
+        copy: "Copy",
+        del: "Delete",
+
+        aboutP1: "This is a simple DCF calculator: enter FCF, shares, discount rate, growth scenarios and terminal growth. Output is fair value per share for Bear/Base/Bull.",
+        aboutLi1: "For better accuracy use TTM/last FY FCF and conservative (diluted) shares.",
+        aboutLi2: "Set discount rate based on risk (9% is a common compromise).",
+        aboutLi3: "Keep terminal growth low (2–3%) to avoid overstating value.",
+        aboutLi4: "Net debt: debt − cash. Leave 0 if you ignore it.",
+        aboutP2: "Tip: click “?” next to inputs to see explanations.",
+
+        tipTitles: {
+          ticker: "Ticker",
+          years: "Projection years",
+          fcf0: "FCF",
+          shares: "Shares",
+          disc: "Discount rate",
+          term: "Terminal growth",
+          netDebt: "Net debt",
+          gBear: "Bear growth",
+          gBase: "Base growth",
+          gBull: "Bull growth",
+        },
+        tipBodies: {
+          ticker: "E.g., AAPL. Used only for labels & watchlist.",
+          years: "Number of years to project FCF growth (commonly 5–10).",
+          fcf0: "Free Cash Flow. Prefer TTM or last fiscal year.",
+          shares: "Shares outstanding. Use diluted shares to be conservative.",
+          disc: "Required return / risk. Higher rate lowers fair value.",
+          term: "Long-term growth after projection. Commonly 2–3%.",
+          netDebt: "Debt minus cash. Subtracted when converting EV to equity value.",
+          gBear: "Annual FCF growth for conservative scenario.",
+          gBase: "Annual FCF growth for base scenario.",
+          gBull: "Annual FCF growth for optimistic scenario.",
+        },
+
+        errTitle: "Error",
+        errMissing: "Missing required values. Enter FCF and shares.",
+        errBad: "Check numbers (> 0) and ensure discount rate > terminal growth.",
+        saved: "Saved",
+        savedMsg: "Result was saved to watchlist.",
+        copied: "Copied",
+        copiedMsg: "Data is in your clipboard.",
+        cleared: "Cleared",
+        clearedMsg: "Watchlist cleared.",
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const qs = (sel, root=document) => root.querySelector(sel);
+    const qsa = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    const state = {
+      lang: "cs",
+      lastCalc: null,
+    };
+
+    function setLang(lang){
+      state.lang = lang;
+      document.documentElement.lang = lang;
+
+      // seg UI
+      qsa("#langSeg button").forEach(b=>{
+        b.classList.toggle("active", b.dataset.lang === lang);
+      });
+
+      const T = I18N[lang];
+
+      // top
+      $("t_appTitle").textContent = T.appTitle;
+      $("t_appDesc").textContent  = T.appDesc;
+      $("t_langLabel").textContent= T.langLabel;
+      $("t_homeLead").textContent = T.homeLead;
+
+      // home drawers
+      $("t_drawerDCF").textContent = T.drawerDCF;
+      $("t_drawerDCFSub").textContent = T.drawerDCFSub;
+      $("t_drawerWatch").textContent = T.drawerWatch;
+      $("t_drawerWatchSub").textContent = T.drawerWatchSub;
+      $("t_drawerAbout").textContent = T.drawerAbout;
+      $("t_drawerAboutSub").textContent = T.drawerAboutSub;
+
+      // titles & buttons
+      $("t_dcfTitle").textContent = T.dcfTitle;
+      $("t_watchTitle").textContent = T.watchTitle;
+      $("t_aboutTitle").textContent = T.aboutTitle;
+      $("btnBackFromDCF").textContent = T.back;
+      $("btnBackFromWatch").textContent = T.back;
+      $("btnBackFromAbout").textContent = T.back;
+
+      // labels/hints
+      $("t_tickerLbl").textContent = T.tickerLbl;
+      $("t_tickerHint").textContent = T.tickerHint;
+      $("t_yearsLbl").textContent = T.yearsLbl;
+      $("t_yearsHint").textContent = T.yearsHint;
+
+      $("t_fcfLbl").textContent = T.fcfLbl;
+      $("t_fcfHint").textContent = T.fcfHint;
+      $("t_sharesLbl").textContent = T.sharesLbl;
+      $("t_sharesHint").textContent = T.sharesHint;
+
+      $("t_discLbl").textContent = T.discLbl;
+      $("t_discHint").textContent = T.discHint;
+      $("t_termLbl").textContent = T.termLbl;
+      $("t_termHint").textContent = T.termHint;
+      $("t_netDebtLbl").textContent = T.netDebtLbl;
+      $("t_netDebtHint").textContent = T.netDebtHint;
+
+      $("t_gBearLbl").textContent = T.gBearLbl;
+      $("t_gBearHint").textContent = T.gBearHint;
+      $("t_gBaseLbl").textContent = T.gBaseLbl;
+      $("t_gBaseHint").textContent = T.gBaseHint;
+      $("t_gBullLbl").textContent = T.gBullLbl;
+      $("t_gBullHint").textContent = T.gBullHint;
+
+      $("btnCalc").textContent = T.calc;
+      $("btnSave").textContent = T.save;
+      $("btnPrintDCF").textContent = T.print;
+
+      $("t_kpiBear").textContent = T.kpiBear;
+      $("t_kpiBase").textContent = T.kpiBase;
+      $("t_kpiBull").textContent = T.kpiBull;
+
+      $("t_tblScenario").textContent = T.tblScenario;
+      $("t_tblEV").textContent = T.tblEV;
+      $("t_tblEq").textContent = T.tblEq;
+      $("t_tblPS").textContent = T.tblPS;
+      $("t_noteMath").textContent = T.noteMath;
+
+      // watchlist
+      $("t_watchLead").textContent = T.watchLead;
+      $("btnCopyTSV").textContent = T.copyTSV;
+      $("btnPrintWatch").textContent = T.print;
+      $("btnClearWatch").textContent = T.clearAll;
+      $("t_wTicker").textContent = T.wTicker;
+      $("t_wDate").textContent = T.wDate;
+      $("t_wBear").textContent = T.wBear;
+      $("t_wBase").textContent = T.wBase;
+      $("t_wBull").textContent = T.wBull;
+      $("t_wAct").textContent = T.wAct;
+
+      // about
+      $("t_aboutP1").textContent = T.aboutP1;
+      $("t_aboutLi1").textContent = T.aboutLi1;
+      $("t_aboutLi2").textContent = T.aboutLi2;
+      $("t_aboutLi3").textContent = T.aboutLi3;
+      $("t_aboutLi4").textContent = T.aboutLi4;
+      $("t_aboutP2").textContent = T.aboutP2;
+
+      // re-render watchlist actions text
+      renderWatchlist();
     }
-  };
 
-  const $ = (id)=>document.getElementById(id);
+    // ---------- navigation ----------
+    function showScreen(name){
+      const map = {
+        home: "screenHome",
+        dcf: "screenDCF",
+        watch: "screenWatch",
+        about: "screenAbout",
+      };
+      const id = map[name] || "screenHome";
+      qsa(".screen").forEach(s=>s.classList.remove("active"));
+      $(id).classList.add("active");
+      // close tip bubble when navigating
+      hideTip();
+      // update hash (optional)
+      location.hash = name;
+    }
 
-  function lang(){ return (window.LANG === "en") ? "en" : "cs"; }
+    // ---------- toast ----------
+    let toastTimer = null;
+    function toast(title, msg){
+      $("toastT1").textContent = title;
+      $("toastT2").textContent = msg;
+      $("toast").classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> $("toast").classList.remove("show"), 2600);
+    }
 
-  // ---------- Drawer click fix (aby šly otevírat šuplíky)
-  function bindDrawer(){
-    // Zkusíme nejčastější ID, co tam máš
-    const map = [
-      { ids: ["drawerDCF","goDCF","btnDCF"], screen:"dcf" },
-      { ids: ["drawerWatch","goWatch","btnWatch"], screen:"watch" },
-      { ids: ["drawerAbout","goAbout","btnAbout"], screen:"about" },
-    ];
+    // ---------- tooltip bubble ----------
+    function showTip(anchorEl, key){
+      const T = I18N[state.lang];
+      $("tipK").textContent = T.tipTitles[key] || "Tip";
+      $("tipV").textContent = T.tipBodies[key] || "";
 
-    map.forEach(m=>{
-      m.ids.forEach(id=>{
-        const el = $(id);
-        if(el){
-          el.style.pointerEvents = "auto";
-          el.addEventListener("click", (e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            if(typeof window.showScreen === "function"){
-              window.showScreen(m.screen);
-            }
-          }, { passive:false });
+      const b = $("tipBubble");
+      const r = anchorEl.getBoundingClientRect();
+      const pad = 10;
+
+      // position under the button, keep inside viewport
+      const x = Math.min(window.innerWidth - pad - 360, Math.max(pad, r.left - 140));
+      const y = Math.min(window.innerHeight - pad - 120, r.bottom + 10);
+
+      b.style.left = x + "px";
+      b.style.top  = y + "px";
+      b.classList.add("show");
+    }
+    function hideTip(){ $("tipBubble").classList.remove("show"); }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".infoBtn");
+      if(btn){
+        e.preventDefault();
+        e.stopPropagation();
+        const key = btn.dataset.tip;
+        showTip(btn, key);
+        return;
+      }
+      // click outside tip -> hide
+      if(!$("tipBubble").contains(e.target)) hideTip();
+    }, true);
+
+    // ---------- parsing / formatting ----------
+    function parseNumber(str){
+      if(str == null) return NaN;
+      // allow "1 234 567", "1,23" or "1.23"
+      const s = String(str).trim().replace(/\s+/g,"").replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+    function fmtMoney(n){
+      if(!Number.isFinite(n)) return "—";
+      const abs = Math.abs(n);
+      const digits = abs >= 100 ? 0 : 2;
+      return n.toLocaleString(state.lang === "cs" ? "cs-CZ" : "en-US", { maximumFractionDigits: digits });
+    }
+
+    // hash routing (optional)
+    function routeFromHash(){
+      const h = (location.hash || "").replace("#","").trim();
+      if(["dcf","watch","about","home"].includes(h)) showScreen(h);
+    }// ---------- DCF core ----------
+    function dcfScenario({ fcf0, years, g, disc, term, netDebt, shares }){
+      // g, disc, term are decimals (e.g., 0.05)
+      // project FCF each year, discount to PV
+      let pv = 0;
+      let fcf = fcf0;
+
+      for(let t=1; t<=years; t++){
+        fcf = fcf * (1 + g);
+        const df = Math.pow(1 + disc, t);
+        pv += fcf / df;
+      }
+
+      // terminal value based on last projected FCF (year=years)
+      // Gordon Growth: TV = FCF_(n+1) / (r - g)
+      const fcfN1 = fcf * (1 + term);
+      const tv = fcfN1 / (disc - term);
+      const pvTV = tv / Math.pow(1 + disc, years);
+
+      const ev = pv + pvTV;
+      const eq = ev - netDebt;
+      const ps = eq / shares;
+
+      return { ev, eq, ps };
+    }
+
+    function validateInputs(){
+      const fcf0 = parseNumber($("fcf0").value);
+      const shares = parseNumber($("shares").value);
+      const years = Math.round(parseNumber($("years").value));
+      const disc = parseNumber($("disc").value) / 100;
+      const term = parseNumber($("term").value) / 100;
+      const netDebt = parseNumber($("netDebt").value);
+
+      const gBear = parseNumber($("gBear").value) / 100;
+      const gBase = parseNumber($("gBase").value) / 100;
+      const gBull = parseNumber($("gBull").value) / 100;
+
+      if(!Number.isFinite(fcf0) || !Number.isFinite(shares) || fcf0 <= 0 || shares <= 0){
+        const T = I18N[state.lang];
+        toast(T.errTitle, T.errMissing);
+        return null;
+      }
+      if(!Number.isFinite(years) || years < 1 || years > 30 ||
+         !Number.isFinite(disc) || disc <= 0 ||
+         !Number.isFinite(term) || term < -0.5 ||
+         !Number.isFinite(netDebt) ||
+         !Number.isFinite(gBear) || !Number.isFinite(gBase) || !Number.isFinite(gBull) ||
+         disc <= term){
+        const T = I18N[state.lang];
+        toast(T.errTitle, T.errBad);
+        return null;
+      }
+
+      return { fcf0, shares, years, disc, term, netDebt, gBear, gBase, gBull };
+    }
+
+    function doCalc(){
+      const inp = validateInputs();
+      if(!inp) return;
+
+      const { fcf0, shares, years, disc, term, netDebt, gBear, gBase, gBull } = inp;
+
+      const bear = dcfScenario({ fcf0, years, g:gBear, disc, term, netDebt, shares });
+      const base = dcfScenario({ fcf0, years, g:gBase, disc, term, netDebt, shares });
+      const bull = dcfScenario({ fcf0, years, g:gBull, disc, term, netDebt, shares });
+
+      $("resultBox").style.display = "block";
+      $("kpiBear").textContent = fmtMoney(bear.ps);
+      $("kpiBase").textContent = fmtMoney(base.ps);
+      $("kpiBull").textContent = fmtMoney(bull.ps);
+
+      const tbody = $("dcfTableBody");
+      tbody.innerHTML = "";
+      const T = I18N[state.lang];
+
+      const rows = [
+        { name: "Bear", x: bear },
+        { name: "Base", x: base },
+        { name: "Bull", x: bull },
+      ];
+
+      for(const r of rows){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.name}</td>
+          <td class="right">${fmtMoney(r.x.ev)}</td>
+          <td class="right">${fmtMoney(r.x.eq)}</td>
+          <td class="right"><b>${fmtMoney(r.x.ps)}</b></td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      state.lastCalc = {
+        ticker: ($("ticker").value || "").trim().toUpperCase() || "—",
+        date: new Date().toISOString(),
+        bear: bear.ps,
+        base: base.ps,
+        bull: bull.ps,
+        inputs: inp
+      };
+    }
+
+    // ---------- watchlist ----------
+    const WL_KEY = "equity_analyzer_watchlist_v1";
+
+    function loadWL(){
+      try{
+        const raw = localStorage.getItem(WL_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch{
+        return [];
+      }
+    }
+    function saveWL(arr){
+      localStorage.setItem(WL_KEY, JSON.stringify(arr));
+    }
+
+    function renderWatchlist(){
+      const T = I18N[state.lang];
+      const wl = loadWL();
+      const body = $("watchBody");
+      body.innerHTML = "";
+
+      $("t_watchEmpty").style.display = wl.length ? "none" : "block";
+
+      for(const item of wl){
+        const d = new Date(item.date);
+        const ds = isNaN(d.getTime())
+          ? "—"
+          : d.toLocaleString(state.lang === "cs" ? "cs-CZ" : "en-US", { year:"numeric", month:"2-digit", day:"2-digit" });
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${(item.ticker || "—").toUpperCase()}</td>
+          <td class="muted">${ds}</td>
+          <td class="right">${fmtMoney(item.bear)}</td>
+          <td class="right">${fmtMoney(item.base)}</td>
+          <td class="right">${fmtMoney(item.bull)}</td>
+          <td class="right">
+            <button class="btn" type="button" data-act="copy" data-id="${item.id}" style="padding:8px 10px;">${T.copy}</button>
+            <button class="btn danger" type="button" data-act="del" data-id="${item.id}" style="padding:8px 10px; margin-left:6px;">${T.del}</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      }
+    }
+
+    function addToWatchlist(){
+      const T = I18N[state.lang];
+      if(!state.lastCalc){
+        // try calc first
+        doCalc();
+        if(!state.lastCalc) return;
+      }
+      const wl = loadWL();
+      const id = crypto?.randomUUID ? crypto.randomUUID() : (Date.now()+"_"+Math.random().toString(16).slice(2));
+      wl.unshift({ id, ...state.lastCalc });
+      saveWL(wl);
+      toast(T.saved, T.savedMsg);
+      renderWatchlist();
+    }
+
+    function copyText(text){
+      const T = I18N[state.lang];
+      const tryClipboard = async () => {
+        try{
+          await navigator.clipboard.writeText(text);
+          toast(T.copied, T.copiedMsg);
+          return;
+        }catch{}
+        // fallback
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        toast(T.copied, T.copiedMsg);
+      };
+      tryClipboard();
+    }
+
+    function copyWatchTSV(){
+      const wl = loadWL();
+      const lines = [];
+      lines.push(["Ticker","Date","Bear","Base","Bull"].join("\t"));
+      for(const it of wl){
+        lines.push([
+          (it.ticker||"").toUpperCase(),
+          it.date || "",
+          String(it.bear ?? ""),
+          String(it.base ?? ""),
+          String(it.bull ?? "")
+        ].join("\t"));
+      }
+      copyText(lines.join("\n"));
+    }
+
+    function printCurrent(){
+      // simple print for PDF export (browser print -> Save as PDF)
+      window.print();
+    }
+
+    // ---------- init ----------
+    function init(){
+      // language from storage
+      const savedLang = localStorage.getItem("equity_analyzer_lang");
+      if(savedLang === "en" || savedLang === "cs") state.lang = savedLang;
+
+      setLang(state.lang);
+      renderWatchlist();
+      routeFromHash();
+
+      // language switch
+      $("langSeg").addEventListener("click", (e)=>{
+        const b = e.target.closest("button[data-lang]");
+        if(!b) return;
+        const lang = b.dataset.lang;
+        localStorage.setItem("equity_analyzer_lang", lang);
+        setLang(lang);
+      });
+
+      // drawer navigation
+      qsa(".drawerBtn").forEach(btn=>{
+        btn.addEventListener("click", ()=> showScreen(btn.dataset.screen));
+      });
+
+      // back buttons
+      $("btnBackFromDCF").addEventListener("click", ()=> showScreen("home"));
+      $("btnBackFromWatch").addEventListener("click", ()=> showScreen("home"));
+      $("btnBackFromAbout").addEventListener("click", ()=> showScreen("home"));
+
+      // DCF actions
+      $("btnCalc").addEventListener("click", doCalc);
+      $("btnSave").addEventListener("click", addToWatchlist);
+      $("btnPrintDCF").addEventListener("click", printCurrent);
+
+      // Watchlist actions
+      $("btnCopyTSV").addEventListener("click", copyWatchTSV);
+      $("btnPrintWatch").addEventListener("click", printCurrent);
+      $("btnClearWatch").addEventListener("click", ()=>{
+        const T = I18N[state.lang];
+        saveWL([]);
+        renderWatchlist();
+        toast(T.cleared, T.clearedMsg);
+      });
+
+      $("watchBody").addEventListener("click", (e)=>{
+        const btn = e.target.closest("button[data-act]");
+        if(!btn) return;
+        const act = btn.dataset.act;
+        const id = btn.dataset.id;
+        const wl = loadWL();
+        const item = wl.find(x=>x.id === id);
+        const T = I18N[state.lang];
+
+        if(act === "copy" && item){
+          const line = [
+            (item.ticker||"").toUpperCase(),
+            item.date || "",
+            item.bear, item.base, item.bull
+          ].join("\t");
+          copyText(line);
+        }
+        if(act === "del"){
+          const next = wl.filter(x=>x.id !== id);
+          saveWL(next);
+          renderWatchlist();
         }
       });
-    });
 
-    // Fallback: když jsou to “karty” bez těch ID,
-    // tak klik na prvky, které obsahují text drawerDCF / drawerWatch / drawerAbout
-    // Fallback: klik na "šuplík" (kartu) otevře správnou obrazovku
-const body = document.body;
-
-body.addEventListener("click", (e)=>{
-  const card = e.target.closest(".drawerItem, .drawerCard, [data-screen]");
-  if(!card) return;
-
-  // 1) preferuj data-screen="dcf|watch|about|home"
-  const target = card.getAttribute("data-screen") || card.dataset.screen;
-  if(target){
-    window.showScreen?.(target);
-    location.hash = target;
-    return;
-  }
-
-  // 2) fallback podle id, kdybys neměl data-screen
-  const id = (card.id || "").toLowerCase();
-  if(id.includes("dcf"))   { window.showScreen?.("dcf");   location.hash="dcf"; return; }
-  if(id.includes("watch")) { window.showScreen?.("watch"); location.hash="watch"; return; }
-  if(id.includes("about")) { window.showScreen?.("about"); location.hash="about"; return; }
-}, true);
-  }
-
-  // ---------- Watchlist UI builder (když chybí tabulka/btns v HTML)
-  function ensureWatchlistUI(){
-    const screen = $("screenWatch") || document.querySelector("#screenWatch");
-    if(!screen) return;
-
-    // kde to vykreslovat
-    let wrap = $("watchList");
-    if(!wrap){
-      // zkus najít nějaký card v watch screenu
-      wrap = document.createElement("div");
-      wrap.id = "watchList";
-      screen.querySelector(".screenBody")?.appendChild(wrap) || screen.appendChild(wrap);
+      // Re-route on hash change
+      window.addEventListener("hashchange", routeFromHash);
     }
 
-    // toolbar
-    let toolbar = $("wlToolbar");
-    if(!toolbar){
-      toolbar = document.createElement("div");
-      toolbar.id = "wlToolbar";
-      toolbar.className = "wlToolbar";
-
-      const title = document.createElement("div");
-      title.id = "wlTitle";
-      title.className = "muted";
-      title.style.fontWeight = "700";
-      title.textContent = T[lang()].wlTitle;
-
-      const btnCopyAll = document.createElement("button");
-      btnCopyAll.className = "btn sm";
-      btnCopyAll.id = "btnCopyAll";
-      btnCopyAll.type = "button";
-      btnCopyAll.textContent = T[lang()].copyAll;
-
-      const btnExport = document.createElement("button");
-      btnExport.className = "btn sm";
-      btnExport.id = "btnExportPdf";
-      btnExport.type = "button";
-      btnExport.textContent = T[lang()].exportPdf;
-
-      const btnClear = document.createElement("button");
-      btnClear.className = "btn sm";
-      btnClear.id = "btnClearWatch";
-      btnClear.type = "button";
-      btnClear.textContent = T[lang()].clear;
-
-      toolbar.appendChild(title);
-      toolbar.appendChild(btnCopyAll);
-      toolbar.appendChild(btnExport);
-      toolbar.appendChild(btnClear);
-
-      wrap.parentNode.insertBefore(toolbar, wrap);
+    if(document.readyState === "loading"){
+      document.addEventListener("DOMContentLoaded", init);
+    }else{
+      init();
     }
+  </script>
+</body>
+</html>
 
-    // empty message
-    let empty = $("t_emptyWatch");
-    if(!empty){
-      empty = document.createElement("p");
-      empty.id = "t_emptyWatch";
-      empty.className = "note";
-      empty.textContent = T[lang()].empty;
-      wrap.parentNode.insertBefore(empty, wrap);
-    }
-
-    // table
-    let table = $("wlTable");
-    if(!table){
-      table = document.createElement("table");
-      table.id = "wlTable";
-      table.className = "wlTable";
-
-      table.innerHTML = `
-        <thead>
-          <tr>
-            <th>Ticker</th>
-            <th>Datum</th>
-            <th>Bear</th>
-            <th>Base</th>
-            <th>Bull</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="watchTbody"></tbody>
-      `;
-      wrap.innerHTML = "";
-      wrap.appendChild(table);
-    }
-  }
-
-  // ---------- Text refresh (když přepneš jazyk)
-  function refreshTexts(){
-    const L = lang();
-    $("wlTitle") && ($("wlTitle").textContent = T[L].wlTitle);
-    $("btnCopyAll") && ($("btnCopyAll").textContent = T[L].copyAll);
-    $("btnExportPdf") && ($("btnExportPdf").textContent = T[L].exportPdf);
-    $("btnClearWatch") && ($("btnClearWatch").textContent = T[L].clear);
-    $("t_emptyWatch") && ($("t_emptyWatch").textContent = T[L].empty);
-  }
-
-  function init(){
-    bindDrawer();
-    ensureWatchlistUI();
-    refreshTexts();
-
-    // po přepnutí jazyka (pokud ho řešíš tlačítkem) zkusíme přerender
-    document.addEventListener("click", ()=>{
-      // jen “soft” update – nic nerozbije
-      refreshTexts();
-      window.renderWatchlist?.();
-    });
-
-    // pro jistotu – kdyby se watch UI vytvořilo až po přepnutí screenu
-    window.addEventListener("hashchange", ()=>{
-      ensureWatchlistUI();
-      refreshTexts();
-      window.renderWatchlist?.();
-    });
-
-    // render hned
-    window.renderWatchlist?.();
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
-</script>
-
-<!-- ============ END OF PART 4/5 ============ -->
-  <!-- =========================
-PART 5/5A – FINAL UI HELPERS
-vložit ZA END OF PART 4/5
-========================= -->
-<script>
-/* =========================
-   HELPERS
-========================= */
-
-function $(id){
-  return document.getElementById(id);
-}
-
-function qs(sel, root=document){
-  return root.querySelector(sel);
-}
-
-/* =========================
-   MOVE LANGUAGE + CURRENCY
-   INTO DCF HEADER
-========================= */
-
-function moveSwitchesIntoDCF(){
-  const dcf = $("screenDCF");
-  if(!dcf) return;
-
-  const head = qs(".screenHeader", dcf);
-  if(!head) return;
-
-  let row = qs(".dcfHeaderRow", dcf);
-  if(!row){
-    row = document.createElement("div");
-    row.className = "dcfHeaderRow";
-    row.style.display = "flex";
-    row.style.flexWrap = "wrap";
-    row.style.gap = "8px";
-    row.style.marginTop = "8px";
-
-    const h2 = qs("h2", head);
-    if(h2 && h2.parentNode){
-      h2.parentNode.insertBefore(row, h2.nextSibling);
-    } else {
-      head.appendChild(row);
-    }
-  }
-
-  const lang = qs(".langSwitch");
-  const cur  = qs(".currencySwitch");
-
-  if(lang) row.appendChild(lang);
-  if(cur)  row.appendChild(cur);
-}
-
-/* =========================
-   SAFE INIT
-========================= */
-
-function initPart5A(){
-  moveSwitchesIntoDCF();
-}
-</script>
-<!-- ===== END OF PART 5A ===== -->
-<!-- =========================
-PART 5/5B – FINAL INIT
-vložit POD PART 5A
-========================= -->
-<script>
-/* =========================
-   FINAL INIT
-========================= */
-
-function initPart5B(){
-  initPart5A();
-
-  // po přepnutí obrazovky znovu přesunout
-  window.addEventListener("hashchange", ()=>{
-    moveSwitchesIntoDCF();
-  });
-
-  // po prvním loadu
-  moveSwitchesIntoDCF();
-}
-
-/* =========================
-   RUN
-========================= */
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", initPart5B);
-}else{
-  initPart5B();
-}
-</script>
-<!-- ============ END OF PART 5/5 ============ -->
-    
-  
 
 
 
