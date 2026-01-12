@@ -1,357 +1,479 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Equity Analyzer</title>
 
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0f172a" />
-
-  <!-- Icons -->
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-
-  <!-- iOS PWA -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Equity Analyzer" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-  <!-- Play/Legal safe meta -->
-  <meta name="description" content="Educational equity valuation tool. Not financial, investment, legal, or tax advice." />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6d28d9">
+  <link rel="icon" sizes="192x192" href="/icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
 
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#101a33;
-      --panel2:#0f172a;
-      --text:#e6eefc;
-      --muted:rgba(230,238,252,.72);
-      --muted2:rgba(230,238,252,.55);
-      --line:rgba(255,255,255,.10);
-      --accent:#60a5fa;
-      --green:#34d399;
-      --red:#fb7185;
-      --yellow:#fbbf24;
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
-      --radius:18px;
+      --bg0:#060314;
+      --bg1:#12062c;
+      --bg2:#1a0a3a;
+
+      --cardA: rgba(255,255,255,.10);
+      --cardB: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.14);
+
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.55);
+
+      --vio1:#7c3aed;
+      --vio2:#a78bfa;
+      --cyan:#22d3ee;
+
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+      --radius: 22px;
+      --radius2: 18px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,.18), transparent 60%),
-                  radial-gradient(900px 500px at 90% 0%, rgba(52,211,153,.12), transparent 55%),
-                  radial-gradient(1200px 900px at 50% 120%, rgba(251,191,36,.10), transparent 55%),
-                  var(--bg);
       color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(124,58,237,.55), transparent 60%),
+        radial-gradient(900px 600px at 10% 20%, rgba(34,211,238,.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, rgba(167,139,250,.18), transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg2));
+      overflow-x:hidden;
     }
-    a{color:var(--accent)}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px 14px 40px}
-    .topbar{
-      display:flex;gap:12px;align-items:flex-end;justify-content:space-between;
-      padding:14px 14px;border:1px solid var(--line);border-radius:var(--radius);
-      background: linear-gradient(180deg, rgba(16,26,51,.75), rgba(16,26,51,.55));
-      box-shadow: var(--shadow);
-    }
-    .brand h1{margin:0;font-size:22px;letter-spacing:.2px}
-    .brand .sub{margin-top:4px;color:var(--muted);font-size:13px}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .control{
-      display:flex;flex-direction:column;gap:6px;min-width:140px;
-      padding:10px 10px;border:1px solid var(--line);border-radius:14px;
-      background: rgba(15,23,42,.55);
-    }
-    .control label{font-size:12px;color:var(--muted2)}
-    select, input{
-      width:100%;
-      background: rgba(9,14,30,.85);
-      border:1px solid rgba(255,255,255,.12);
-      color: var(--text);
-      padding:10px 10px;
-      border-radius:12px;
-      outline:none;
-      font-size:14px;
-    }
-    input::placeholder{color:rgba(230,238,252,.35)}
-    button{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(96,165,250,.14);
-      color:var(--text);
-      padding:10px 12px;border-radius:12px;
-      cursor:pointer;
-    }
-    button:hover{background: rgba(96,165,250,.22)}
-    button.secondary{background: rgba(255,255,255,.06)}
-    button.secondary:hover{background: rgba(255,255,255,.10)}
-    button.danger{background: rgba(251,113,133,.15);border-color: rgba(251,113,133,.25)}
-    button.danger:hover{background: rgba(251,113,133,.22)}
 
-    .accordion{margin-top:14px;display:flex;flex-direction:column;gap:10px}
-    .acc{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background: rgba(16,26,51,.55);
+    .wrap{
+      width:min(980px, 92vw);
+      margin: 18px auto 28px;
+      padding-bottom: 24px;
+    }
+
+    .topHero{
+      border-radius: 28px;
+      padding: 26px 22px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .brandRow{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .brandTitle{
+      font-weight: 860;
+      letter-spacing: .2px;
+      font-size: clamp(30px, 4.6vw, 44px);
+      line-height: 1.05;
+      color: rgba(255,255,255,.96);
+      text-shadow: 0 10px 40px rgba(0,0,0,.55);
+    }
+    .brandSub{
+      margin-top:6px;
+      color: rgba(255,255,255,.62);
+      font-size: 13.5px;
+    }
+
+    .pillRow{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.16);
+      border:1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+    }
+    .pill .lbl{color: rgba(255,255,255,.62); font-size:13px}
+    select{
+      appearance:none;
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 700;
+      outline:none;
+      min-width: 90px;
+    }
+
+    .accordion{margin-top:18px; display:flex; flex-direction:column; gap:12px;}
+    .acc{
+      border-radius: 26px;
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
       overflow:hidden;
     }
-    .acc .head{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:14px 14px;cursor:pointer;
-      background: linear-gradient(180deg, rgba(16,26,51,.75), rgba(16,26,51,.45));
-    }
-    .acc .title{display:flex;gap:10px;align-items:center}
-    .acc .title .tag{
-      font-size:12px;color:rgba(230,238,252,.75);
-      padding:4px 8px;border-radius:999px;border:1px solid var(--line);
-      background: rgba(15,23,42,.65);
-    }
-    .acc .chev{opacity:.8}
-    .acc .body{display:none;padding:14px 14px 16px}
-    .acc.open .body{display:block}
-
-    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
-    .card{
-      border:1px solid var(--line);
-      background: rgba(15,23,42,.55);
-      border-radius: var(--radius);
-      padding:14px 14px;
-    }
-    .card h3{margin:0 0 10px;font-size:16px}
-    .muted{color:var(--muted);font-size:13px;line-height:1.35}
-    .mini{color:rgba(230,238,252,.70);font-size:12px;line-height:1.35;margin-top:6px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:520px){.row{grid-template-columns:1fr}}
-    .field .lbl{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-    .field .lbl span{font-size:13px;color:rgba(230,238,252,.92)}
-    .hint{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:18px;height:18px;border-radius:999px;
-      font-size:12px;cursor:pointer;
-      border:1px solid rgba(255,255,255,.18);
-      color:rgba(230,238,252,.92);
-      background: rgba(255,255,255,.05);
+    .head{
+      padding: 16px 18px;
+      display:flex; align-items:center; justify-content:space-between;
+      cursor:pointer;
       user-select:none;
     }
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-
-    .models{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:10px
+    .head .title{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .head .title h2{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
     }
-    @media (max-width:900px){.models{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:520px){.models{grid-template-columns:1fr}}
+    .tag{
+      font-size:12px;
+      color: rgba(255,255,255,.78);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(124,58,237,.18);
+      border: 1px solid rgba(167,139,250,.28);
+    }
+    .chev{opacity:.8}
+    .body{display:none; padding: 0 18px 18px}
+    .acc.open .body{display:block}
+
+    .grid{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: 1.15fr .95fr;
+      gap: 12px;
+    }
+    @media (max-width: 860px){
+      .grid{grid-template-columns: 1fr}
+    }
+
+    .card{
+      border-radius: var(--radius);
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      backdrop-filter: blur(12px);
+    }
+    .card h3{
+      margin:0 0 10px;
+      font-size: 15.5px;
+      letter-spacing:.2px;
+      color: rgba(255,255,255,.92);
+    }
+    .muted{color: rgba(255,255,255,.68); font-size: 13.5px; line-height: 1.45}
+    .mini{color: rgba(255,255,255,.58); font-size: 12.5px; line-height:1.35; margin-top:6px}
+
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap: 12px}
+    @media (max-width: 560px){ .row{grid-template-columns:1fr} }
+
+    .field{display:flex; flex-direction:column; gap:6px}
+    .lbl{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-weight: 800;
+      font-size: 13.5px;
+      color: rgba(255,255,255,.86);
+    }
+
+    input{
+      width:100%;
+      background: rgba(0,0,0,.20);
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 14px 14px;
+      outline:none;
+      font-size: 16px;
+    }
+    input::placeholder{color: rgba(255,255,255,.42)}
+    input[readonly]{opacity:.92}
+
+    .hint{
+      width: 24px; height: 24px;
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius: 10px;
+      border:1px solid rgba(167,139,250,.35);
+      background: rgba(124,58,237,.20);
+      color: rgba(255,255,255,.90);
+      font-weight: 900;
+      font-size: 13px;
+      flex: 0 0 auto;
+      cursor:pointer;
+    }
+
+    .tipbox{
+      padding: 12px 14px;
+      border-radius: 18px;
+      border:1px solid rgba(167,139,250,.28);
+      background: rgba(124,58,237,.14);
+      color: rgba(255,255,255,.78);
+      font-size: 13.5px;
+      line-height:1.45;
+    }
+
+    .modelGrid{
+      display:flex; flex-direction:column; gap:10px;
+      margin-top: 12px;
+    }
     .mBtn{
       text-align:left;
-      padding:12px 12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(9,14,30,.35);
+      border-radius: 20px;
+      padding: 14px 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
       cursor:pointer;
-      transition: .15s;
+      color: rgba(255,255,255,.90);
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
     }
-    .mBtn:hover{transform: translateY(-1px);background: rgba(9,14,30,.55)}
+    .mBtn:hover{transform: translateY(-1px); border-color: rgba(167,139,250,.34)}
     .mBtn.active{
-      border-color: rgba(96,165,250,.55);
-      background: rgba(96,165,250,.14);
+      border-color: rgba(167,139,250,.55);
+      background: rgba(124,58,237,.18);
+      box-shadow: 0 14px 40px rgba(0,0,0,.35);
     }
-    .mBtn .t{font-weight:700;font-size:14px}
-    .mBtn .d{margin-top:6px;color:rgba(230,238,252,.70);font-size:12px;line-height:1.25}
+    .mBtn .t{font-weight: 900; font-size: 15px}
+    .mBtn .d{color: rgba(255,255,255,.66); font-size: 13px; margin-top:4px}
 
-    .results{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    @media (max-width:520px){.results{grid-template-columns:1fr}}
-    .res{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background: rgba(9,14,30,.35);
-      padding:12px 12px;
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px}
+    button{
+      border:none;
+      cursor:pointer;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-weight: 900;
+      color: rgba(255,255,255,.95);
+      background: linear-gradient(180deg, rgba(124,58,237,.95), rgba(124,58,237,.70));
+      box-shadow: 0 18px 45px rgba(0,0,0,.40);
     }
-    .res .k{display:flex;gap:8px;align-items:center;font-size:12px;color:rgba(230,238,252,.85)}
-    .res .v{margin-top:8px;font-size:18px;font-weight:800;letter-spacing:.2px}
-    .res .s{margin-top:4px;font-size:12px;color:rgba(230,238,252,.62)}
-    .badgeBear,.badgeBase,.badgeBull{
-      padding:3px 8px;border-radius:999px;font-weight:700;font-size:11px;
+    button.secondary{
+      background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      box-shadow:none;
+      color: rgba(255,255,255,.90);
     }
-    .badgeBear{color:var(--red);border-color:rgba(251,113,133,.35);background:rgba(251,113,133,.08)}
-    .badgeBase{color:var(--yellow);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
-    .badgeBull{color:var(--green);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)}
-    .tipbox{
-      border:1px solid rgba(96,165,250,.25);
-      background: rgba(96,165,250,.08);
-      border-radius:16px;
-      padding:10px 12px;
-    }
-    .footer{
-      margin-top:14px;
-      color:rgba(230,238,252,.55);
-      font-size:12px;
-      text-align:center;
+    button.danger{
+      background: rgba(220,38,38,.20);
+      border:1px solid rgba(220,38,38,.35);
+      box-shadow:none;
     }
 
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid rgba(255,255,255,.10);padding:10px 8px;font-size:12px}
-    th{color:rgba(230,238,252,.75);text-align:left;font-weight:700}
-    td{color:rgba(230,238,252,.88)}
+    .results{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .res{
+      border-radius: 20px;
+      padding: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+    }
+    .res .k{
+      display:flex; align-items:center; justify-content:space-between;
+      color: rgba(255,255,255,.72);
+      font-size: 12.5px;
+      font-weight: 900;
+      letter-spacing:.3px;
+    }
+    .badgeBear,.badgeBase,.badgeBull{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .badgeBear{background: rgba(244,63,94,.15); border-color: rgba(244,63,94,.28)}
+    .badgeBase{background: rgba(124,58,237,.16); border-color: rgba(167,139,250,.30)}
+    .badgeBull{background: rgba(16,185,129,.14); border-color: rgba(16,185,129,.25)}
+
+    .res .v{
+      font-size: 34px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      margin-top: 8px;
+    }
+    .res .s{
+      margin-top: 4px;
+      color: rgba(255,255,255,.62);
+      font-size: 13px;
+    }
+
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.10); font-size: 13px}
+    th{color: rgba(255,255,255,.76); text-align:left}
     td.right, th.right{text-align:right}
     .nowrap{white-space:nowrap}
 
+    .footer{
+      margin-top: 12px;
+      text-align:center;
+      color: rgba(255,255,255,.55);
+      font-size: 12.5px;
+    }
+
     .toast{
-      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-      background: rgba(9,14,30,.90);
-      border:1px solid rgba(255,255,255,.12);
-      color: var(--text);
-      padding:10px 14px;border-radius:999px;
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.50);
+      border:1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
+      padding: 10px 14px;
+      border-radius: 14px;
+      backdrop-filter: blur(12px);
       display:none;
-      box-shadow: var(--shadow);
-      z-index:9999;
-      max-width:92vw;
+      z-index: 50;
+      max-width: 92vw;
     }
 
     .modalBackdrop{
-      position:fixed;inset:0;
+      position:fixed; inset:0;
       background: rgba(0,0,0,.55);
-      display:none;align-items:center;justify-content:center;
-      padding:18px;
-      z-index:9998;
+      display:none;
+      align-items:center; justify-content:center;
+      z-index: 80;
+      padding: 18px;
     }
     .modal{
       width:min(560px, 96vw);
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(16,26,51,.92);
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
       box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
       overflow:hidden;
     }
     .modalHead{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.10);
+      padding: 14px 14px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
     }
-    .modalHead .t{font-weight:800}
-    .xbtn{background: rgba(255,255,255,.06)}
-    .modalBody{padding:14px}
+    .modalHead .t{font-weight: 950}
+    .xbtn{
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.90);
+      font-weight: 900;
+      cursor:pointer;
+    }
+    .modalBody{padding: 14px}
   </style>
-</head>
-
-<body>
+</head><body>
   <div class="wrap">
 
-    <div class="topbar">
-      <div class="brand">
-        <h1>Equity Analyzer</h1>
-        <div class="sub" id="ui_sub">Educational valuation tool • Not financial advice</div>
+    <div class="topHero">
+      <div class="brandRow">
+        <div>
+          <div class="brandTitle" id="ui_brandTitle">Equity Analyzer</div>
+          <div class="brandSub" id="ui_sub">Multi-Model Fair Value • Watchlist • Guide</div>
+        </div>
       </div>
 
-      <div class="controls">
-        <div class="control">
-          <label id="ui_langLbl">Language</label>
+      <div class="pillRow">
+        <div class="pill">
+          <div class="lbl" id="ui_langLbl">Language</div>
           <select id="langSel">
             <option value="en" selected>EN</option>
             <option value="cz">CZ</option>
           </select>
         </div>
 
-        <div class="control">
-          <label id="ui_modeLbl">Mode</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select id="modeSel">
-              <option value="quick" selected>Quick</option>
-              <option value="advanced">Advanced</option>
-            </select>
-            <span class="hint" data-help="mode">i</span>
-          </div>
+        <div class="pill">
+          <div class="lbl" id="ui_modeLbl">Mode</div>
+          <select id="modeSel">
+            <option value="quick" selected>Quick</option>
+            <option value="advanced">Advanced</option>
+          </select>
         </div>
-
-        <div class="control">
-          <label id="ui_currLbl">Currency</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select id="curSel">
-              <option>USD</option>
-              <option>EUR</option>
-              <option>CZK</option>
-            </select>
-            <span class="hint" data-help="currency">i</span>
-          </div>
-        </div>
-
-        <div class="control">
-          <label id="ui_mosLbl">Margin of Safety</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select id="mosSel">
-              <option value="off" selected>Off</option>
-              <option value="10">10%</option>
-              <option value="20">20%</option>
-              <option value="30">30%</option>
-            </select>
-            <span class="hint" data-help="mos">i</span>
-          </div>
-        </div>
-
       </div>
-    </div><div class="accordion">
+    </div>
+
+    <div class="accordion">
 
       <!-- VALUATION -->
       <div class="acc open" id="acc_val">
         <div class="head" data-acc="val">
           <div class="title">
-            <span id="ui_valTitle">Fair value</span>
+            <h2 id="ui_valTitle">Fair value</h2>
             <span class="tag" id="ui_valTag">Models + 3 scenarios</span>
           </div>
-          <div class="chev">▼</div>
+          <div class="chev">▲</div>
         </div>
 
         <div class="body" id="valBody">
+          <div class="grid">
 
-          <div class="card">
-            <h3 id="ui_introTitle">What are we calculating?</h3>
-            <div class="muted" id="ui_introText">
-              Pick a company type (model) and compute fair value in 3 scenarios. Output is a scenario, not advice.
-            </div>
-
-            <div class="mini" id="ui_decimalTip" style="margin-top:10px;">
-              Tip: You can type decimals with dot or comma (e.g., 5.5 or 5,5). Spaces are ignored.
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:12px;">
-            <h3 id="ui_modelTitle">Choose model</h3>
-            <div class="models" style="margin-top:10px;">
-              <div class="mBtn active" data-model="standard">
-                <div class="t" id="ui_m_standard_t">Standard (FCF DCF)</div>
-                <div class="d" id="ui_m_standard_d">Non-financials with stable positive FCF.</div>
-              </div>
-              <div class="mBtn" data-model="financial">
-                <div class="t" id="ui_m_fin_t">Financial (RIM)</div>
-                <div class="d" id="ui_m_fin_d">Banks/insurers/fintech – value via BVPS and ROE.</div>
-              </div>
-              <div class="mBtn" data-model="reit">
-                <div class="t" id="ui_m_reit_t">REIT (AFFO)</div>
-                <div class="d" id="ui_m_reit_d">REITs – AFFO per share instead of FCF.</div>
-              </div>
-              <div class="mBtn" data-model="growth">
-                <div class="t" id="ui_m_growth_t">Growth (Pre-FCF)</div>
-                <div class="d" id="ui_m_growth_d">Revenue & margin to FCF → DCF.</div>
-              </div>
-              <div class="mBtn" data-model="cyclical">
-                <div class="t" id="ui_m_cyc_t">Cyclical</div>
-                <div class="d" id="ui_m_cyc_d">Use normalized (cycle-average) FCF.</div>
-              </div>
-              <div class="mBtn" data-model="utility">
-                <div class="t" id="ui_m_util_t">Utility (DDM)</div>
-                <div class="d" id="ui_m_util_d">Dividend Discount Model.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid" style="margin-top:12px;">
-
-            <!-- LEFT: INPUTS -->
+            <!-- LEFT -->
             <div class="card">
-              <h3 id="ui_inputsMain">Core inputs</h3>
+              <h3 id="ui_introTitle">What are we calculating?</h3>
+              <div class="muted" id="ui_introText"></div>
+
+              <div class="tipbox" style="margin-top:10px;" id="ui_disclaimerBox"></div>
+
+              <div class="row" style="margin-top:12px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_currLbl">Currency</span>
+                    <span class="hint" data-help="currency">i</span>
+                  </div>
+                  <select id="curSel">
+                    <option value="USD" selected>USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="CZK">CZK</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_mosLbl">Margin of Safety</span>
+                    <span class="hint" data-help="mos">i</span>
+                  </div>
+                  <select id="mosSel">
+                    <option value="off" selected>Off</option>
+                    <option value="10">10%</option>
+                    <option value="15">15%</option>
+                    <option value="20">20%</option>
+                    <option value="25">25%</option>
+                    <option value="30">30%</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tipbox" style="margin-top:12px;" id="ui_decimalTip"></div>
+
+              <div class="modelGrid" style="margin-top:12px;">
+                <div class="mBtn active" data-model="standard">
+                  <div class="t" id="ui_m_standard_t">Standard (FCF DCF)</div>
+                  <div class="d" id="ui_m_standard_d"></div>
+                </div>
+                <div class="mBtn" data-model="financial">
+                  <div class="t" id="ui_m_fin_t">Financial (RIM)</div>
+                  <div class="d" id="ui_m_fin_d"></div>
+                </div>
+                <div class="mBtn" data-model="reit">
+                  <div class="t" id="ui_m_reit_t">REIT (AFFO)</div>
+                  <div class="d" id="ui_m_reit_d"></div>
+                </div>
+                <div class="mBtn" data-model="growth">
+                  <div class="t" id="ui_m_growth_t">Pre-FCF growth</div>
+                  <div class="d" id="ui_m_growth_d"></div>
+                </div>
+                <div class="mBtn" data-model="cyclical">
+                  <div class="t" id="ui_m_cyc_t">Cyclical</div>
+                  <div class="d" id="ui_m_cyc_d"></div>
+                </div>
+                <div class="mBtn" data-model="utility">
+                  <div class="t" id="ui_m_util_t">Utility</div>
+                  <div class="d" id="ui_m_util_d"></div>
+                </div>
+              </div>
+
+              <h3 style="margin-top:14px" id="ui_inputsMain">Core inputs</h3>
 
               <div class="row">
                 <div class="field">
@@ -367,16 +489,11 @@
                     <span id="ui_priceLbl">Current price</span>
                     <span class="hint" data-help="price">i</span>
                   </div>
-                  <input id="in_price" placeholder="e.g. 180" />
+                  <input id="in_price" placeholder="e.g. 180" inputmode="decimal" />
                 </div>
               </div>
 
-              <!-- MOS explain box (click i on MoS) -->
-              <div class="tipbox" id="mosExplainBox" style="display:none; margin-top:10px;">
-                <div class="mini" id="mosExplainText" style="color:rgba(255,255,255,.9)"></div>
-              </div>
-
-              <!-- STANDARD (FCF DCF): firm-level FCF + shares -->
+              <!-- model sections start here --><!-- STANDARD -->
               <div id="sec_standard" style="margin-top:10px;">
                 <div class="row">
                   <div class="field">
@@ -384,15 +501,8 @@
                       <span id="ui_fcfLbl">Free Cash Flow (FCF) – total</span>
                       <span class="hint" data-help="fcf_total">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_fcf" placeholder="e.g. 10" />
-                      <select id="unit_fcf">
-                        <option value="1">Raw</option>
-                        <option value="1000000">M</option>
-                        <option value="1000000000" selected>B</option>
-                      </select>
-                    </div>
-                    <div class="mini" id="ui_fcfMini">Annual total FCF (ideally 3–5y avg). Units via selector.</div>
+                    <input id="in_fcf" placeholder="e.g. 10b or 10000000000" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_fcfMini"></div>
                   </div>
 
                   <div class="field">
@@ -400,52 +510,65 @@
                       <span id="ui_sharesLbl">Shares Outstanding</span>
                       <span class="hint" data-help="shares">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_shares" placeholder="e.g. 600" />
-                      <select id="unit_shares">
-                        <option value="1">Raw</option>
-                        <option value="1000000" selected>M</option>
-                        <option value="1000000000">B</option>
-                      </select>
-                    </div>
-                    <div class="mini" id="ui_sharesMini">Used to convert firm value to per-share value.</div>
+                    <input id="in_shares" placeholder="e.g. 13.0b or 13000000000" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_sharesMini"></div>
                   </div>
                 </div>
               </div>
 
-              <!-- FINANCIAL (RIM): BVPS + payout (ROE scenarios on the right) -->
+              <!-- FINANCIAL -->
               <div id="sec_financial" style="display:none; margin-top:10px;">
                 <div class="row">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_bvpsLbl">Book Value per Share (BVPS)</span>
+                      <span id="ui_bvpsLbl">Book Value / share (BVPS)</span>
                       <span class="hint" data-help="bvps">i</span>
                     </div>
-                    <input id="in_bvps" placeholder="e.g. 6.95" />
-                    <div class="mini" id="ui_bvpsMini">Core input for banks/insurers.</div>
+                    <input id="in_bvps" placeholder="e.g. 6.95" inputmode="decimal" />
+                    <div class="mini" id="ui_bvpsMini"></div>
                   </div>
 
+                  <div class="field">
+                    <div class="lbl">
+                      <span id="ui_roeLbl">ROE (%)</span>
+                      <span class="hint" data-help="roe">i</span>
+                    </div>
+                    <input id="in_roe" placeholder="e.g. 12" inputmode="decimal" />
+                    <div class="mini" id="ui_roeMini"></div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
                   <div class="field">
                     <div class="lbl">
                       <span id="ui_payoutLbl">Payout ratio (%)</span>
                       <span class="hint" data-help="payout">i</span>
                     </div>
-                    <input id="in_payout" placeholder="e.g. 20" value="20" />
-                    <div class="mini" id="ui_payoutMini">% of earnings paid out. The rest grows BVPS.</div>
+                    <input id="in_payout" placeholder="e.g. 20" value="20" inputmode="decimal" />
+                    <div class="mini" id="ui_payoutMini"></div>
+                  </div>
+
+                  <div class="field">
+                    <div class="lbl">
+                      <span id="ui_sharesFinLbl">Shares (optional)</span>
+                      <span class="hint" data-help="shares_fin">i</span>
+                    </div>
+                    <input id="in_shares_fin" placeholder="leave empty" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_sharesFinMini"></div>
                   </div>
                 </div>
               </div>
 
-              <!-- REIT (AFFO): AFFO per share -->
+              <!-- REIT -->
               <div id="sec_reit" style="display:none; margin-top:10px;">
                 <div class="row">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_affoLbl">AFFO per share</span>
+                      <span id="ui_affoLbl">AFFO / share</span>
                       <span class="hint" data-help="affo">i</span>
                     </div>
-                    <input id="in_affo" placeholder="e.g. 2.10" />
-                    <div class="mini" id="ui_affoMini">REITs: use AFFO/FFO instead of FCF.</div>
+                    <input id="in_affo" placeholder="e.g. 2.10" inputmode="decimal" />
+                    <div class="mini" id="ui_affoMini"></div>
                   </div>
 
                   <div class="field">
@@ -454,124 +577,111 @@
                       <span class="hint" data-help="reit_note">i</span>
                     </div>
                     <input id="in_reit_note" placeholder="(optional)" />
-                    <div class="mini">Label only (e.g., “AFFO TTM”).</div>
+                    <div class="mini" id="ui_reitNoteMini"></div>
                   </div>
                 </div>
               </div>
 
-              <!-- GROWTH (Pre-FCF): Revenue + FCF margin + shares -->
+              <!-- GROWTH -->
               <div id="sec_growth" style="display:none; margin-top:10px;">
                 <div class="row">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_revLbl">Revenue – total</span>
-                      <span class="hint" data-help="revenue_total">i</span>
+                      <span id="ui_revLbl">Revenue (total)</span>
+                      <span class="hint" data-help="rev">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_rev" placeholder="e.g. 50" />
-                      <select id="unit_rev">
-                        <option value="1">Raw</option>
-                        <option value="1000000">M</option>
-                        <option value="1000000000" selected>B</option>
-                      </select>
-                    </div>
-                    <div class="mini" id="ui_revMini">Annual revenue. We project revenue, then convert to FCF via margin.</div>
+                    <input id="in_rev" placeholder="e.g. 300b" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_revMini"></div>
                   </div>
-
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_marginLbl">FCF margin (%)</span>
-                      <span class="hint" data-help="fcf_margin">i</span>
+                      <span id="ui_sharesGLabel">Shares Outstanding</span>
+                      <span class="hint" data-help="shares_g">i</span>
                     </div>
-                    <input id="in_margin" placeholder="e.g. 15" value="15" />
-                    <div class="mini" id="ui_marginMini">Long-run FCF margin assumption (Revenue × margin = FCF).</div>
+                    <input id="in_shares_g" placeholder="e.g. 13b" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_sharesGMini"></div>
                   </div>
                 </div>
 
                 <div class="row" style="margin-top:10px;">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_sharesGLbl">Shares Outstanding</span>
-                      <span class="hint" data-help="shares">i</span>
+                      <span id="ui_marginLbl">Target FCF margin (%)</span>
+                      <span class="hint" data-help="fcf_margin">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_shares_g" placeholder="e.g. 600" />
-                      <select id="unit_shares_g">
-                        <option value="1">Raw</option>
-                        <option value="1000000" selected>M</option>
-                        <option value="1000000000">B</option>
-                      </select>
-                    </div>
-                    <div class="mini">Used for per-share conversion.</div>
+                    <input id="in_fcf_margin" placeholder="e.g. 15" value="15" inputmode="decimal"/>
+                    <div class="mini" id="ui_marginMini"></div>
                   </div>
-
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_growthRampLbl">Margin ramp years</span>
-                      <span class="hint" data-help="margin_ramp">i</span>
+                      <span id="ui_marginYearsLbl">Margin ramp years</span>
+                      <span class="hint" data-help="margin_years">i</span>
                     </div>
-                    <input id="in_ramp" placeholder="e.g. 3" value="3" />
-                    <div class="mini">Over how many years margin approaches target (smooth ramp).</div>
+                    <input id="in_margin_years" placeholder="e.g. 5" value="5" inputmode="numeric"/>
+                    <div class="mini" id="ui_marginYearsMini"></div>
                   </div>
                 </div>
               </div>
 
-              <!-- CYCLICAL: Normalized FCF + shares -->
+              <!-- CYCLICAL -->
               <div id="sec_cyclical" style="display:none; margin-top:10px;">
                 <div class="row">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_normFcfLbl">Normalized FCF – total</span>
+                      <span id="ui_normFcfLbl">Normalized FCF (total)</span>
                       <span class="hint" data-help="norm_fcf">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_norm_fcf" placeholder="e.g. 5" />
-                      <select id="unit_norm_fcf">
-                        <option value="1">Raw</option>
-                        <option value="1000000">M</option>
-                        <option value="1000000000" selected>B</option>
-                      </select>
-                    </div>
-                    <div class="mini">Cycle-average FCF (e.g., 5–10 year average).</div>
+                    <input id="in_norm_fcf" placeholder="e.g. 6b" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_normFcfMini"></div>
                   </div>
-
                   <div class="field">
                     <div class="lbl">
                       <span id="ui_sharesCLbl">Shares Outstanding</span>
-                      <span class="hint" data-help="shares">i</span>
+                      <span class="hint" data-help="shares_c">i</span>
                     </div>
-                    <div style="display:flex; gap:8px;">
-                      <input id="in_shares_c" placeholder="e.g. 600" />
-                      <select id="unit_shares_c">
-                        <option value="1">Raw</option>
-                        <option value="1000000" selected>M</option>
-                        <option value="1000000000">B</option>
-                      </select>
+                    <input id="in_shares_c" placeholder="e.g. 3.2b" inputmode="decimal" data-format="big"/>
+                    <div class="mini" id="ui_sharesCMini"></div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <div class="field">
+                    <div class="lbl">
+                      <span id="ui_cycleAdjLbl">Cycle adjustment (%)</span>
+                      <span class="hint" data-help="cycle_adj">i</span>
                     </div>
-                    <div class="mini">Used for per-share conversion.</div>
+                    <input id="in_cycle_adj" placeholder="e.g. -10" value="0" inputmode="decimal"/>
+                    <div class="mini" id="ui_cycleAdjMini"></div>
+                  </div>
+                  <div class="field">
+                    <div class="lbl">
+                      <span id="ui_cycNoteLbl">Note</span>
+                      <span class="hint" data-help="cyc_note">i</span>
+                    </div>
+                    <input id="in_cyc_note" placeholder="(optional)" />
+                    <div class="mini" id="ui_cycNoteMini"></div>
                   </div>
                 </div>
               </div>
 
-              <!-- UTILITY: Dividend DDM -->
+              <!-- UTILITY -->
               <div id="sec_utility" style="display:none; margin-top:10px;">
                 <div class="row">
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_divLbl">Dividend per share (DPS)</span>
-                      <span class="hint" data-help="dps">i</span>
+                      <span id="ui_divLbl">Dividend / share (annual)</span>
+                      <span class="hint" data-help="div">i</span>
                     </div>
-                    <input id="in_dps" placeholder="e.g. 2.10" />
-                    <div class="mini">Annual dividend per share.</div>
+                    <input id="in_div" placeholder="e.g. 3.10" inputmode="decimal"/>
+                    <div class="mini" id="ui_divMini"></div>
                   </div>
-
                   <div class="field">
                     <div class="lbl">
-                      <span id="ui_divGrowLbl">Dividend growth (%)</span>
-                      <span class="hint" data-help="div_g">i</span>
+                      <span id="ui_payoutUtilLbl">Payout ratio (%)</span>
+                      <span class="hint" data-help="payout_util">i</span>
                     </div>
-                    <input id="in_divg" placeholder="e.g. 4" value="4" />
-                    <div class="mini">Growth used for projection years (then terminal growth applies).</div>
+                    <input id="in_payout_util" placeholder="e.g. 60" value="60" inputmode="decimal"/>
+                    <div class="mini" id="ui_payoutUtilMini"></div>
                   </div>
                 </div>
               </div>
@@ -583,7 +693,7 @@
                     <span id="ui_yearsLbl">Projection years</span>
                     <span class="hint" data-help="years">i</span>
                   </div>
-                  <input id="in_years" placeholder="10" value="10" />
+                  <input id="in_years" placeholder="10" value="10" inputmode="numeric"/>
                 </div>
 
                 <div class="field">
@@ -591,7 +701,7 @@
                     <span id="ui_discLbl">Discount rate (%)</span>
                     <span class="hint" data-help="disc">i</span>
                   </div>
-                  <input id="in_disc" placeholder="9" value="9" />
+                  <input id="in_disc" placeholder="9" value="9" inputmode="decimal"/>
                 </div>
               </div>
 
@@ -601,8 +711,16 @@
                     <span id="ui_termLbl">Terminal growth (%)</span>
                     <span class="hint" data-help="term">i</span>
                   </div>
-                  <input id="in_term" placeholder="2.5" value="2.5" />
-                  <div class="mini" id="ui_termMini">Used for Standard/REIT/Growth/Cyclical/Utility.</div>
+                  <input id="in_term" placeholder="2.5" value="2.5" inputmode="decimal"/>
+                  <div class="mini" id="ui_termMini"></div>
+                </div>
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_inputsHintLbl">Inputs tip</span>
+                    <span class="hint" data-help="sources">i</span>
+                  </div>
+                  <input id="in_dummy_sources" readonly placeholder="Tap i for sources" />
+                  <div class="mini" id="ui_inputsHintMini"></div>
                 </div>
               </div>
 
@@ -611,19 +729,16 @@
                 <button class="secondary" id="btn_save">Save to Watchlist</button>
                 <button class="secondary" id="btn_fillDemo">Demo values</button>
               </div>
-
-              <div class="mini" id="ui_saveNote">Saves latest result (Bear/Base/Bull).</div>
+              <div class="mini" id="ui_saveNote"></div>
             </div>
 
-            <!-- RIGHT: scenarios + results -->
+            <!-- RIGHT -->
             <div class="card">
               <h3 id="ui_inputsScen">Scenarios (annual)</h3>
-              <div class="muted" id="ui_inputsScenText">
-                Quick uses Base and auto-derives Bear/Bull (±2). Advanced lets you set all three.
-              </div>
+              <div class="muted" id="ui_inputsScenText"></div>
 
               <div class="tipbox" id="ui_scenTip" style="margin-top:10px;">
-                <span id="ui_scenTipText">Meaning depends on model: growth % (DCF) or ROE % (Financial).</span>
+                <span id="ui_scenTipText"></span>
               </div>
 
               <div class="row" style="margin-top:12px;">
@@ -632,7 +747,7 @@
                     <span id="ui_bearLbl">Bear</span>
                     <span class="hint" data-help="bear">i</span>
                   </div>
-                  <input id="in_bear" placeholder="2" value="2" />
+                  <input id="in_bear" placeholder="2" value="2" inputmode="decimal"/>
                 </div>
 
                 <div class="field">
@@ -640,7 +755,7 @@
                     <span id="ui_baseLbl">Base</span>
                     <span class="hint" data-help="base">i</span>
                   </div>
-                  <input id="in_base" placeholder="5" value="5" />
+                  <input id="in_base" placeholder="5" value="5" inputmode="decimal"/>
                 </div>
 
                 <div class="field">
@@ -648,7 +763,7 @@
                     <span id="ui_bullLbl">Bull</span>
                     <span class="hint" data-help="bull">i</span>
                   </div>
-                  <input id="in_bull" placeholder="8" value="8" />
+                  <input id="in_bull" placeholder="8" value="8" inputmode="decimal"/>
                 </div>
               </div>
 
@@ -672,33 +787,34 @@
 
               <div class="card" style="margin-top:12px;">
                 <h3 id="ui_targetsTitle">Target & Range</h3>
-                <div class="muted" id="ui_targetsText">Target = Base with Margin of Safety. Range = Bear to Bull.</div>
-
+                <div class="muted" id="ui_targetsText"></div>
                 <div class="row" style="margin-top:10px;">
                   <div class="field">
                     <div class="lbl"><span id="ui_targetLbl">Target price</span></div>
-                    <input id="out_target" readonly placeholder="—" />
+                    <input id="out_target" readonly placeholder="—"/>
                   </div>
                   <div class="field">
                     <div class="lbl"><span id="ui_rangeLbl">Fair value range</span></div>
-                    <input id="out_range" readonly placeholder="—" />
+                    <input id="out_range" readonly placeholder="—"/>
                   </div>
                 </div>
               </div>
 
               <div class="tipbox" id="ui_sanityBox" style="display:none; margin-top:12px;">
-                <strong id="ui_sanityTitle">Sanity check:</strong>
+                <strong id="ui_sanityTitle"></strong>
                 <div id="ui_sanityText" class="mini" style="margin-top:6px; color:rgba(255,255,255,.85)"></div>
               </div>
 
             </div>
           </div>
         </div>
-                      </div><!-- WATCHLIST -->
+      </div>
+
+      <!-- WATCHLIST -->
       <div class="acc" id="acc_watch">
         <div class="head" data-acc="watch">
           <div class="title">
-            <span id="ui_watchTitle">Watchlist</span>
+            <h2 id="ui_watchTitle">Watchlist</h2>
             <span class="tag" id="ui_watchTag">Local storage</span>
           </div>
           <div class="chev">▼</div>
@@ -707,9 +823,7 @@
         <div class="body" id="watchBody">
           <div class="card">
             <h3 id="ui_watchIntroTitle">Saved valuations</h3>
-            <div class="muted" id="ui_watchIntroText">
-              Saved tickers. Delete rows and export the table.
-            </div>
+            <div class="muted" id="ui_watchIntroText"></div>
 
             <div class="btns" style="margin-top:10px;">
               <button class="secondary" id="btn_export_csv">Export CSV</button>
@@ -741,9 +855,7 @@
             </div>
           </div>
 
-          <div class="footer" id="ui_watchFooter">
-            Note: Watchlist is stored locally in your browser (localStorage).
-          </div>
+          <div class="footer" id="ui_watchFooter"></div>
         </div>
       </div>
 
@@ -751,7 +863,7 @@
       <div class="acc" id="acc_guide">
         <div class="head" data-acc="guide">
           <div class="title">
-            <span id="ui_guideTitle">How to choose a model</span>
+            <h2 id="ui_guideTitle">How to choose a model</h2>
             <span class="tag" id="ui_guideTag">Guide</span>
           </div>
           <div class="chev">▼</div>
@@ -759,18 +871,36 @@
 
         <div class="body" id="guideBody">
           <div class="card">
-            <div class="muted" id="ui_guideHtml"></div>
+            <h3 id="ui_guideHead1">1) Switching models</h3>
+            <div class="muted" id="ui_guideText1"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h3 id="ui_guideHead2">2) Which model for which company</h3>
+            <div class="muted" id="ui_guideText2"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h3 id="ui_guideHead3">3) Where to find inputs</h3>
+            <div class="muted" id="ui_guideText3"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h3 id="ui_guideHead4">4) Sanity check</h3>
+            <div class="muted" id="ui_guideText4"></div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h3 id="ui_guideHead5">5) Important disclaimer</h3>
+            <div class="muted" id="ui_guideText5"></div>
           </div>
         </div>
       </div>
 
-    </div><!-- /accordion -->
-
-    <div class="footer" id="ui_footer">
-      Educational tool • Not investment advice
     </div>
 
-  </div><!-- /wrap -->
+    <div class="footer" id="ui_footer"></div>
+  </div>
 
   <div class="toast" id="toast"></div>
 
@@ -782,12 +912,11 @@
       </div>
       <div class="modalBody" id="modalBody"></div>
     </div>
-  </div><script>
-  const TEXTS = {
+  </div>
+
+  <script>const TEXTS = {
     en: {
-      sub: "Educational valuation tool • Not financial advice",
-      langLbl: "Language",
-      modeLbl: "Mode",
+      sub: "Multi-Model Fair Value • Watchlist • Guide",
       valTitle: "Fair value",
       valTag: "Models + 3 scenarios",
       watchTitle: "Watchlist",
@@ -795,188 +924,197 @@
       guideTitle: "How to choose a model",
       guideTag: "Guide",
 
+      langLbl: "Language",
+      modeLbl: "Mode",
+
       introTitle: "What are we calculating?",
-      introText: "Pick a company type (model) and compute fair value in 3 scenarios. Output is a scenario, not advice.",
-      decimalTip: "Tip: You can type decimals with dot or comma (e.g., 5.5 or 5,5). Spaces are ignored.",
+      introText:
+        "Choose a company type (model) and estimate fair value in 3 scenarios. Output is educational and scenario-based — not a recommendation.",
+      disclaimerBox:
+        "Educational tool only. This app does NOT provide financial advice, does NOT recommend buying/selling any security, and does NOT consider your personal situation. You are responsible for your own decisions.",
 
       currLbl: "Currency",
       mosLbl: "Margin of Safety",
-
-      modelTitle: "Choose model",
+      decimalTip:
+        "Tip: You can type decimals with dot or comma. For big numbers you can also use k / m / b (e.g., 13.2b shares). After leaving the field it formats for readability.",
 
       m_standard_t:"Standard (FCF DCF)",
-      m_standard_d:"Non-financials with stable positive FCF.",
+      m_standard_d:"Non-financial companies with stable positive FCF.",
       m_fin_t:"Financial (RIM)",
-      m_fin_d:"Banks/insurers/fintech – value via BVPS and ROE.",
+      m_fin_d:"Banks/insurers/fintech — value via BVPS + ROE.",
       m_reit_t:"REIT (AFFO)",
-      m_reit_d:"REITs – AFFO per share instead of FCF.",
-      m_growth_t:"Growth (Pre-FCF)",
-      m_growth_d:"Revenue & margin to FCF → DCF.",
+      m_reit_d:"REITs — AFFO per share instead of FCF.",
+      m_growth_t:"Pre-FCF growth",
+      m_growth_d:"Revenue + margin path to FCF (simplified).",
       m_cyc_t:"Cyclical",
-      m_cyc_d:"Use normalized (cycle-average) FCF.",
-      m_util_t:"Utility (DDM)",
-      m_util_d:"Dividend Discount Model.",
+      m_cyc_d:"Normalize FCF across a cycle (simplified).",
+      m_util_t:"Utility",
+      m_util_d:"Dividend/earnings stability (simplified).",
 
       inputsMain:"Core inputs",
       tickerLbl:"Ticker",
       priceLbl:"Current price",
 
       fcfLbl:"Free Cash Flow (FCF) – total",
-      fcfMini:"Annual total FCF. Use unit selector (M/B) to avoid typing zeros.",
+      fcfMini:"Annual total company FCF (ideally 3–5y average). Use total, not per-share.",
       sharesLbl:"Shares Outstanding",
-      sharesMini:"Used to convert firm value to per-share value (use M/B selector).",
+      sharesMini:"Total shares outstanding. Tip: use 13.2b instead of typing many zeros.",
 
-      bvpsLbl:"Book Value per Share (BVPS)",
-      bvpsMini:"Core input for banks/insurers/fintech.",
+      bvpsLbl:"Book Value / share (BVPS)",
+      bvpsMini:"Book value per share (banks/financials).",
+      roeLbl:"ROE (%)",
+      roeMini:"Return on equity. For Financial model, scenarios represent ROE.",
       payoutLbl:"Payout ratio (%)",
-      payoutMini:"% of earnings paid out; remainder grows BVPS.",
+      payoutMini:"% of earnings paid out (rest increases BVPS). If unsure, try 0–30%.",
+      sharesFinLbl:"Shares (optional)",
+      sharesFinMini:"Not required for RIM. Leave empty.",
 
-      affoLbl:"AFFO per share",
-      affoMini:"Preferred REIT cash metric (AFFO/FFO).",
+      affoLbl:"AFFO / share",
+      affoMini:"Adjusted Funds From Operations per share (REIT).",
       reitNoteLbl:"Note",
+      reitNoteMini:"Optional label only (e.g., AFFO TTM).",
 
-      revLbl:"Revenue – total",
-      revMini:"Annual revenue; projected then converted to FCF via margin.",
-      marginLbl:"FCF margin (%)",
-      marginMini:"Long-run margin used to convert revenue to FCF.",
-      growthRampLbl:"Margin ramp years",
+      revLbl:"Revenue (total)",
+      revMini:"Annual revenue (total). Use k/m/b for readability.",
+      sharesGLabel:"Shares Outstanding",
+      sharesGMini:"Needed to convert firm value to per-share value.",
+      marginLbl:"Target FCF margin (%)",
+      marginMini:"Long-run FCF margin once the company matures (rough assumption).",
+      marginYearsLbl:"Margin ramp years",
+      marginYearsMini:"How many years it takes to reach the target margin.",
 
-      normFcfLbl:"Normalized FCF – total",
-      sharesGLbl:"Shares Outstanding",
+      normFcfLbl:"Normalized FCF (total)",
+      normFcfMini:"Cycle-average FCF (e.g., avg of a full cycle).",
       sharesCLbl:"Shares Outstanding",
+      sharesCMini:"Shares used to convert to per-share value.",
+      cycleAdjLbl:"Cycle adjustment (%)",
+      cycleAdjMini:"Optional stress/boost for normalized FCF (e.g., -10% for conservative).",
+      cycNoteLbl:"Note",
+      cycNoteMini:"Optional label only.",
 
-      divLbl:"Dividend per share (DPS)",
-      divGrowLbl:"Dividend growth (%)",
+      divLbl:"Dividend / share (annual)",
+      divMini:"Annual dividend per share (or proxy cash return).",
+      payoutUtilLbl:"Payout ratio (%)",
+      payoutUtilMini:"Used as a stability proxy (higher payout = more utility-like).",
 
       yearsLbl:"Projection years",
       discLbl:"Discount rate (%)",
       termLbl:"Terminal growth (%)",
-      termMini:"Must be lower than discount rate.",
+      termMini:"Used for Standard/REIT/Growth/Cyclical. Must be lower than discount rate.",
+
+      inputsHintLbl:"Inputs tip",
+      inputsHintMini:"Tap the i icon for where to find inputs.",
 
       inputsScen:"Scenarios (annual)",
-      inputsScenText:"Quick uses Base and auto-derives Bear/Bull (±2). Advanced lets you set all three manually.",
-      scenTipText:"Standard/REIT/Growth/Cyclical: growth %. Financial: ROE %. Utility: dividend growth % (uses Dividend growth input).",
+      inputsScenText:"Quick uses Base and auto-derives Bear/Bull (±2). Advanced lets you set all three.",
+      scenTipText:"Standard/REIT/Growth/Cyclical/Utility: scenario is growth %. Financial: scenario is ROE %.",
       bearLbl:"Bear",
       baseLbl:"Base",
       bullLbl:"Bull",
 
       targetsTitle:"Target & Range",
-      targetsText:"Target = Base with Margin of Safety. Range = Bear to Bull.",
+      targetsText:"Target = Base with Margin of Safety applied. Range = Bear to Bull.",
       targetLbl:"Target price",
       rangeLbl:"Fair value range",
 
       calc:"Calculate",
       save:"Save to Watchlist",
       demo:"Demo values",
-      saveNote:"Saves latest result (Bear/Base/Bull).",
+      saveNote:"Saves the latest result (Bear/Base/Bull).",
 
       watchIntroTitle:"Saved valuations",
-      watchIntroText:"Saved tickers. Delete rows and export the table.",
-      watchFooter:"Note: Watchlist is stored locally in your browser (localStorage).",
+      watchIntroText:"Saved rows are stored locally in your browser (localStorage).",
+      watchFooter:"Note: Watchlist is stored locally (localStorage).",
       empty:"No saved items yet.",
       exportCsv:"Export CSV",
       printPdf:"Print / PDF",
       del:"Delete",
-      footer:"Educational tool • Not financial advice",
 
-      th:{date:"Date",ticker:"Ticker",price:"Price",model:"Model",bear:"Bear",base:"Base",bull:"Bull",target:"Target",range:"Range",action:"Action"},
+      th:{date:"Date", ticker:"Ticker", price:"Price", model:"Model", bear:"Bear", base:"Base", bull:"Bull", target:"Target", range:"Range", action:"Action"},
+
+      guideHead1:"1) Switching models",
+      guideText1:"Use the big model buttons. Inputs and scenario meaning will change accordingly.",
+      guideHead2:"2) Which model to use",
+      guideText2:
+        "<ul>" +
+        "<li><strong>Standard (FCF DCF):</strong> companies with stable positive free cash flow. Inputs: total FCF + shares.</li>" +
+        "<li><strong>Financial (RIM):</strong> banks/insurers/fintech. Inputs: BVPS + ROE (+ payout). Scenarios are ROE.</li>" +
+        "<li><strong>REIT (AFFO):</strong> REITs. Input: AFFO per share. Scenarios are AFFO growth.</li>" +
+        "<li><strong>Pre-FCF Growth:</strong> high-growth firms not yet stable in FCF. Input: revenue + path to FCF margin.</li>" +
+        "<li><strong>Cyclical:</strong> cyclicals (commodities/semis/industrial). Use normalized cycle-average FCF.</li>" +
+        "<li><strong>Utility:</strong> stable cash/dividend profiles. Uses a conservative dividend/cash-return approach.</li>" +
+        "</ul>",
+
+      guideHead3:"3) Where to find inputs",
+      guideText3:
+        "<ul>" +
+        "<li><strong>FCF / Revenue:</strong> company filings (10-K/Annual report) → cash flow statement / income statement.</li>" +
+        "<li><strong>Shares:</strong> filings, investor relations, or data sites (e.g., market data providers).</li>" +
+        "<li><strong>BVPS / ROE:</strong> financial statements (balance sheet + income statement), annual reports.</li>" +
+        "<li><strong>AFFO:</strong> REIT supplemental / earnings release (often reported as AFFO/FFO).</li>" +
+        "</ul>",
+
+      guideHead4:"4) Sanity check",
+      guideText4:
+        "<ul>" +
+        "<li>Use the correct model for the company type.</li>" +
+        "<li>Units matter: Standard uses <strong>total</strong> FCF, not per-share.</li>" +
+        "<li>Discount rate must be higher than terminal growth.</li>" +
+        "<li>If output is extreme, re-check inputs and consider a more conservative scenario.</li>" +
+        "</ul>",
+
+      guideHead5:"5) Important disclaimer",
+      guideText5:
+        "This app is educational only and not investment advice. No personalized recommendations. " +
+        "You bear full responsibility for using the results. Consider consulting a licensed professional if needed.",
 
       sanityTitle:"Sanity check:",
       sanityLow:"Result looks extremely low. Check model choice, units (total vs per-share) and shares.",
-      sanityHigh:"Result looks extremely high. Check growth/discount assumptions and whether the company is cyclical.",
-
-      mosExplainHtml: `
-        <strong>Margin of Safety (MoS)</strong> applies a safety discount to the Base fair value to form a more conservative <em>Target price</em>.
-        <ul>
-          <li>Example: Base = 100 → MoS 20% ⇒ Target = 80</li>
-        </ul>
-        MoS helps account for uncertainty and estimation errors. <strong>It is not a prediction or guarantee.</strong>
-      `,
-
-      guideHtml: `
-        <h3>About & Disclaimer</h3>
-        <p><strong>Educational tool only.</strong> This app is for educational and informational purposes.</p>
-        <ul>
-          <li><strong>Not financial or investment advice.</strong> No financial, investment, legal, or tax advice is provided.</li>
-          <li>No recommendations to buy/sell. Outputs are illustrative estimates based on user assumptions.</li>
-          <li>Investing involves risk, including loss of capital.</li>
-        </ul>
-
-        <h3>Who is this app for?</h3>
-        <ul>
-          <li>Long-term investors learning valuation</li>
-          <li>Students of fundamental analysis</li>
-          <li>Self-directed investors building their own assumptions</li>
-        </ul>
-
-        <h3>Where to find input data?</h3>
-        <ul>
-          <li><strong>Company reports:</strong> annual/quarterly reports (10-K / annual report), investor presentations</li>
-          <li><strong>Statements:</strong> Cash Flow (FCF), Income Statement (revenue), Balance Sheet (book value)</li>
-          <li><strong>Market data:</strong> shares outstanding and price from reputable finance sources</li>
-          <li><strong>REIT:</strong> AFFO/FFO usually in REIT supplemental / earnings release</li>
-        </ul>
-
-        <h3>How the 6 valuation models work</h3>
-
-        <h4>1) Standard (FCF DCF)</h4>
-        <p>Projects total FCF for N years, discounts it, adds terminal value, then converts to per-share using Shares Outstanding.</p>
-
-        <h4>2) Financial (RIM)</h4>
-        <p>Residual Income Model: value = BVPS + PV(residual income). Uses ROE scenarios and payout to grow BVPS.</p>
-
-        <h4>3) REIT (AFFO)</h4>
-        <p>DCF on AFFO per share. Often more meaningful than standard FCF for REITs.</p>
-
-        <h4>4) Growth (Pre-FCF)</h4>
-        <p>Projects revenue growth, converts revenue to FCF via margin (optionally ramps margin), then performs DCF and converts to per-share via shares.</p>
-
-        <h4>5) Cyclical</h4>
-        <p>Starts from normalized (cycle-average) FCF rather than a single year. Then DCF with conservative growth assumptions.</p>
-
-        <h4>6) Utility (DDM)</h4>
-        <p>Dividend Discount Model: discounts projected dividends plus terminal dividend value.</p>
-
-        <p class="mini" style="margin-top:10px;opacity:.9">
-          Note: Simplified educational models. Real-world valuation may also require debt/cash, reinvestment, dilution and sensitivity analysis.
-        </p>
-      `,
+      sanityHigh:"Result looks extremely high. Check growth/discount assumptions and company type.",
 
       helps:{
-        ticker:{t:"Ticker",b:"Stock symbol for labeling your watchlist (e.g., AAPL)."},
-        price:{t:"Current price",b:"Market price used to compute upside/downside vs fair value."},
-        mode:{t:"Mode",b:"Quick: enter Base only; Bear/Bull auto (±2). Advanced: enter all three scenarios."},
-        currency:{t:"Currency",b:"Formatting only. The app does not convert FX rates automatically."},
-        mos:{t:"Margin of Safety",b:"Applies a safety discount to Base fair value to form Target price."},
+        currency:{t:"Currency", b:"Select currency used for displaying the output. Inputs should be in the same currency."},
+        mos:{t:"Margin of Safety", b:"A conservative haircut applied to the Base fair value to produce a 'target' price. Example: Base $100, MoS 20% → Target $80."},
+        ticker:{t:"Ticker", b:"Any label you want (e.g., AAPL). Used for watchlist."},
+        price:{t:"Current price", b:"Market price used to calculate upside/downside vs fair value."},
 
-        fcf_total:{t:"FCF (total)",b:"Enter annual total company FCF. Use M/B unit selector to avoid typing zeros."},
-        shares:{t:"Shares Outstanding",b:"Total shares outstanding (use M/B selector)."},
-        bvps:{t:"BVPS",b:"Book value per share. Key input for banks/insurers."},
-        payout:{t:"Payout ratio",b:"Percent of earnings paid out; the rest increases BVPS."},
-        affo:{t:"AFFO per share",b:"Adjusted Funds From Operations per share (or FFO/AFFO)."},
-        reit_note:{t:"Note",b:"Optional label only; does not affect calculations."},
+        fcf_total:{t:"FCF (total)", b:"Enter annual total company free cash flow. Tip: 10b = 10,000,000,000."},
+        shares:{t:"Shares", b:"Total shares outstanding. Tip: 13.2b instead of typing many zeros."},
 
-        revenue_total:{t:"Revenue (total)",b:"Annual total revenue. Growth model projects revenue and converts it to FCF via margin."},
-        fcf_margin:{t:"FCF margin",b:"Assumed long-run FCF margin (%) used in Growth model."},
-        margin_ramp:{t:"Margin ramp years",b:"How many years it takes for margin to approach target margin."},
-        norm_fcf:{t:"Normalized FCF",b:"Cycle-average FCF for cyclical businesses (e.g., 5–10y avg)."},
-        dps:{t:"Dividend per share",b:"Annual dividend per share used in DDM."},
-        div_g:{t:"Dividend growth",b:"Annual dividend growth used during projection years (then terminal growth applies)."},
+        bvps:{t:"BVPS", b:"Book value per share. Used for financials in Residual Income Model (RIM)."},
+        roe:{t:"ROE", b:"Return on equity. In Financial model, Bear/Base/Bull are ROE scenarios (e.g., 8/12/15%)."},
+        payout:{t:"Payout ratio", b:"Percent of earnings paid out (dividends/buybacks). The rest increases BVPS in the model."},
+        shares_fin:{t:"Shares (optional)", b:"Not needed for RIM. Leave empty."},
 
-        years:{t:"Projection years",b:"How many years to project cash flows / dividends."},
-        disc:{t:"Discount rate",b:"Required return. Must be higher than terminal growth."},
-        term:{t:"Terminal growth",b:"Long-run growth after projection. Keep conservative (typically 0–3%)."},
+        affo:{t:"AFFO per share", b:"Adjusted Funds From Operations per share (or FFO/AFFO). Prefer for REIT valuation."},
+        reit_note:{t:"Note", b:"Optional label only."},
 
-        bear:{t:"Bear",b:"Conservative scenario. For DCF models: growth %. For Financial: ROE %."},
-        base:{t:"Base",b:"Realistic scenario. For DCF models: growth %. For Financial: ROE %."},
-        bull:{t:"Bull",b:"Optimistic scenario. For DCF models: growth %. For Financial: ROE %."}
-      }
+        rev:{t:"Revenue (total)", b:"Annual revenue total. Tip: 300b = 300,000,000,000."},
+        shares_g:{t:"Shares", b:"Needed to convert firm value to per-share value in Growth model."},
+        fcf_margin:{t:"Target FCF margin", b:"Long-run FCF margin (% of revenue) after maturity. Rough assumption."},
+        margin_years:{t:"Margin ramp years", b:"How many years to reach the target margin from today's level (simplified ramp)."},
+        norm_fcf:{t:"Normalized FCF", b:"Cycle-average FCF (e.g., average of a full cycle)."},
+        shares_c:{t:"Shares", b:"Shares outstanding for cyclical model."},
+        cycle_adj:{t:"Cycle adjustment", b:"Extra stress/boost to normalized FCF. Example: -10 makes it more conservative."},
+        cyc_note:{t:"Note", b:"Optional label only."},
+        div:{t:"Dividend per share", b:"Annual dividend per share (or proxy cash return). Used in Utility model."},
+        payout_util:{t:"Payout ratio", b:"Used as a stability proxy; utility-like firms often pay a higher, stable payout."},
+
+        years:{t:"Projection years", b:"How many years to project cash flows."},
+        disc:{t:"Discount rate", b:"Required return / risk. Higher = more conservative."},
+        term:{t:"Terminal growth", b:"Long-run growth after projection. Must be lower than discount rate."},
+        sources:{t:"Where to find inputs", b:"Use annual reports / 10-K filings (cash flow statement, income statement, balance sheet). Shares and price can be from market data providers. REIT AFFO often in earnings releases."},
+
+        bear:{t:"Bear", b:"Conservative scenario. Usually growth % (or ROE % for Financial)."},
+        base:{t:"Base", b:"Realistic scenario. Usually growth % (or ROE % for Financial)."},
+        bull:{t:"Bull", b:"Optimistic scenario. Usually growth % (or ROE % for Financial)."},
+      },
+
+      footer:"Educational tool • Not investment advice • No personalized recommendations"
     },
 
     cz: {
-      sub: "Vzdělávací valuace • Nejde o investiční doporučení",
-      langLbl: "Jazyk",
-      modeLbl: "Mód",
+      sub: "Multi-Model Fair Value • Watchlist • Návod",
       valTitle: "Výpočet férové ceny",
       valTag: "Modely + 3 scénáře",
       watchTitle: "Watchlist",
@@ -984,67 +1122,90 @@
       guideTitle: "Jak vybrat model",
       guideTag: "Návod",
 
+      langLbl: "Jazyk",
+      modeLbl: "Mód",
+
       introTitle: "Co tady počítáme?",
-      introText: "Vybereš typ firmy (model) a spočítáš férovou cenu ve 3 scénářích. Výsledek je scénář, ne doporučení.",
-      decimalTip: "Tip: Můžeš psát čísla s desetinnou tečkou nebo čárkou (např. 5.5 nebo 5,5). Mezery ignorujeme.",
+      introText:
+        "Vybereš typ firmy (model) a spočítáš férovou cenu ve 3 scénářích. Výsledek je vzdělávací a scénářový — není to doporučení.",
+      disclaimerBox:
+        "Pouze vzdělávací nástroj. Aplikace NENÍ finanční poradenství, nedává doporučení koupit/prodat a nezohledňuje tvou osobní situaci. Za svá rozhodnutí odpovídáš ty.",
 
       currLbl: "Měna",
       mosLbl: "Margin of Safety",
-
-      modelTitle: "Vyber model",
+      decimalTip:
+        "Tip: Můžeš psát desetinnou tečkou nebo čárkou. U velkých čísel můžeš použít k / m / b (např. 13,2b akcií). Po opuštění pole se číslo zformátuje pro přehlednost.",
 
       m_standard_t:"Standard (FCF DCF)",
       m_standard_d:"Klasické firmy se stabilním FCF.",
       m_fin_t:"Finanční (RIM)",
-      m_fin_d:"Banky/pojišťovny/fintech – BVPS + ROE scénáře.",
+      m_fin_d:"Banka/pojišťovna/fintech — přes BVPS + ROE.",
       m_reit_t:"REIT (AFFO)",
-      m_reit_d:"REIT – AFFO na akcii místo FCF.",
-      m_growth_t:"Růstová (bez FCF)",
-      m_growth_d:"Revenue & margin → FCF → DCF.",
+      m_reit_d:"REIT — AFFO na akcii místo FCF.",
+      m_growth_t:"Růstová bez FCF",
+      m_growth_d:"Revenue + cesta k FCF marži (zjednodušeně).",
       m_cyc_t:"Cyklická",
-      m_cyc_d:"Normalizované FCF přes cyklus.",
-      m_util_t:"Utility (DDM)",
-      m_util_d:"Dividendový model.",
+      m_cyc_d:"Normalizace FCF přes cyklus (zjednodušeně).",
+      m_util_t:"Utility",
+      m_util_d:"Stabilní cash/dividend (zjednodušeně).",
 
       inputsMain:"Základní vstupy",
       tickerLbl:"Ticker",
       priceLbl:"Aktuální cena",
 
       fcfLbl:"Free Cash Flow (FCF) – celkem",
-      fcfMini:"Roční FCF celé firmy. Použij jednotky M/B, ať nepíšeš nuly.",
+      fcfMini:"Roční FCF celé firmy (ideálně průměr 3–5 let). Zadávej celkem, ne na akcii.",
       sharesLbl:"Shares Outstanding",
-      sharesMini:"Počet akcií v oběhu (použij M/B).",
+      sharesMini:"Počet akcií v oběhu. Tip: 13,2b místo psaní mnoha nul.",
 
       bvpsLbl:"Book Value / akcii (BVPS)",
-      bvpsMini:"Klíčový vstup pro banky/pojišťovny.",
+      bvpsMini:"Účetní hodnota na akcii (banky/finance).",
+      roeLbl:"ROE (%)",
+      roeMini:"Návratnost vlastního kapitálu. U Financial jsou scénáře ROE.",
       payoutLbl:"Payout ratio (%)",
-      payoutMini:"Kolik % zisku se vyplatí. Zbytek zvyšuje BVPS.",
+      payoutMini:"Kolik % zisku se vyplatí (zbytek zvyšuje BVPS). Pokud nevíš, zkus 0–30 %.",
+      sharesFinLbl:"Shares (volitelné)",
+      sharesFinMini:"U RIM není potřeba. Nech prázdné.",
 
       affoLbl:"AFFO / akcii",
-      affoMini:"U REIT je AFFO/FFO často vhodnější než FCF.",
+      affoMini:"AFFO na akcii (u REIT).",
       reitNoteLbl:"Poznámka",
+      reitNoteMini:"Jen popisek (např. AFFO TTM).",
 
-      revLbl:"Revenue – celkem",
-      revMini:"Roční revenue. Projektuje se a převádí na FCF přes margin.",
-      marginLbl:"FCF margin (%)",
-      marginMini:"Předpoklad dlouhodobé FCF marže (%).",
-      growthRampLbl:"Roky rampy marže",
+      revLbl:"Revenue (celkem)",
+      revMini:"Roční tržby celkem. Tip: 300b = 300 miliard.",
+      sharesGLabel:"Shares Outstanding",
+      sharesGMini:"Potřeba pro přepočet na 1 akcii u Growth modelu.",
+      marginLbl:"Cílová FCF marže (%)",
+      marginMini:"Dlouhodobá FCF marže po „dozrání“ firmy (odhad).",
+      marginYearsLbl:"Roky do cílové marže",
+      marginYearsMini:"Za kolik let se má marže dostat na cíl (zjednodušený ramp).",
 
-      normFcfLbl:"Normalizované FCF – celkem",
-      sharesGLbl:"Shares",
-      sharesCLbl:"Shares",
+      normFcfLbl:"Normalizované FCF (celkem)",
+      normFcfMini:"FCF průměr přes celý cyklus (odhad).",
+      sharesCLbl:"Shares Outstanding",
+      sharesCMini:"Počet akcií pro cyklický model.",
+      cycleAdjLbl:"Úprava cyklu (%)",
+      cycleAdjMini:"Volitelný stres/boost (např. -10 % konzervativně).",
+      cycNoteLbl:"Poznámka",
+      cycNoteMini:"Jen popisek.",
 
-      divLbl:"Dividenda na akcii (DPS)",
-      divGrowLbl:"Růst dividendy (%)",
+      divLbl:"Dividenda / akcii (ročně)",
+      divMini:"Roční dividenda na akcii (nebo proxy cash return).",
+      payoutUtilLbl:"Payout ratio (%)",
+      payoutUtilMini:"Proxy stability; utility často mají stabilní vyšší payout.",
 
       yearsLbl:"Délka projekce (roky)",
       discLbl:"Diskontní sazba (%)",
       termLbl:"Terminální růst (%)",
-      termMini:"Diskont musí být vyšší než terminál.",
+      termMini:"Použije se u Standard/REIT/Growth/Cyclical/Utility. Musí být menší než diskont.",
+
+      inputsHintLbl:"Tip na vstupy",
+      inputsHintMini:"Klikni na i pro zdroje.",
 
       inputsScen:"Scénáře (ročně)",
-      inputsScenText:"Quick používá Base a Bear/Bull dopočítá (±2). Advanced dovolí zadat vše ručně.",
-      scenTipText:"Standard/REIT/Growth/Cyklická: růst %. Finanční: ROE %. Utility: růst dividendy %.",
+      inputsScenText:"Quick používá jen Base a Bear/Bull dopočítá automaticky (±2). Advanced umožní zadat vše ručně.",
+      scenTipText:"Standard/REIT/Growth/Cyclical/Utility: scénář je růst %. Financial: scénář je ROE %.",
       bearLbl:"Bear",
       baseLbl:"Base",
       bullLbl:"Bull",
@@ -1052,534 +1213,74 @@
       targetsTitle:"Target & Range",
       targetsText:"Target = Base se zapnutým Margin of Safety. Range = Bear až Bull.",
       targetLbl:"Target cena",
-      rangeLbl:"Rozmezí férové ceny",
-
-      calc:"Spočítat",
-      save:"Uložit do Watchlistu",
-      demo:"Demo hodnoty",
-      saveNote:"Uloží poslední výsledek (Bear/Base/Bull).",
-
-      watchIntroTitle:"Uložené výpočty",
-      watchIntroText:"Zde se ukládají vypočítané akcie. Můžeš mazat položky a exportovat tabulku.",
-      watchFooter:"Pozn.: Watchlist je uložen lokálně v prohlížeči (localStorage).",
-      empty:"Zatím nic uloženého.",
-      exportCsv:"Export CSV",
-      printPdf:"Print / PDF",
-      del:"Smazat",
-      footer:"Vzdělávací nástroj • Nejde o investiční doporučení",
-
-      th:{date:"Datum",ticker:"Ticker",price:"Cena",model:"Model",bear:"Bear",base:"Base",bull:"Bull",target:"Target",range:"Range",action:"Akce"},
-
-      sanityTitle:"Kontrola:",
-      sanityLow:"Výsledek je extrémně nízký. Zkontroluj model, jednotky (celkem vs na akcii) a počet akcií.",
-      sanityHigh:"Výsledek je extrémně vysoký. Zkontroluj růst/diskont a zda firma není cyklická.",
-
-      mosExplainHtml: `
-        <strong>Margin of Safety (bezpečnostní rezerva)</strong> je ochranná sleva z Base férové ceny pro výpočet konzervativnější <em>Target ceny</em>.
-        <ul>
-          <li>Příklad: Base = 100 → MoS 20 % ⇒ Target = 80</li>
-        </ul>
-        MoS pomáhá započítat nejistotu a chyby v odhadech. <strong>Není to predikce ani záruka.</strong>
-      `,
-
-      guideHtml: `
-        <h3>O aplikaci & Upozornění</h3>
-        <p><strong>Pouze vzdělávací nástroj.</strong> Aplikace slouží pro vzdělávací a informační účely.</p>
-        <ul>
-          <li><strong>Nejde o finanční/investiční doporučení</strong> ani poradenství (finanční, právní, daňové).</li>
-          <li>Nedává doporučení koupit/prodat. Výstupy jsou orientační dle vstupů uživatele.</li>
-          <li>Investování je rizikové a můžeš přijít o část nebo celý kapitál.</li>
-        </ul>
-
-        <h3>Pro koho je aplikace?</h3>
-        <ul>
-          <li>Pro dlouhodobé investory, kteří se chtějí učit valuaci</li>
-          <li>Pro studenty fundamentální analýzy</li>
-          <li>Pro investory, kteří si staví vlastní předpoklady</li>
-        </ul>
-
-        <h3>Kde hledat data (vstupy)?</h3>
-        <ul>
-          <li><strong>Reporty firmy:</strong> výroční/kvartální zprávy, prezentace pro investory</li>
-          <li><strong>Výkazy:</strong> Cash Flow (FCF), Výsledovka (revenue), Rozvaha (book value)</li>
-          <li><strong>Tržní data:</strong> počet akcií a cena z ověřených finančních webů</li>
-          <li><strong>REIT:</strong> AFFO/FFO bývá v earnings release / supplemental</li>
-        </ul>
-
-        <h3>Jak funguje 6 modelů</h3>
-        <h4>1) Standard (FCF DCF)</h4>
-        <p>Projektuje FCF celé firmy, diskontuje a přidá terminál. Na 1 akcii přepočítá přes Shares.</p>
-
-        <h4>2) Finanční (RIM)</h4>
-        <p>Reziduální model: hodnota = BVPS + PV(reziduálních zisků). Scénáře jsou ROE, payout zvyšuje BVPS.</p>
-
-        <h4>3) REIT (AFFO)</h4>
-        <p>DCF nad AFFO na akcii – pro REIT je to často lepší než FCF.</p>
-
-        <h4>4) Růstová bez FCF</h4>
-        <p>Projektuje revenue, převede je na FCF přes margin (s rampou) a provede DCF + přepočet na akcii.</p>
-
-        <h4>5) Cyklická</h4>
-        <p>Použije normalizované FCF (průměr přes cyklus) místo jednoho roku a pak DCF konzervativně.</p>
-
-        <h4>6) Utility (DDM)</h4>
-        <p>Dividendový model: diskontuje dividendy a terminální dividendovou hodnotu.</p>
-
-        <p class="mini" style="margin-top:10px;opacity:.9">
-          Pozn.: Zjednodušené edukativní modely. V praxi často řešíš i dluh/hotovost, reinvestice, diluci a citlivost.
-        </p>
-      `,
-
-      helps:{
-        ticker:{t:"Ticker",b:"Zkratka akcie (např. AAPL). Slouží pro přehled ve watchlistu."},
-        price:{t:"Aktuální cena",b:"Tržní cena akcie. Podle ní počítáme % rozdíl vůči férové hodnotě."},
-        mode:{t:"Mód",b:"Quick: zadáš jen Base; Bear/Bull se dopočítá (±2). Advanced: zadáš všechny 3 scénáře ručně."},
-        currency:{t:"Měna",b:"Pouze formátování. Aplikace nepřepočítává FX kurzy."},
-        mos:{t:"Margin of Safety",b:"Bezpečnostní sleva z Base férové ceny pro výpočet Target ceny."},
-
-        fcf_total:{t:"FCF – celkem",b:"Roční FCF celé firmy. Použij jednotky M/B."},
-        shares:{t:"Shares Outstanding",b:"Počet akcií v oběhu (použij M/B)."},
-        bvps:{t:"BVPS",b:"Účetní hodnota na akcii. Klíčové u bank."},
-        payout:{t:"Payout ratio",b:"Kolik % zisku se vyplatí. Zbytek zvyšuje BVPS."},
-        affo:{t:"AFFO/akcii",b:"AFFO/FFO na akcii – vhodné pro REIT."},
-        reit_note:{t:"Poznámka",b:"Jen popisek pro tebe, výpočet neovlivní."},
-
-        revenue_total:{t:"Revenue",b:"Roční revenue. Růstový model projektuje revenue a převádí je na FCF přes margin."},
-        fcf_margin:{t:"FCF margin",b:"Předpoklad dlouhodobé FCF marže (%)."},
-        margin_ramp:{t:"Rampa marže",b:"Počet let, za které se margin přiblíží cílové hodnotě."},
-        norm_fcf:{t:"Normalizované FCF",b:"Průměrné FCF přes cyklus (např. 5–10 let)."},
-        dps:{t:"Dividenda na akcii",b:"Roční dividenda na akcii pro dividendový model."},
-        div_g:{t:"Růst dividendy",b:"Roční růst dividendy v projekční části."},
-
-        years:{t:"Délka projekce",b:"Počet let projekce."},
-        disc:{t:"Diskont",b:"Požadovaný výnos. Musí být vyšší než terminál."},
-        term:{t:"Terminál",b:"Dlouhodobý růst po projekci. Konzervativně 0–3 %."},
-
-        bear:{t:"Bear",b:"Pesimistický scénář. U DCF je to růst %, u finančních je to ROE %."},
-        base:{t:"Base",b:"Realistický scénář. U DCF je to růst %, u finančních je to ROE %."},
-        bull:{t:"Bull",b:"Optimistický scénář. U DCF je to růst %, u finančních je to ROE %."}
-      }
-    }
-  };
-
-  const LS_KEY = "ea_watchlist_v3";
-  </script><!-- WATCHLIST -->
-      <div class="acc" id="acc_watch">
-        <div class="head" data-acc="watch">
-          <div class="title">
-            <span id="ui_watchTitle">Watchlist</span>
-            <span class="tag" id="ui_watchTag">Local storage</span>
-          </div>
-          <div class="chev">▼</div>
-        </div>
-
-        <div class="body" id="watchBody">
-          <div class="card">
-            <h3 id="ui_watchIntroTitle">Saved valuations</h3>
-            <div class="muted" id="ui_watchIntroText">
-              Saved tickers. You can delete rows and export the table.
-            </div>
-
-            <div class="btns" style="margin-top:10px;">
-              <button class="secondary" id="btn_export_csv">Export CSV</button>
-              <button class="secondary" id="btn_print_pdf">Print / PDF</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:12px;">
-            <div style="overflow:auto;">
-              <table id="watchTable">
-                <thead>
-                  <tr>
-                    <th id="th_date">Date</th>
-                    <th id="th_ticker">Ticker</th>
-                    <th class="right" id="th_price">Price</th>
-                    <th class="right" id="th_model">Model</th>
-                    <th class="right" id="th_bear">Bear</th>
-                    <th class="right" id="th_base">Base</th>
-                    <th class="right" id="th_bull">Bull</th>
-                    <th class="right nowrap" id="th_target">Target</th>
-                    <th class="right nowrap" id="th_range">Range</th>
-                    <th class="right" id="th_action">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="watchTbody">
-                  <tr><td colspan="10" class="muted" id="watchEmpty">No saved items yet.</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="footer" id="ui_watchFooter">
-            Note: Watchlist is stored locally in your browser (localStorage).
-          </div>
-        </div>
-      </div>
-
-      <!-- GUIDE (3rd drawer) -->
-      <div class="acc" id="acc_guide">
-        <div class="head" data-acc="guide">
-          <div class="title">
-            <span id="ui_guideTitle">How to choose a model</span>
-            <span class="tag" id="ui_guideTag">Guide</span>
-          </div>
-          <div class="chev">▼</div>
-        </div>
-
-        <div class="body" id="guideBody">
-          <div class="card">
-            <div class="muted" id="ui_guideHtml"></div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /accordion -->
-
-    <div class="footer" id="ui_footer">
-      Educational tool • Not financial advice
-    </div>
-  </div><!-- /wrap -->
-
-  <div class="toast" id="toast"></div>
-
-  <div class="modalBackdrop" id="modalBackdrop">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="t" id="modalTitle">Info</div>
-        <button class="xbtn" id="modalClose">Close</button>
-      </div>
-      <div class="modalBody" id="modalBody"></div>
-    </div>
-  </div><script>
-  const TEXTS = {
-    en: {
-      sub: "Multi-Model Fair Value • Watchlist • Guide",
-      langLbl: "Language",
-      modeLbl: "Mode",
-      valTitle: "Fair value",
-      valTag: "Models + 3 scenarios",
-      watchTitle: "Watchlist",
-      watchTag: "Local storage",
-      guideTitle: "How to choose a model",
-      guideTag: "Guide",
-
-      introTitle: "What are we calculating?",
-      introText: "Pick a company type (model) and compute fair value in 3 scenarios. Output is a scenario, not advice.",
-      currLbl: "Currency",
-      mosLbl: "Margin of Safety",
-      decimalTip: "Tip: You can type decimals with dot or comma (e.g., 5.5 or 5,5). Spaces are ignored.",
-
-      m_standard_t:"Standard (FCF DCF)",
-      m_standard_d:"Non-financials with stable positive FCF.",
-      m_fin_t:"Financial (RIM)",
-      m_fin_d:"Banks/insurers/fintech – value via BVPS and ROE/EPS.",
-      m_reit_t:"REIT (AFFO)",
-      m_reit_d:"REITs – AFFO per share instead of FCF.",
-      m_growth_t:"Pre-FCF growth",
-      m_growth_d:"Revenue/margin-based DCF (included).",
-      m_cyc_t:"Cyclical",
-      m_cyc_d:"Normalized cycle FCF (included).",
-      m_util_t:"Utility (DDM)",
-      m_util_d:"Dividend discount model (included).",
-
-      inputsMain:"Core inputs",
-      tickerLbl:"Ticker",
-      priceLbl:"Current price",
-
-      fcfLbl:"Free Cash Flow (total)",
-      fcfMini:"Annual total FCF (ideally 3–5y avg).",
-      sharesLbl:"Shares Outstanding",
-      sharesMini:"Used to convert firm value to per-share value.",
-
-      bvpsLbl:"Book Value per Share (BVPS)",
-      roeLbl:"ROE (%)",
-      payoutLbl:"Payout ratio (%)",
-      sharesFinLbl:"Shares (optional)",
-
-      affoLbl:"AFFO per share",
-
-      yearsLbl:"Projection years",
-      discLbl:"Discount rate (%)",
-      termLbl:"Terminal growth (%)",
-      termMini:"Used for Standard/REIT/Growth/Cyclical. Utility uses dividend terminal growth.",
-
-      inputsScen:"Scenarios (annual)",
-      inputsScenText:"Quick uses Base and auto derives Bear/Bull (±2). Advanced lets you set all three.",
-      scenTipText:"Standard/REIT/Growth/Cyclical: growth %. Financial: ROE scenario. Utility: dividend growth scenario.",
-      bearLbl:"Bear",
-      baseLbl:"Base",
-      bullLbl:"Bull",
-
-      targetsTitle:"Target & Range",
-      targetsText:"Target = Base with Margin of Safety. Range = Bear to Bull.",
-      targetLbl:"Target price",
-      rangeLbl:"Fair value range",
+      rangeLbl:"Férové pásmo",
 
       calc:"Calculate",
       save:"Save to Watchlist",
       demo:"Demo values",
-      saveNote:"Saves latest result (Bear/Base/Bull).",
-
-      watchIntroTitle:"Saved valuations",
-      watchIntroText:"Saved tickers. Delete rows and export the table.",
-      watchFooter:"Note: Watchlist is stored locally in your browser (localStorage).",
-      empty:"No saved items yet.",
-      exportCsv:"Export CSV",
-      printPdf:"Print / PDF",
-      del:"Delete",
-      footer:"Educational tool • Not financial advice",
-
-      th:{date:"Date",ticker:"Ticker",price:"Price",model:"Model",bear:"Bear",base:"Base",bull:"Bull",target:"Target",range:"Range",action:"Action"},
-
-      sanityTitle:"Sanity check:",
-      sanityLow:"Result looks extremely low. Check model, units and Shares.",
-      sanityHigh:"Result looks extremely high. Check growth/discount and company type.",
-
-      mosExplainHtml: `
-        <strong>Margin of Safety (MoS)</strong> applies a safety discount to the Base fair value to form a more conservative <em>Target price</em>.
-        <ul>
-          <li>Example: Base = 100 → MoS 20% ⇒ Target = 80</li>
-        </ul>
-        MoS helps account for uncertainty and estimation errors. <strong>Not a prediction or guarantee.</strong>
-      `,
-
-      guideHtml: `
-        <h3>About & Disclaimer</h3>
-        <p><strong>Educational tool only.</strong> This app is for educational and informational purposes.</p>
-        <ul>
-          <li><strong>Not financial or investment advice.</strong> No financial, investment, legal, or tax advice is provided.</li>
-          <li>No recommendations to buy/sell. Outputs are illustrative estimates based on user assumptions.</li>
-          <li>Investing involves risk, including loss of capital.</li>
-        </ul>
-
-        <h3>Who is this app for?</h3>
-        <ul>
-          <li>Long-term investors learning valuation</li>
-          <li>Students of fundamental analysis</li>
-          <li>Self-directed investors building their own assumptions</li>
-        </ul>
-
-        <h3>Where to find input data?</h3>
-        <ul>
-          <li><strong>Company reports:</strong> annual/quarterly reports and investor presentations</li>
-          <li><strong>Financial statements:</strong> Cash Flow (FCF), Income Statement (revenue), Balance Sheet (book value)</li>
-          <li><strong>Market data:</strong> shares outstanding and price from reputable finance sites</li>
-          <li><strong>REIT metrics:</strong> AFFO/FFO in REIT supplemental or earnings release</li>
-        </ul>
-
-        <h3>How the 6 valuation models work</h3>
-        <h4>1) Standard (FCF DCF)</h4>
-        <p>Projects company-level FCF for N years, discounts it, adds terminal value, converts to per-share via Shares Outstanding.</p>
-
-        <h4>2) Financial (RIM)</h4>
-        <p>Residual Income Model: value = BVPS + PV(residual income). Residual income depends on ROE vs required return.</p>
-
-        <h4>3) REIT (AFFO DCF)</h4>
-        <p>DCF using AFFO per share (often better than FCF for REITs).</p>
-
-        <h4>4) Growth (Pre-FCF)</h4>
-        <p>Projects revenue and converts to FCF using an assumed margin, then DCF.</p>
-
-        <h4>5) Cyclical</h4>
-        <p>Uses normalized (cycle-average) FCF to avoid peak/trough distortions.</p>
-
-        <h4>6) Utility (DDM)</h4>
-        <p>Dividend Discount Model: discounts dividends plus terminal dividend value.</p>
-
-        <p class="mini" style="margin-top:10px;opacity:.9">
-          Note: simplified educational models. Real valuation often includes debt, reinvestment, dilution and sensitivity analysis.
-        </p>
-      `,
-
-      helps:{
-        ticker:{t:"Ticker",b:"Stock symbol used for labeling the watchlist."},
-        price:{t:"Current price",b:"Market price used to compute upside/downside vs fair value."},
-        fcf_total:{t:"FCF (total)",b:"Enter annual total company FCF. The app divides by shares at the end."},
-        shares:{t:"Shares Outstanding",b:"Total shares outstanding. Use unit selector to avoid typing many zeros."},
-        bvps:{t:"BVPS",b:"Book value per share. Core input for financials."},
-        roe:{t:"ROE",b:"Return on equity. Scenarios for financials typically use ROE (e.g., 8/12/15%)."},
-        payout:{t:"Payout ratio",b:"Percent of earnings paid out; remainder increases book value."},
-        shares_fin:{t:"Shares (optional)",b:"Not required for RIM; leave empty."},
-        affo:{t:"AFFO per share",b:"AFFO (or FFO/AFFO) per share is preferred for REIT valuation."},
-        years:{t:"Projection years",b:"How many years to project."},
-        disc:{t:"Discount rate",b:"Required return/risk. Higher = more conservative. Must be > terminal growth."},
-        term:{t:"Terminal growth",b:"Long-run growth after projection. Keep conservative (e.g., 2–3%)."},
-        bear:{t:"Bear",b:"Conservative scenario."},
-        base:{t:"Base",b:"Realistic scenario."},
-        bull:{t:"Bull",b:"Optimistic scenario."},
-        mos:{t:"Margin of Safety",b:"Safety discount applied to Base fair value to calculate Target price."}
-      },
-
-      guideHead1:"1) Model switching",
-      guideText1:"Use the big buttons in the first drawer. Inputs and scenario meaning will change accordingly.",
-      guideHead2:"2) Which model to use",
-      guideHead3:"3) Sanity check",
-      guideText3:""
-    },
-
-    cz: {
-      sub: "Multi-Model férová cena • Watchlist • Návod",
-      langLbl: "Jazyk",
-      modeLbl: "Mód",
-      valTitle: "Férová cena",
-      valTag: "Modely + 3 scénáře",
-      watchTitle: "Watchlist",
-      watchTag: "Local storage",
-      guideTitle: "Jak vybrat model",
-      guideTag: "Návod",
-
-      introTitle: "Co tady počítáme?",
-      introText: "Vybereš typ firmy (model) a spočítáš férovou cenu ve 3 scénářích. Výsledek je scénář, ne doporučení.",
-      currLbl: "Měna",
-      mosLbl: "Margin of Safety",
-      decimalTip: "Tip: Můžeš psát desetinnou tečkou i čárkou (např. 5.5 nebo 5,5). Mezery ignorujeme.",
-
-      m_standard_t:"Standard (FCF DCF)",
-      m_standard_d:"Klasické firmy se stabilním FCF.",
-      m_fin_t:"Finanční (RIM)",
-      m_fin_d:"Banky/pojišťovny/fintech – přes BVPS a ROE.",
-      m_reit_t:"REIT (AFFO)",
-      m_reit_d:"REIT – AFFO na akcii místo FCF.",
-      m_growth_t:"Růstová bez FCF",
-      m_growth_d:"Revenue/margin DCF (doplněno).",
-      m_cyc_t:"Cyklická",
-      m_cyc_d:"Normalizované FCF (doplněno).",
-      m_util_t:"Utility (DDM)",
-      m_util_d:"Dividendový model (doplněno).",
-
-      inputsMain:"Základní vstupy",
-      tickerLbl:"Ticker",
-      priceLbl:"Aktuální cena",
-
-      fcfLbl:"Free Cash Flow (FCF) – celkem",
-      fcfMini:"Roční FCF firmy (ideálně průměr 3–5 let).",
-      sharesLbl:"Shares Outstanding",
-      sharesMini:"Počet akcií v oběhu pro přepočet na 1 akcii.",
-
-      bvpsLbl:"Book Value / akcii (BVPS)",
-      roeLbl:"ROE (%)",
-      payoutLbl:"Payout ratio (%)",
-      sharesFinLbl:"Shares (volitelné)",
-
-      affoLbl:"AFFO / akcii",
-
-      yearsLbl:"Délka projekce (roky)",
-      discLbl:"Diskontní sazba (%)",
-      termLbl:"Terminální růst (%)",
-      termMini:"Použije se u Standard/REIT/Růstová/Cyklická. Utility používá dividendový terminální růst.",
-
-      inputsScen:"Scénáře (ročně)",
-      inputsScenText:"Quick používá jen Base a Bear/Bull dopočítá (±2). Advanced umožní zadat vše ručně.",
-      scenTipText:"Standard/REIT/Růstová/Cyklická: růst %. Finanční: ROE scénář. Utility: růst dividend.",
-      bearLbl:"Bear",
-      baseLbl:"Base",
-      bullLbl:"Bull",
-
-      targetsTitle:"Target & Range",
-      targetsText:"Target = Base se zapnutým Margin of Safety. Range = Bear až Bull.",
-      targetLbl:"Target cena",
-      rangeLbl:"Rozsah férové hodnoty",
-
-      calc:"Calculate",
-      save:"Uložit do Watchlistu",
-      demo:"Demo hodnoty",
       saveNote:"Uloží se poslední výsledek (Bear/Base/Bull).",
 
       watchIntroTitle:"Uložené výpočty",
-      watchIntroText:"Zde se ukládají vypočítané akcie. Můžeš mazat položky a exportovat tabulku.",
-      watchFooter:"Pozn.: Watchlist je uložen lokálně v prohlížeči (localStorage).",
+      watchIntroText:"Položky se ukládají lokálně v prohlížeči (localStorage).",
+      watchFooter:"Pozn.: Watchlist je uložen lokálně (localStorage).",
       empty:"Zatím nic uloženého.",
       exportCsv:"Export CSV",
       printPdf:"Print / PDF",
       del:"Smazat",
-      footer:"Vzdělávací nástroj • Nejde o investiční doporučení",
 
-      th:{date:"Datum",ticker:"Ticker",price:"Cena",model:"Model",bear:"Bear",base:"Base",bull:"Bull",target:"Target",range:"Range",action:"Akce"},
-
-      sanityTitle:"Sanity check:",
-      sanityLow:"Výsledek vychází extrémně nízko. Zkontroluj model, jednotky a Shares.",
-      sanityHigh:"Výsledek vychází extrémně vysoko. Zkontroluj růst/diskont a typ firmy.",
-
-      mosExplainHtml: `
-        <strong>Margin of Safety (bezpečnostní rezerva)</strong> je ochranná sleva z férové ceny Base pro konzervativnější <em>Target cenu</em>.
-        <ul>
-          <li>Příklad: Base = 100 → MoS 20 % ⇒ Target = 80</li>
-        </ul>
-        Pomáhá započítat nejistotu a chyby v odhadech. <strong>Není to predikce ani záruka.</strong>
-      `,
-
-      guideHtml: `
-        <h3>O aplikaci & Upozornění</h3>
-        <p><strong>Pouze vzdělávací nástroj.</strong> Slouží pro vzdělávání a informaci.</p>
-        <ul>
-          <li><strong>Nejde o finanční/investiční poradenství</strong> ani právní/daňové rady.</li>
-          <li>Nedává doporučení koupit/prodat. Výstupy jsou orientační dle vstupů uživatele.</li>
-          <li>Investování je rizikové a můžeš přijít o kapitál.</li>
-        </ul>
-
-        <h3>Pro koho je aplikace?</h3>
-        <ul>
-          <li>Dlouhodobí investoři, kteří se učí valuaci</li>
-          <li>Studenti fundamentální analýzy</li>
-          <li>Investoři, kteří si staví vlastní předpoklady</li>
-        </ul>
-
-        <h3>Kde hledat data?</h3>
-        <ul>
-          <li><strong>Reporty firmy:</strong> výroční/kvartální zprávy a prezentace</li>
-          <li><strong>Výkazy:</strong> Cash Flow (FCF), Výsledovka (revenue), Rozvaha (book value)</li>
-          <li><strong>Tržní data:</strong> cena a počet akcií z ověřených webů</li>
-          <li><strong>REIT:</strong> AFFO/FFO v earnings release / supplemental</li>
-        </ul>
-
-        <h3>Jak funguje 6 modelů</h3>
-        <h4>1) Standard (FCF DCF)</h4>
-        <p>Projektuje FCF celé firmy, diskontuje a přepočte na akcii přes Shares.</p>
-
-        <h4>2) Finanční (RIM)</h4>
-        <p>Reziduální model: BVPS + PV(reziduálních zisků). Hodí se pro banky/pojišťovny.</p>
-
-        <h4>3) REIT (AFFO DCF)</h4>
-        <p>DCF nad AFFO na akcii – pro REIT často vhodnější než FCF.</p>
-
-        <h4>4) Růstová bez FCF</h4>
-        <p>Projektuje revenue a převádí na FCF přes margin, pak DCF.</p>
-
-        <h4>5) Cyklická</h4>
-        <p>Použije normalizované FCF (průměr přes cyklus), aby výsledek nezkreslil peak/trough.</p>
-
-        <h4>6) Utility (DDM)</h4>
-        <p>Dividendový model – diskontuje dividendy a terminál.</p>
-      `,
-
-      helps:{
-        ticker:{t:"Ticker",b:"Zkratka akcie (např. AAPL) pro přehled ve watchlistu."},
-        price:{t:"Aktuální cena",b:"Tržní cena pro výpočet % rozdílu vůči férové hodnotě."},
-        fcf_total:{t:"FCF – celkem",b:"Zadej roční FCF celé firmy. Aplikace dělí počtem akcií až na konci."},
-        shares:{t:"Shares",b:"Počet akcií v oběhu. Použij jednotky, ať nemusíš psát mnoho nul."},
-        bvps:{t:"BVPS",b:"Účetní hodnota na akcii. Klíčové pro banky."},
-        roe:{t:"ROE",b:"Návratnost vlastního kapitálu. U finančních firem jsou scénáře často ROE."},
-        payout:{t:"Payout",b:"Kolik % zisku se vyplatí. Zbytek zvyšuje BVPS."},
-        affo:{t:"AFFO/akcii",b:"AFFO na akcii je u REIT často lepší než FCF."},
-        years:{t:"Délka projekce",b:"Počet let projekce (typicky 10)."},
-        disc:{t:"Diskont",b:"Požadovaný výnos/riziko. Musí být > terminální růst."},
-        term:{t:"Terminál",b:"Dlouhodobý růst po projekci (často 2–3 %)."},
-        mos:{t:"Margin of Safety",b:"Bezpečnostní sleva z Base férové ceny pro výpočet Target ceny."}
-      },
+      th:{date:"Datum", ticker:"Ticker", price:"Cena", model:"Model", bear:"Bear", base:"Base", bull:"Bull", target:"Target", range:"Range", action:"Akce"},
 
       guideHead1:"1) Přepínání modelu",
-      guideText1:"Přepínáš přes velká tlačítka. Změní se vstupy i význam scénářů.",
+      guideText1:"Model přepínáš přes velká tlačítka. Po přepnutí se změní vstupy i význam scénářů.",
       guideHead2:"2) Kdy použít který model",
-      guideHead3:"3) Rychlá kontrola výsledku",
-      guideText3:""
+      guideText2:
+        "<ul>" +
+        "<li><strong>Standard (FCF DCF):</strong> firmy se stabilním pozitivním FCF. Vstupy: FCF celkem + akcie.</li>" +
+        "<li><strong>Finanční (RIM):</strong> banky/pojišťovny/fintech. Vstupy: BVPS + ROE (+ payout). Scénáře jsou ROE.</li>" +
+        "<li><strong>REIT (AFFO):</strong> REIT. Vstup: AFFO na akcii. Scénáře jsou růst AFFO.</li>" +
+        "<li><strong>Růstová bez FCF:</strong> rychle rostoucí firmy. Vstup: tržby + cesta k FCF marži.</li>" +
+        "<li><strong>Cyklická:</strong> cyklické obory. Použij normalizované FCF přes cyklus.</li>" +
+        "<li><strong>Utility:</strong> stabilní cash/dividend profily. Konzervativní dividendový přístup.</li>" +
+        "</ul>",
+
+      guideHead3:"3) Kde najít vstupy",
+      guideText3:
+        "<ul>" +
+        "<li><strong>FCF / Revenue:</strong> výroční zprávy / 10-K → cash flow statement / income statement.</li>" +
+        "<li><strong>Shares:</strong> výroční zprávy, investor relations, nebo datové servery.</li>" +
+        "<li><strong>BVPS / ROE:</strong> účetní výkazy (balance sheet + income statement).</li>" +
+        "<li><strong>AFFO:</strong> earnings release / supplemental u REIT (AFFO/FFO).</li>" +
+        "</ul>",
+
+      guideHead4:"4) Rychlá kontrola (sanity check)",
+      guideText4:
+        "<ul>" +
+        "<li>Zvol správný model pro typ firmy.</li>" +
+        "<li>Jednotky: Standard používá <strong>FCF celkem</strong>, ne na akcii.</li>" +
+        "<li>Diskont musí být vyšší než terminální růst.</li>" +
+        "<li>Když je výsledek extrémní, zkonzervativni vstupy.</li>" +
+        "</ul>",
+
+      guideHead5:"5) Důležité upozornění",
+      guideText5:
+        "Aplikace je pouze vzdělávací a není investiční doporučení. Nedává personalizované rady. " +
+        "Za použití výsledků odpovídáš ty. V případě potřeby zvaž licencovaného poradce.",
+
+      sanityTitle:"Sanity check:",
+      sanityLow:"Výsledek vychází extrémně nízko. Zkontroluj model, jednotky a akcie.",
+      sanityHigh:"Výsledek vychází extrémně vysoko. Zkontroluj růst/diskont a typ firmy.",
+
+      helps:{} // CZ uses EN helps automatically (set below)
     }
   };
 
+  // reuse EN helps for CZ (same keys)
+  TEXTS.cz.helps = TEXTS.en.helps;
+
   const LS_KEY = "ea_watchlist_v3";
-  </script><script>
-  // ---------------- STATE + HELPERS ----------------
+
   const state = {
-    lang: "en",          // EN as default
+    lang: "en",
     mode: "quick",
     currency: "USD",
     mos: "off",
@@ -1597,10 +1298,42 @@
     toast._tm = setTimeout(()=> t.style.display="none", 2200);
   }
 
+  function openModal(title, body){
+    $("modalTitle").textContent = title;
+    $("modalBody").innerHTML = body;
+    $("modalBackdrop").style.display = "flex";
+  }
+  function closeModal(){ $("modalBackdrop").style.display = "none"; }
+
+  $("modalBackdrop").addEventListener("click", (e)=>{
+    if (e.target === $("modalBackdrop")) closeModal();
+  });
+  $("modalClose").addEventListener("click", closeModal);function normalizeNumText(v){
+    return String(v ?? "")
+      .trim()
+      .replace(/\s+/g,"")
+      .replace(/_/g,"")
+      .replace(",",".");
+  }
+
+  // supports: 1200000000, 1.2b, 850m, 12k
+  function parseHuman(v){
+    const s0 = normalizeNumText(v).toLowerCase();
+    if (!s0) return NaN;
+
+    const m = s0.match(/^(-?\d+(\.\d+)?)([kmb])?$/i);
+    if (!m) return Number.isFinite(Number(s0)) ? Number(s0) : NaN;
+
+    const num = Number(m[1]);
+    if (!Number.isFinite(num)) return NaN;
+
+    const suf = (m[3] || "").toLowerCase();
+    const mult = suf === "k" ? 1e3 : suf === "m" ? 1e6 : suf === "b" ? 1e9 : 1;
+    return num * mult;
+  }
+
   function parseNum(v){
-    if (v === null || v === undefined) return NaN;
-    const s = String(v).trim().replace(/\s+/g,"").replace(",",".");
-    const n = Number(s);
+    const n = parseHuman(v);
     return Number.isFinite(n) ? n : NaN;
   }
 
@@ -1621,168 +1354,50 @@
     return `${sign}${n.toFixed(1)}%`;
   }
 
-  function openModal(title, body){
-    $("modalTitle").textContent = title;
-    $("modalBody").innerHTML = body;
-    $("modalBackdrop").style.display = "flex";
-  }
-  function closeModal(){
-    $("modalBackdrop").style.display = "none";
-  }
-
-  // Units (avoid typing many zeros)
-  function unitMul(selId){
-    const el = $(selId);
-    const v = el ? Number(el.value) : 1;
-    return Number.isFinite(v) ? v : 1;
-  }
-  function readWithUnit(inputId, unitSelId){
-    const n = parseNum($(inputId)?.value);
-    if (!Number.isFinite(n)) return NaN;
-    return n * unitMul(unitSelId);
+  function fmtBig(n){
+    if (!Number.isFinite(n)) return "";
+    // grouping only; keep full number
+    return new Intl.NumberFormat(state.lang === "cz" ? "cs-CZ" : "en-US", {
+      maximumFractionDigits: 0
+    }).format(Math.round(n));
   }
 
-  // ---------------- ACCORDION ----------------
+  function bindBigNumberFormatting(){
+    document.querySelectorAll('input[data-format="big"]').forEach(inp=>{
+      inp.addEventListener("blur", ()=>{
+        const n = parseNum(inp.value);
+        if (!Number.isFinite(n)) return;
+        // keep as grouped full number (no suffix) for readability
+        inp.value = fmtBig(n);
+      });
+      inp.addEventListener("focus", ()=>{
+        // on focus, keep it as is (user may type 13.2b)
+      });
+    });
+  }
+
+  // accordion
   document.querySelectorAll(".acc .head").forEach(h=>{
     h.addEventListener("click", ()=>{
-      h.closest(".acc").classList.toggle("open");
+      const acc = h.closest(".acc");
+      acc.classList.toggle("open");
+      const chev = acc.querySelector(".chev");
+      if (chev) chev.textContent = acc.classList.contains("open") ? "▲" : "▼";
     });
   });
 
-  $("modalBackdrop").addEventListener("click", (e)=>{
-    if (e.target === $("modalBackdrop")) closeModal();
-  });
-  $("modalClose").addEventListener("click", closeModal);
-
-  // ---------------- MODELS (VALUATION) ----------------
-
-  // 1) Standard firm-level DCF -> per share
-  function modelStandardDCF({ fcfTotal, shares, years, discPct, termPct, growthPct }){
-    const r = discPct / 100;
-    const gT = termPct / 100;
-    const g = growthPct / 100;
-
-    if (!(fcfTotal > 0) || !(shares > 0) || !(years >= 1) || !(r > 0)) return NaN;
-    if (r <= gT) return NaN;
-
-    let pv = 0;
-    let f = fcfTotal;
-
-    for (let y=1; y<=years; y++){
-      f = f * (1 + g);
-      pv += f / Math.pow(1 + r, y);
-    }
-
-    const terminal = (f * (1 + gT)) / (r - gT);
-    const pvTerminal = terminal / Math.pow(1 + r, years);
-
-    return (pv + pvTerminal) / shares;
-  }
-
-  // 2) REIT AFFO per share DCF
-  function modelReitAffo({ affoPerShare, years, discPct, termPct, growthPct }){
-    const r = discPct / 100;
-    const gT = termPct / 100;
-    const g = growthPct / 100;
-
-    if (!(affoPerShare > 0) || !(years >= 1) || !(r > 0)) return NaN;
-    if (r <= gT) return NaN;
-
-    let pv = 0;
-    let a = affoPerShare;
-
-    for (let y=1; y<=years; y++){
-      a = a * (1 + g);
-      pv += a / Math.pow(1 + r, y);
-    }
-
-    const terminal = (a * (1 + gT)) / (r - gT);
-    const pvTerminal = terminal / Math.pow(1 + r, years);
-    return pv + pvTerminal;
-  }
-
-  // 3) Financial RIM (terminal RI=0 conservative)
-  function modelFinancialRIM({ bvps, roePct, payoutPct, years, discPct }){
-    const r = discPct / 100;
-    const roe = roePct / 100;
-    const payout = Math.min(Math.max(payoutPct / 100, 0), 1);
-
-    if (!(bvps > 0) || !(years >= 1) || !(r > 0)) return NaN;
-
-    let BV = bvps;
-    let pvRI = 0;
-
-    for (let y=1; y<=years; y++){
-      const EPS = roe * BV;
-      const RI = EPS - r * BV;
-      pvRI += RI / Math.pow(1 + r, y);
-      BV = BV + EPS * (1 - payout);
-    }
-    return bvps + pvRI;
-  }
-
-  // 4) Growth (Pre-FCF): revenue -> FCF margin -> DCF per share
-  // Inputs used:
-  //   rev0 (annual revenue, total), marginPct (long-run FCF margin), shares
-  function modelGrowthPreFCF({ rev0, marginPct, shares, years, discPct, termPct, growthPct }){
-    const r = discPct / 100;
-    const gT = termPct / 100;
-    const g = growthPct / 100;
-    const m = marginPct / 100;
-
-    if (!(rev0 > 0) || !(shares > 0) || !(years >= 1) || !(r > 0)) return NaN;
-    if (r <= gT) return NaN;
-    if (!(m > 0) || m > 1) return NaN;
-
-    let pv = 0;
-    let rev = rev0;
-
-    for (let y=1; y<=years; y++){
-      rev = rev * (1 + g);
-      const fcf = rev * m;
-      pv += fcf / Math.pow(1 + r, y);
-    }
-
-    const fcfN = (rev * (1 + gT)) * m;
-    const terminal = fcfN / (r - gT);
-    const pvTerminal = terminal / Math.pow(1 + r, years);
-
-    return (pv + pvTerminal) / shares;
-  }
-
-  // 5) Cyclical: normalized FCF total -> DCF per share (use lower growth typically)
-  function modelCyclical({ normFcfTotal, shares, years, discPct, termPct, growthPct }){
-    // identical math to standard; semantic difference is input = normalized FCF
-    return modelStandardDCF({
-      fcfTotal: normFcfTotal,
-      shares, years, discPct, termPct, growthPct
+  function bindHintTitles(){
+    document.querySelectorAll(".hint").forEach(h=>{
+      h.onclick = null;
+      h.addEventListener("click", ()=>{
+        const key = h.getAttribute("data-help");
+        const help = TEXTS[state.lang].helps?.[key];
+        if (!help) return;
+        openModal(help.t, `<div style="color:rgba(255,255,255,.92); line-height:1.5">${help.b}</div>`);
+      });
     });
   }
 
-  // 6) Utility DDM: dividend per share, dividend growth, discount, terminal dividend growth
-  function modelUtilityDDM({ divPerShare, years, discPct, termPct, growthPct }){
-    const r = discPct / 100;
-    const gT = termPct / 100;
-    const g = growthPct / 100;
-
-    if (!(divPerShare > 0) || !(years >= 1) || !(r > 0)) return NaN;
-    if (r <= gT) return NaN;
-
-    let pv = 0;
-    let d = divPerShare;
-
-    for (let y=1; y<=years; y++){
-      d = d * (1 + g);
-      pv += d / Math.pow(1 + r, y);
-    }
-
-    const terminal = (d * (1 + gT)) / (r - gT);
-    const pvTerminal = terminal / Math.pow(1 + r, years);
-
-    return pv + pvTerminal;
-  }
-
-  // ---------------- UI: MODEL SWITCH ----------------
   function setModel(m){
     state.model = m;
 
@@ -1790,7 +1405,6 @@
       b.classList.toggle("active", b.getAttribute("data-model") === m);
     });
 
-    // sections visibility
     $("sec_standard").style.display  = (m === "standard") ? "" : "none";
     $("sec_financial").style.display = (m === "financial") ? "" : "none";
     $("sec_reit").style.display      = (m === "reit") ? "" : "none";
@@ -1798,7 +1412,7 @@
     $("sec_cyclical").style.display  = (m === "cyclical") ? "" : "none";
     $("sec_utility").style.display   = (m === "utility") ? "" : "none";
 
-    bindHintTitles();
+    $("ui_scenTipText").textContent = TEXTS[state.lang].scenTipText;
   }
 
   document.querySelectorAll(".mBtn").forEach(b=>{
@@ -1807,14 +1421,18 @@
     });
   });
 
-  // ---------------- i18n APPLY ----------------
+  function applyMode(){
+    const isQuick = state.mode === "quick";
+    $("in_bear").disabled = isQuick;
+    $("in_bull").disabled = isQuick;
+    $("in_bear").style.opacity = isQuick ? 0.65 : 1;
+    $("in_bull").style.opacity = isQuick ? 0.65 : 1;
+  }
+
   function applyLang(){
     const t = TEXTS[state.lang];
 
     $("ui_sub").textContent = t.sub;
-    $("ui_langLbl").textContent = t.langLbl;
-    $("ui_modeLbl").textContent = t.modeLbl;
-
     $("ui_valTitle").textContent = t.valTitle;
     $("ui_valTag").textContent = t.valTag;
 
@@ -1824,8 +1442,13 @@
     $("ui_guideTitle").textContent = t.guideTitle;
     $("ui_guideTag").textContent = t.guideTag;
 
+    $("ui_langLbl").textContent = t.langLbl;
+    $("ui_modeLbl").textContent = t.modeLbl;
+
     $("ui_introTitle").textContent = t.introTitle;
     $("ui_introText").textContent = t.introText;
+    $("ui_disclaimerBox").textContent = t.disclaimerBox;
+
     $("ui_currLbl").textContent = t.currLbl;
     $("ui_mosLbl").textContent = t.mosLbl;
     $("ui_decimalTip").textContent = t.decimalTip;
@@ -1853,21 +1476,53 @@
     $("ui_sharesMini").textContent = t.sharesMini;
 
     $("ui_bvpsLbl").textContent = t.bvpsLbl;
+    $("ui_bvpsMini").textContent = t.bvpsMini;
     $("ui_roeLbl").textContent = t.roeLbl;
+    $("ui_roeMini").textContent = t.roeMini;
     $("ui_payoutLbl").textContent = t.payoutLbl;
+    $("ui_payoutMini").textContent = t.payoutMini;
     $("ui_sharesFinLbl").textContent = t.sharesFinLbl;
+    $("ui_sharesFinMini").textContent = t.sharesFinMini;
 
     $("ui_affoLbl").textContent = t.affoLbl;
+    $("ui_affoMini").textContent = t.affoMini;
+    $("ui_reitNoteLbl").textContent = t.reitNoteLbl;
+    $("ui_reitNoteMini").textContent = t.reitNoteMini;
+
+    $("ui_revLbl").textContent = t.revLbl;
+    $("ui_revMini").textContent = t.revMini;
+    $("ui_sharesGLabel").textContent = t.sharesGLabel;
+    $("ui_sharesGMini").textContent = t.sharesGMini;
+    $("ui_marginLbl").textContent = t.marginLbl;
+    $("ui_marginMini").textContent = t.marginMini;
+    $("ui_marginYearsLbl").textContent = t.marginYearsLbl;
+    $("ui_marginYearsMini").textContent = t.marginYearsMini;
+
+    $("ui_normFcfLbl").textContent = t.normFcfLbl;
+    $("ui_normFcfMini").textContent = t.normFcfMini;
+    $("ui_sharesCLbl").textContent = t.sharesCLbl;
+    $("ui_sharesCMini").textContent = t.sharesCMini;
+    $("ui_cycleAdjLbl").textContent = t.cycleAdjLbl;
+    $("ui_cycleAdjMini").textContent = t.cycleAdjMini;
+    $("ui_cycNoteLbl").textContent = t.cycNoteLbl;
+    $("ui_cycNoteMini").textContent = t.cycNoteMini;
+
+    $("ui_divLbl").textContent = t.divLbl;
+    $("ui_divMini").textContent = t.divMini;
+    $("ui_payoutUtilLbl").textContent = t.payoutUtilLbl;
+    $("ui_payoutUtilMini").textContent = t.payoutUtilMini;
 
     $("ui_yearsLbl").textContent = t.yearsLbl;
     $("ui_discLbl").textContent = t.discLbl;
     $("ui_termLbl").textContent = t.termLbl;
     $("ui_termMini").textContent = t.termMini;
 
+    $("ui_inputsHintLbl").textContent = t.inputsHintLbl;
+    $("ui_inputsHintMini").textContent = t.inputsHintMini;
+
     $("ui_inputsScen").textContent = t.inputsScen;
     $("ui_inputsScenText").textContent = t.inputsScenText;
     $("ui_scenTipText").textContent = t.scenTipText;
-
     $("ui_bearLbl").textContent = t.bearLbl;
     $("ui_baseLbl").textContent = t.baseLbl;
     $("ui_bullLbl").textContent = t.bullLbl;
@@ -1899,20 +1554,20 @@
     $("th_range").textContent = t.th.range;
     $("th_action").textContent = t.th.action;
 
-    if ($("ui_guideHtml")) $("ui_guideHtml").innerHTML = t.guideHtml || "";
+    $("ui_guideHead1").textContent = t.guideHead1;
+    $("ui_guideText1").innerHTML = t.guideText1;
+    $("ui_guideHead2").textContent = t.guideHead2;
+    $("ui_guideText2").innerHTML = t.guideText2;
+    $("ui_guideHead3").textContent = t.guideHead3;
+    $("ui_guideText3").innerHTML = t.guideText3;
+    $("ui_guideHead4").textContent = t.guideHead4;
+    $("ui_guideText4").innerHTML = t.guideText4;
+    $("ui_guideHead5").textContent = t.guideHead5;
+    $("ui_guideText5").innerHTML = t.guideText5;
 
     $("ui_footer").textContent = t.footer;
 
     renderWatchlist();
-    bindHintTitles();
-  }
-
-  function applyMode(){
-    const isQuick = state.mode === "quick";
-    $("in_bear").disabled = isQuick;
-    $("in_bull").disabled = isQuick;
-    $("in_bear").style.opacity = isQuick ? 0.65 : 1;
-    $("in_bull").style.opacity = isQuick ? 0.65 : 1;
   }
 
   $("langSel").addEventListener("change", ()=>{
@@ -1941,198 +1596,623 @@
   $("mosSel").addEventListener("change", ()=>{
     state.mos = $("mosSel").value;
     if (state.lastResult) paintResults(state.lastResult);
+  });// -------- MODELS --------
+
+  // Standard firm-level DCF => per share
+  function modelStandardDCF({ fcfTotal, shares, years, discPct, termPct, growthPct }){
+    const r = discPct / 100;
+    const gT = termPct / 100;
+    const g = growthPct / 100;
+
+    if (!(fcfTotal > 0) || !(shares > 0) || !(years >= 1) || !(r > 0)) return NaN;
+    if (r <= gT) return NaN;
+
+    let pv = 0;
+    let f = fcfTotal;
+
+    for (let y=1; y<=years; y++){
+      f = f * (1 + g);
+      pv += f / Math.pow(1 + r, y);
+    }
+
+    const terminal = (f * (1 + gT)) / (r - gT);
+    const pvTerminal = terminal / Math.pow(1 + r, years);
+
+    return (pv + pvTerminal) / shares;
+  }
+
+  // REIT AFFO per share DCF (no shares)
+  function modelReitAffo({ affoPerShare, years, discPct, termPct, growthPct }){
+    const r = discPct / 100;
+    const gT = termPct / 100;
+    const g = growthPct / 100;
+
+    if (!(affoPerShare > 0) || !(years >= 1) || !(r > 0)) return NaN;
+    if (r <= gT) return NaN;
+
+    let pv = 0;
+    let a = affoPerShare;
+
+    for (let y=1; y<=years; y++){
+      a = a * (1 + g);
+      pv += a / Math.pow(1 + r, y);
+    }
+
+    const terminal = (a * (1 + gT)) / (r - gT);
+    const pvTerminal = terminal / Math.pow(1 + r, years);
+
+    return pv + pvTerminal;
+  }
+
+  // Financial RIM (terminal residual income = 0)
+  // BV_t = BV_{t-1} + EPS*(1-payout)
+  // EPS_t = ROE * BV_{t-1}
+  // RI_t  = EPS_t - r * BV_{t-1}
+  // Fair = BV_0 + Σ PV(RI_t)
+  function modelFinancialRIM({ bvps, roePct, payoutPct, years, discPct }){
+    const r = discPct / 100;
+    const roe = roePct / 100;
+    const payout = Math.min(Math.max(payoutPct / 100, 0), 1);
+
+    if (!(bvps > 0) || !(years >= 1) || !(r > 0)) return NaN;
+
+    let BV = bvps;
+    let pvRI = 0;
+
+    for (let y=1; y<=years; y++){
+      const EPS = roe * BV;
+      const RI = EPS - r * BV;
+      pvRI += RI / Math.pow(1 + r, y);
+      BV = BV + EPS * (1 - payout);
+    }
+    return bvps + pvRI;
+  }
+
+  // Growth (simplified): revenue grows, FCF margin ramps to target, then DCF on FCF
+  function modelGrowthRevenueMargin({ revenueTotal, shares, years, discPct, termPct, growthPct, targetFcfMarginPct, marginRampYears }){
+    const r = discPct / 100;
+    const gT = termPct / 100;
+    const g = growthPct / 100;
+    const mTarget = targetFcfMarginPct / 100;
+    const ramp = Math.max(1, Math.round(marginRampYears));
+
+    if (!(revenueTotal > 0) || !(shares > 0) || !(years >= 1) || !(r > 0)) return NaN;
+    if (r <= gT) return NaN;
+
+    let pv = 0;
+    let rev = revenueTotal;
+    let fcf = 0;
+
+    for (let y=1; y<=years; y++){
+      rev = rev * (1 + g);
+
+      // linear ramp of margin 0 -> target over ramp years (simple, conservative)
+      const m = (y >= ramp) ? mTarget : (mTarget * (y / ramp));
+      fcf = rev * m;
+
+      pv += fcf / Math.pow(1 + r, y);
+    }
+
+    const terminalFcf = fcf * (1 + gT);
+    const terminal = terminalFcf / (r - gT);
+    const pvTerminal = terminal / Math.pow(1 + r, years);
+
+    return (pv + pvTerminal) / shares;
+  }
+
+  // Cyclical: normalized FCF adjusted by cycleAdj, then standard DCF on that level
+  function modelCyclicalNormalized({ normFcfTotal, shares, years, discPct, termPct, growthPct, cycleAdjPct }){
+    const adj = 1 + (cycleAdjPct / 100);
+    return modelStandardDCF({
+      fcfTotal: normFcfTotal * adj,
+      shares,
+      years,
+      discPct,
+      termPct,
+      growthPct
+    });
+  }
+
+  // Utility: dividend discount proxy (Gordon), plus short projection
+  // We project dividend growth then terminal via Gordon (very simplified).
+  function modelUtilityDividend({ divPerShare, years, discPct, termPct, growthPct }){
+    const r = discPct / 100;
+    const gT = termPct / 100;
+    const g = growthPct / 100;
+
+    if (!(divPerShare > 0) || !(years >= 1) || !(r > 0)) return NaN;
+    if (r <= gT) return NaN;
+
+    let pv = 0;
+    let d = divPerShare;
+
+    for (let y=1; y<=years; y++){
+      d = d * (1 + g);
+      pv += d / Math.pow(1 + r, y);
+    }
+
+    const terminal = (d * (1 + gT)) / (r - gT);
+    const pvTerminal = terminal / Math.pow(1 + r, years);
+
+    return pv + pvTerminal;
+  }function computeAll(){
+    const t = TEXTS[state.lang];
+
+    const ticker = String($("in_ticker").value || "").trim().toUpperCase();
+    const price  = parseNum($("in_price").value);
+    const years  = Math.round(parseNum($("in_years").value));
+    const disc   = parseNum($("in_disc").value);
+    const term   = parseNum($("in_term").value);
+
+    let base = parseNum($("in_base").value);
+    let bear = parseNum($("in_bear").value);
+    let bull = parseNum($("in_bull").value);
+    if (!Number.isFinite(base)) base = 5;
+
+    if (state.mode === "quick"){
+      bear = base - 2;
+      bull = base + 2;
+      $("in_bear").value = String(Math.max(bear, -50));
+      $("in_bull").value = String(bull);
+    }
+
+    const errors = [];
+    if (!ticker) errors.push("Ticker");
+    if (!Number.isFinite(price) || price <= 0) errors.push("Price");
+    if (!Number.isFinite(years) || years < 1 || years > 30) errors.push("Years");
+    if (!Number.isFinite(disc) || disc <= 0 || disc > 40) errors.push("Discount");
+    if (!Number.isFinite(term) || term < -5 || term > 10) errors.push("Terminal");
+
+    let vBear = NaN, vBase = NaN, vBull = NaN;
+
+    if (state.model === "standard"){
+      const fcf = parseNum($("in_fcf").value);
+      const shares = parseNum($("in_shares").value);
+      if (!Number.isFinite(fcf) || fcf <= 0) errors.push("FCF");
+      if (!Number.isFinite(shares) || shares <= 0) errors.push("Shares");
+
+      if (!errors.length){
+        vBear = modelStandardDCF({fcfTotal: fcf, shares, years, discPct:disc, termPct:term, growthPct:bear});
+        vBase = modelStandardDCF({fcfTotal: fcf, shares, years, discPct:disc, termPct:term, growthPct:base});
+        vBull = modelStandardDCF({fcfTotal: fcf, shares, years, discPct:disc, termPct:term, growthPct:bull});
+      }
+    }
+
+    if (state.model === "reit"){
+      const affo = parseNum($("in_affo").value);
+      if (!Number.isFinite(affo) || affo <= 0) errors.push("AFFO");
+
+      if (!errors.length){
+        vBear = modelReitAffo({affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:bear});
+        vBase = modelReitAffo({affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:base});
+        vBull = modelReitAffo({affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:bull});
+      }
+    }
+
+    if (state.model === "financial"){
+      const bvps = parseNum($("in_bvps").value);
+      const payout = parseNum($("in_payout").value);
+      if (!Number.isFinite(bvps) || bvps <= 0) errors.push("BVPS");
+      if (!Number.isFinite(payout) || payout < 0 || payout > 100) errors.push("Payout");
+
+      if (!errors.length){
+        vBear = modelFinancialRIM({bvps, roePct:bear, payoutPct:payout, years, discPct:disc});
+        vBase = modelFinancialRIM({bvps, roePct:base, payoutPct:payout, years, discPct:disc});
+        vBull = modelFinancialRIM({bvps, roePct:bull, payoutPct:payout, years, discPct:disc});
+      }
+    }
+
+    if (state.model === "growth"){
+      const rev = parseNum($("in_rev").value);
+      const shares = parseNum($("in_shares_g").value);
+      const m = parseNum($("in_fcf_margin").value);
+      const rampYears = parseNum($("in_margin_years").value);
+
+      if (!Number.isFinite(rev) || rev <= 0) errors.push("Revenue");
+      if (!Number.isFinite(shares) || shares <= 0) errors.push("Shares");
+      if (!Number.isFinite(m) || m < 0 || m > 60) errors.push("FCF margin");
+      if (!Number.isFinite(rampYears) || rampYears < 1 || rampYears > 20) errors.push("Ramp years");
+
+      if (!errors.length){
+        vBear = modelGrowthRevenueMargin({revenueTotal:rev, shares, years, discPct:disc, termPct:term, growthPct:bear, targetFcfMarginPct:m, marginRampYears:rampYears});
+        vBase = modelGrowthRevenueMargin({revenueTotal:rev, shares, years, discPct:disc, termPct:term, growthPct:base, targetFcfMarginPct:m, marginRampYears:rampYears});
+        vBull = modelGrowthRevenueMargin({revenueTotal:rev, shares, years, discPct:disc, termPct:term, growthPct:bull, targetFcfMarginPct:m, marginRampYears:rampYears});
+      }
+    }
+
+    if (state.model === "cyclical"){
+      const nfcf = parseNum($("in_norm_fcf").value);
+      const shares = parseNum($("in_shares_c").value);
+      const adj = parseNum($("in_cycle_adj").value);
+
+      if (!Number.isFinite(nfcf) || nfcf <= 0) errors.push("Norm FCF");
+      if (!Number.isFinite(shares) || shares <= 0) errors.push("Shares");
+      if (!Number.isFinite(adj) || adj < -80 || adj > 80) errors.push("Adj");
+
+      if (!errors.length){
+        vBear = modelCyclicalNormalized({normFcfTotal:nfcf, shares, years, discPct:disc, termPct:term, growthPct:bear, cycleAdjPct:adj});
+        vBase = modelCyclicalNormalized({normFcfTotal:nfcf, shares, years, discPct:disc, termPct:term, growthPct:base, cycleAdjPct:adj});
+        vBull = modelCyclicalNormalized({normFcfTotal:nfcf, shares, years, discPct:disc, termPct:term, growthPct:bull, cycleAdjPct:adj});
+      }
+    }
+
+    if (state.model === "utility"){
+      const div = parseNum($("in_div").value);
+      if (!Number.isFinite(div) || div <= 0) errors.push("Dividend");
+
+      if (!errors.length){
+        vBear = modelUtilityDividend({divPerShare:div, years, discPct:disc, termPct:term, growthPct:bear});
+        vBase = modelUtilityDividend({divPerShare:div, years, discPct:disc, termPct:term, growthPct:base});
+        vBull = modelUtilityDividend({divPerShare:div, years, discPct:disc, termPct:term, growthPct:bull});
+      }
+    }
+
+    if (errors.length){
+      toast((state.lang === "cz") ? ("Chybí/neplatné: " + errors.join(", ")) : ("Missing/invalid: " + errors.join(", ")));
+      return null;
+    }
+
+    if (![vBear, vBase, vBull].every(Number.isFinite)){
+      toast((state.lang === "cz")
+        ? "Výpočet selhal: zkontroluj vstupy (např. diskont > terminál)."
+        : "Calculation failed: check inputs (e.g., discount > terminal)."
+      );
+      return null;
+    }
+
+    return {
+      id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2)),
+      dt: new Date().toISOString(),
+      ticker,
+      currency: state.currency,
+      model: state.model,
+      inputs: {
+        price, years, disc, term, bear, base, bull,
+        fcf: parseNum($("in_fcf")?.value),
+        shares: parseNum($("in_shares")?.value),
+        bvps: parseNum($("in_bvps")?.value),
+        payout: parseNum($("in_payout")?.value),
+        affo: parseNum($("in_affo")?.value),
+        rev: parseNum($("in_rev")?.value),
+        shares_g: parseNum($("in_shares_g")?.value),
+        fcf_margin: parseNum($("in_fcf_margin")?.value),
+        margin_years: parseNum($("in_margin_years")?.value),
+        norm_fcf: parseNum($("in_norm_fcf")?.value),
+        shares_c: parseNum($("in_shares_c")?.value),
+        cycle_adj: parseNum($("in_cycle_adj")?.value),
+        div: parseNum($("in_div")?.value)
+      },
+      values: { bear: vBear, base: vBase, bull: vBull }
+    };
+  }
+
+  function paintResults(res){
+    const t = TEXTS[state.lang];
+    const cur = res.currency;
+
+    const price = res.inputs.price;
+    const bear = res.values.bear;
+    const base = res.values.base;
+    const bull = res.values.bull;
+
+    $("r_bear").textContent = fmtMoney(bear, cur);
+    $("r_base").textContent = fmtMoney(base, cur);
+    $("r_bull").textContent = fmtMoney(bull, cur);
+
+    $("r_bear_pct").textContent = fmtPct(((bear/price)-1)*100);
+    $("r_base_pct").textContent = fmtPct(((base/price)-1)*100);
+    $("r_bull_pct").textContent = fmtPct(((bull/price)-1)*100);
+
+    $("r_bear_s").textContent = (state.lang === "cz") ? "vs aktuální cena" : "vs current price";
+    $("r_base_s").textContent = (state.lang === "cz") ? "vs aktuální cena" : "vs current price";
+    $("r_bull_s").textContent = (state.lang === "cz") ? "vs aktuální cena" : "vs current price";
+
+    const mos = state.mos === "off" ? 0 : (parseInt(state.mos,10)/100);
+    const target = base * (1 - mos);
+    $("out_target").value = fmtMoney(target, cur);
+    $("out_range").value = `${fmtMoney(bear, cur)} – ${fmtMoney(bull, cur)}`;
+
+    // sanity check
+    const sanityBox = $("ui_sanityBox");
+    const sanityText = $("ui_sanityText");
+    const sanityTitle = $("ui_sanityTitle");
+    sanityBox.style.display = "none";
+    sanityTitle.textContent = t.sanityTitle;
+
+    const ratio = base / price;
+    if (Number.isFinite(ratio)){
+      if (ratio < 0.2){
+        sanityText.textContent = t.sanityLow;
+        sanityBox.style.display = "";
+      } else if (ratio > 5){
+        sanityText.textContent = t.sanityHigh;
+        sanityBox.style.display = "";
+      }
+    }
+
+    state.lastResult = res;
+  }
+
+  $("btn_calc").addEventListener("click", ()=>{
+    const res = computeAll();
+    if (!res) return;
+    paintResults(res);
+    toast((state.lang === "cz") ? "Hotovo ✅" : "Done ✅");
   });
 
-  function bindHintTitles(){
-    document.querySelectorAll(".hint").forEach(h=>{
-      h.onmouseenter = null;
-      h.onclick = null;
+  $("btn_fillDemo").addEventListener("click", ()=>{
+    $("in_ticker").value = "DEMO";
+    $("in_price").value = "100";
+    $("in_years").value = "10";
+    $("in_disc").value = "9";
+    $("in_term").value = "2.5";
 
-      h.addEventListener("click", ()=>{
-        const key = h.getAttribute("data-help");
-        const help = TEXTS[state.lang].helps[key];
-        if (!help) return;
+    if (state.model === "standard"){
+      $("in_fcf").value = "10b";
+      $("in_shares").value = "2b";
+      $("in_base").value = "6";
+    }
+    if (state.model === "reit"){
+      $("in_affo").value = "2.10";
+      $("in_base").value = "4";
+    }
+    if (state.model === "financial"){
+      $("in_bvps").value = "7.00";
+      $("in_payout").value = "20";
+      $("in_base").value = "12";
+    }
+    if (state.model === "growth"){
+      $("in_rev").value = "300b";
+      $("in_shares_g").value = "13b";
+      $("in_fcf_margin").value = "15";
+      $("in_margin_years").value = "5";
+      $("in_base").value = "10";
+    }
+    if (state.model === "cyclical"){
+      $("in_norm_fcf").value = "6b";
+      $("in_shares_c").value = "3b";
+      $("in_cycle_adj").value = "-10";
+      $("in_base").value = "3";
+    }
+    if (state.model === "utility"){
+      $("in_div").value = "3.10";
+      $("in_base").value = "3";
+    }
 
-        // special: MoS explanation under row if exists
-        if (key === "mos" && $("mosExplainBox") && $("mosExplainText")){
-          const box = $("mosExplainBox");
-          const t = TEXTS[state.lang];
-          $("mosExplainText").innerHTML = t.mosExplainHtml || help.b;
-          box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
-          return;
-        }
+    if (state.mode === "quick"){
+      const b = parseNum($("in_base").value);
+      $("in_bear").value = String(Math.max(b - 2, -50));
+      $("in_bull").value = String(b + 2);
+    }
 
-        openModal(help.t, `<div style="color:rgba(255,255,255,.92)">${help.b}</div>`);
-      });
+    bindBigNumberFormatting();
+    toast((state.lang === "cz") ? "Demo vyplněno" : "Demo filled");
+  });function loadWatchlist(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{
+      return [];
+    }
+  }
 
-      h.addEventListener("mouseenter", ()=>{
-        if (state.mode !== "quick") return;
-        const key = h.getAttribute("data-help");
-        const help = TEXTS[state.lang].helps[key];
-        if (!help) return;
-        h.setAttribute("title", help.b);
+  function saveWatchlist(arr){
+    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+  }
+
+  $("btn_save").addEventListener("click", ()=>{
+    if (!state.lastResult){
+      toast((state.lang === "cz") ? "Nejdřív spočítej výsledek." : "Calculate first.");
+      return;
+    }
+    const arr = loadWatchlist();
+    arr.unshift(state.lastResult);
+    saveWatchlist(arr);
+    renderWatchlist();
+    toast((state.lang === "cz") ? "Uloženo ✅" : "Saved ✅");
+  });
+
+  function modelLabel(m){
+    const t = TEXTS[state.lang];
+    if (m === "standard") return t.m_standard_t;
+    if (m === "financial") return t.m_fin_t;
+    if (m === "reit") return t.m_reit_t;
+    if (m === "growth") return t.m_growth_t;
+    if (m === "cyclical") return t.m_cyc_t;
+    if (m === "utility") return t.m_util_t;
+    return m;
+  }
+
+  function renderWatchlist(){
+    const t = TEXTS[state.lang];
+    const arr = loadWatchlist();
+    const tb = $("watchTbody");
+    tb.innerHTML = "";
+
+    if (!arr.length){
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 10;
+      td.className = "muted";
+      td.textContent = t.empty;
+      tr.appendChild(td);
+      tb.appendChild(tr);
+      return;
+    }
+
+    for (const item of arr){
+      const tr = document.createElement("tr");
+
+      const d = new Date(item.dt);
+      const dateStr = (state.lang === "cz")
+        ? d.toLocaleString("cs-CZ", {year:"numeric", month:"2-digit", day:"2-digit"})
+        : d.toLocaleString("en-US", {year:"numeric", month:"2-digit", day:"2-digit"});
+
+      const price = item.inputs.price;
+      const bear = item.values.bear;
+      const base = item.values.base;
+      const bull = item.values.bull;
+
+      const mos = state.mos === "off" ? 0 : (parseInt(state.mos,10)/100);
+      const target = base * (1 - mos);
+      const range = `${fmtMoney(bear, item.currency)} – ${fmtMoney(bull, item.currency)}`;
+
+      tr.innerHTML = `
+        <td class="nowrap">${dateStr}</td>
+        <td class="nowrap"><strong>${item.ticker}</strong><div class="mini">${item.currency}</div></td>
+        <td class="right nowrap">${fmtMoney(price, item.currency)}</td>
+        <td class="right nowrap"><div class="mini" style="margin:0; color:rgba(255,255,255,.85)">${modelLabel(item.model)}</div></td>
+        <td class="right nowrap">${fmtMoney(bear, item.currency)}<div class="mini">${fmtPct(((bear/price)-1)*100)}</div></td>
+        <td class="right nowrap">${fmtMoney(base, item.currency)}<div class="mini">${fmtPct(((base/price)-1)*100)}</div></td>
+        <td class="right nowrap">${fmtMoney(bull, item.currency)}<div class="mini">${fmtPct(((bull/price)-1)*100)}</div></td>
+        <td class="right nowrap">${fmtMoney(target, item.currency)}</td>
+        <td class="right nowrap">${range}</td>
+        <td class="right nowrap">
+          <button class="danger" data-del="${item.id}">${t.del}</button>
+        </td>
+      `;
+      tb.appendChild(tr);
+    }
+
+    tb.querySelectorAll("button[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del");
+        const arr2 = loadWatchlist().filter(x => x.id !== id);
+        saveWatchlist(arr2);
+        renderWatchlist();
+        toast((state.lang === "cz") ? "Smazáno" : "Deleted");
       });
     });
   }
 
-  <script>
-/* ================================
-   COMPUTE + RESULTS + WATCHLIST
-   SAFE FULL BLOCK (REPLACE BOTTOM)
-================================ */
+  $("btn_export_csv").addEventListener("click", ()=>{
+    const t = TEXTS[state.lang];
+    const arr = loadWatchlist();
+    if (!arr.length){
+      toast((state.lang==="cz") ? "Watchlist je prázdný." : "Watchlist is empty.");
+      return;
+    }
 
-function computeAll(){
-  const t = TEXTS[state.lang];
+    const mos = state.mos === "off" ? 0 : (parseInt(state.mos,10)/100);
+    const rows = [];
+    rows.push(["date","ticker","currency","model","price","bear","base","bull","target(mos)","range"].join(","));
 
-  const ticker = String($("in_ticker").value || "").trim().toUpperCase();
-  const price = parseNum($("in_price").value);
-  const years = Math.round(parseNum($("in_years").value));
-  const disc  = parseNum($("in_disc").value);
-  const term  = parseNum($("in_term").value);
+    for (const it of arr){
+      const target = it.values.base * (1 - mos);
+      const range = `${it.values.bear} - ${it.values.bull}`;
+      rows.push([
+        new Date(it.dt).toISOString(),
+        it.ticker,
+        it.currency,
+        it.model,
+        it.inputs.price,
+        it.values.bear,
+        it.values.base,
+        it.values.bull,
+        target,
+        `"${range}"`
+      ].join(","));
+    }
 
-  let base = parseNum($("in_base").value);
-  let bear = parseNum($("in_bear").value);
-  let bull = parseNum($("in_bull").value);
+    const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "equity-analyzer-watchlist.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
 
-  if (!Number.isFinite(base)) base = 5;
+    toast((state.lang==="cz") ? "CSV staženo ✅" : "CSV downloaded ✅");
+  });
 
-  if (state.mode === "quick"){
-    bear = base - 2;
-    bull = base + 2;
-    $("in_bear").value = String(Math.max(bear, -50));
-    $("in_bull").value = String(bull);
-  }
+  $("btn_print_pdf").addEventListener("click", ()=>{
+    const arr = loadWatchlist();
+    if (!arr.length){
+      toast((state.lang==="cz") ? "Watchlist je prázdný." : "Watchlist is empty.");
+      return;
+    }
 
-  const errors = [];
-  if (!ticker) errors.push("Ticker");
-  if (!Number.isFinite(price) || price <= 0) errors.push("Price");
-  if (!Number.isFinite(years) || years < 1) errors.push("Years");
-  if (!Number.isFinite(disc) || disc <= 0) errors.push("Discount");
+    const mos = state.mos === "off" ? 0 : (parseInt(state.mos,10)/100);
 
-  let vBear = NaN, vBase = NaN, vBull = NaN;
+    const html = `
+      <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Equity Analyzer – Watchlist</title>
+        <style>
+          body{font-family: Arial, sans-serif; padding:18px;}
+          h1{margin:0 0 10px;}
+          table{width:100%; border-collapse:collapse;}
+          th,td{border:1px solid #ddd; padding:8px; font-size:12px;}
+          th{background:#f3f3f3;}
+        </style>
+      </head>
+      <body>
+        <h1>Equity Analyzer – Watchlist</h1>
+        <p>Generated: ${new Date().toLocaleString()}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Ticker</th><th>Cur</th><th>Model</th><th>Price</th>
+              <th>Bear</th><th>Base</th><th>Bull</th>
+              <th>Target (MoS)</th><th>Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${arr.map(it=>{
+              const d = new Date(it.dt).toISOString().slice(0,10);
+              const target = (it.values.base * (1 - mos)).toFixed(2);
+              const range = `${it.values.bear.toFixed(2)} - ${it.values.bull.toFixed(2)}`;
+              return `<tr>
+                <td>${d}</td><td>${it.ticker}</td><td>${it.currency}</td><td>${it.model}</td><td>${it.inputs.price}</td>
+                <td>${it.values.bear.toFixed(2)}</td><td>${it.values.base.toFixed(2)}</td><td>${it.values.bull.toFixed(2)}</td>
+                <td>${target}</td><td>${range}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
 
-  /* ---------- STANDARD (FCF DCF) ---------- */
-  if (state.model === "standard"){
-    const fcf = parseNum($("in_fcf").value);
-    const shares = parseNum($("in_shares").value);
+    const w = window.open("", "_blank");
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  });
 
-    if (!(fcf > 0)) errors.push("FCF");
-    if (!(shares > 0)) errors.push("Shares");
+  function init(){
+    state.lang = $("langSel").value; // default EN
+    state.mode = $("modeSel").value;
+    state.currency = $("curSel").value;
+    state.mos = $("mosSel").value;
 
-    if (!errors.length){
-      vBear = modelStandardDCF({ fcfTotal:fcf, shares, years, discPct:disc, termPct:term, growthPct:bear });
-      vBase = modelStandardDCF({ fcfTotal:fcf, shares, years, discPct:disc, termPct:term, growthPct:base });
-      vBull = modelStandardDCF({ fcfTotal:fcf, shares, years, discPct:disc, termPct:term, growthPct:bull });
+    applyMode();
+    applyLang();
+    bindHintTitles();
+    bindBigNumberFormatting();
+
+    setModel("standard");
+    renderWatchlist();
+
+    // quick derive at start
+    if (state.mode === "quick"){
+      const base = parseNum($("in_base").value);
+      if (Number.isFinite(base)){
+        $("in_bear").value = String(Math.max(base - 2, -50));
+        $("in_bull").value = String(base + 2);
+      }
     }
   }
 
-  /* ---------- FINANCIAL (RIM) ---------- */
-  if (state.model === "financial"){
-    const bvps = parseNum($("in_bvps").value);
-    const payout = parseNum($("in_payout").value);
-
-    if (!(bvps > 0)) errors.push("BVPS");
-    if (!(payout >= 0 && payout <= 100)) errors.push("Payout");
-
-    if (!errors.length){
-      vBear = modelFinancialRIM({ bvps, roePct:bear, payoutPct:payout, years, discPct:disc });
-      vBase = modelFinancialRIM({ bvps, roePct:base, payoutPct:payout, years, discPct:disc });
-      vBull = modelFinancialRIM({ bvps, roePct:bull, payoutPct:payout, years, discPct:disc });
-    }
-  }
-
-  /* ---------- REIT (AFFO) ---------- */
-  if (state.model === "reit"){
-    const affo = parseNum($("in_affo").value);
-    if (!(affo > 0)) errors.push("AFFO");
-
-    if (!errors.length){
-      vBear = modelReitAffo({ affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:bear });
-      vBase = modelReitAffo({ affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:base });
-      vBull = modelReitAffo({ affoPerShare:affo, years, discPct:disc, termPct:term, growthPct:bull });
-    }
-  }
-
-  if (errors.length){
-    toast(state.lang === "cz"
-      ? "Chybí / neplatné: " + errors.join(", ")
-      : "Missing / invalid: " + errors.join(", ")
-    );
-    return null;
-  }
-
-  if (![vBear, vBase, vBull].every(Number.isFinite)){
-    toast(state.lang === "cz"
-      ? "Výpočet selhal – zkontroluj vstupy."
-      : "Calculation failed – check inputs."
-    );
-    return null;
-  }
-
-  return {
-    id: crypto.randomUUID(),
-    dt: new Date().toISOString(),
-    ticker,
-    currency: state.currency,
-    model: state.model,
-    inputs: { price },
-    values: { bear:vBear, base:vBase, bull:vBull }
-  };
-}
-
-/* ---------- PAINT RESULTS ---------- */
-function paintResults(res){
-  const cur = res.currency;
-  const price = res.inputs.price;
-
-  $("r_bear").textContent = fmtMoney(res.values.bear, cur);
-  $("r_base").textContent = fmtMoney(res.values.base, cur);
-  $("r_bull").textContent = fmtMoney(res.values.bull, cur);
-
-  $("r_bear_pct").textContent = fmtPct((res.values.bear/price-1)*100);
-  $("r_base_pct").textContent = fmtPct((res.values.base/price-1)*100);
-  $("r_bull_pct").textContent = fmtPct((res.values.bull/price-1)*100);
-
-  const mos = state.mos === "off" ? 0 : parseInt(state.mos,10)/100;
-  $("out_target").value = fmtMoney(res.values.base * (1-mos), cur);
-  $("out_range").value =
-    `${fmtMoney(res.values.bear,cur)} – ${fmtMoney(res.values.bull,cur)}`;
-
-  state.lastResult = res;
-}
-
-/* ---------- BUTTONS ---------- */
-$("btn_calc").onclick = ()=>{
-  const res = computeAll();
-  if (res) paintResults(res);
-};
-
-$("btn_fillDemo").onclick = ()=>{
-  $("in_ticker").value = "DEMO";
-  $("in_price").value = "100";
-  $("in_years").value = "10";
-  $("in_disc").value = "9";
-  $("in_term").value = "2.5";
-  $("in_base").value = "6";
-  toast(state.lang==="cz" ? "Demo vyplněno" : "Demo filled");
-};
-
-/* ---------- INIT ---------- */
-(function init(){
-  applyMode();
-  applyLang();
-  bindHintTitles();
-  setModel("standard");
-})();
-</script>
-
+  init();
+  </script>
 </body>
 </html>
-
-
-
-  
-
   
 
     
