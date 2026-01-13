@@ -1,900 +1,1337 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#5b2cff" />
+  <meta name="description" content="Equity Analyzer – educational fair value calculator (not financial advice)." />
   <title>Equity Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#141a33;
-      --panel-2:#1b2350;
-      --accent:#6c7cff;
-      --accent-2:#9b6cff;
-      --text:#e9ecff;
-      --muted:#a9b0ff;
-      --border:rgba(255,255,255,.08);
-      --ok:#4cd964;
+      --bg0:#070A1A;
+      --bg1:#0B1030;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --stroke2: rgba(255,255,255,.18);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.55);
+
+      --a:#5b2cff;     /* purple */
+      --b:#1fd1ff;     /* cyan */
+      --c:#2e6bff;     /* blue */
+      --good:#43f08a;
+      --bad:#ff5a7a;
+      --warn:#ffd35a;
+
+      --r:18px;
+      --shadow: 0 16px 40px rgba(0,0,0,.45);
+      --shadow2: 0 10px 24px rgba(0,0,0,.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto;
-      background:radial-gradient(1200px 600px at 20% -10%, #1a1f4a, var(--bg));
+      font-family: var(--font);
       color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(91,44,255,.35), transparent 60%),
+        radial-gradient(900px 600px at 80% 20%, rgba(31,209,255,.22), transparent 55%),
+        radial-gradient(1100px 800px at 70% 90%, rgba(46,107,255,.18), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      padding: 18px;
     }
 
     .wrap{
-      max-width:900px;
-      margin:0 auto;
-      padding:20px;
+      max-width: 1060px;
+      margin: 0 auto;
     }
 
-    /* HEADER */
-    .header{
+    .topbar{
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      margin-bottom:24px;
-    }
-    .title{
-      font-size:34px;
-      font-weight:800;
-      letter-spacing:.5px;
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
+      justify-content:space-between;
+      gap:12px;
+      padding: 16px 16px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(91,44,255,.18), rgba(31,209,255,.10));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
     }
 
-    .lang{
-      background:var(--panel);
-      border:1px solid var(--border);
-      color:var(--text);
-      padding:8px 12px;
-      border-radius:10px;
-      font-weight:600;
+    .brand{
+      display:flex;
+      align-items:baseline;
+      gap:12px;
+      flex-wrap: wrap;
     }
 
-    /* ACCORDION */
+    .brand h1{
+      margin:0;
+      font-size: 28px;
+      letter-spacing: .3px;
+      line-height: 1.05;
+      text-transform: none;
+    }
+
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    select, button, input{
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
+    }
+    .pill label{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pill select{
+      border:0;
+      outline:0;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .accordion{
+      margin-top: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
     .acc{
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:18px;
-      margin-bottom:18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow2);
       overflow:hidden;
     }
 
-    .acc-head{
-      padding:18px 20px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+    .acc .head{
       cursor:pointer;
-      background:linear-gradient(180deg,var(--panel-2),var(--panel));
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(91,44,255,.18), rgba(46,107,255,.12));
+      border-bottom: 1px solid rgba(255,255,255,.10);
     }
 
-    .acc-head h2{
-      margin:0;
-      font-size:18px;
+    .head .title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .head .title span{
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .tag{
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      background: rgba(31,209,255,.12);
+      border: 1px solid rgba(31,209,255,.28);
+      padding: 4px 10px;
+      border-radius: 999px;
     }
 
     .chev{
-      font-size:20px;
-      opacity:.7;
-      transition:.3s;
+      font-size: 16px;
+      color: rgba(255,255,255,.85);
+      user-select:none;
     }
 
-    .acc.open .chev{transform:rotate(180deg)}
-
-    .acc-body{
+    .acc .body{
       display:none;
-      padding:20px;
-      border-top:1px solid var(--border);
+      padding: 14px 14px 16px 14px;
+    }
+    .acc.open .body{ display:block; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 12px;
+    }
+    @media(max-width: 860px){
+      .grid{ grid-template-columns:1fr; }
     }
 
-    .acc.open .acc-body{display:block}
+    .card{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 14px;
+    }
 
-    /* FIELDS */
+    .card h3{
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      letter-spacing: .2px;
+    }
+    .muted{ color: var(--muted); font-size: 13px; line-height: 1.35; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media(max-width: 540px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
     .field{
-      margin-bottom:16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding: 10px 10px 9px 10px;
     }
 
     .lbl{
       display:flex;
       align-items:center;
-      gap:8px;
-      font-weight:600;
-      margin-bottom:6px;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 6px;
+    }
+
+    .lbl span{
+      font-size: 13px;
+      color: rgba(255,255,255,.90);
+      font-weight: 650;
+      letter-spacing: .1px;
     }
 
     .hint{
-      width:18px;
-      height:18px;
-      border-radius:50%;
-      background:var(--accent);
-      color:#fff;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-size:12px;
+      width: 22px; height: 22px;
+      display:grid;
+      place-items:center;
+      border-radius: 999px;
+      border: 1px solid rgba(31,209,255,.35);
+      background: rgba(31,209,255,.10);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      font-size: 12px;
       cursor:pointer;
+      user-select:none;
+      flex: 0 0 auto;
     }
 
-    input{
+    input, select.input{
       width:100%;
-      padding:14px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:#0e1430;
-      color:var(--text);
-      font-size:16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 10px;
+      outline: none;
+      font-size: 15px; /* bigger readable */
     }
+    input::placeholder{ color: rgba(255,255,255,.40); }
 
     .mini{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:4px;
+      margin-top: 7px;
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.35;
     }
 
-    /* BUTTONS */
     .btns{
       display:flex;
-      gap:12px;
-      margin-top:18px;
       flex-wrap:wrap;
+      gap:10px;
+      margin-top: 12px;
     }
 
     button{
-      padding:14px 20px;
-      border-radius:14px;
-      border:none;
-      font-weight:700;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(135deg, rgba(91,44,255,.85), rgba(46,107,255,.85));
+      color: rgba(255,255,255,.95);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight: 750;
       cursor:pointer;
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      color:#fff;
-      font-size:15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.28);
     }
 
     button.secondary{
-      background:#222a55;
-      color:var(--text);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
     }
 
-    /* FOOTER */
+    .results{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media(max-width: 540px){
+      .results{ grid-template-columns:1fr; }
+    }
+
+    .res{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+    }
+
+    .k{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      color: rgba(255,255,255,.80);
+      font-size: 12px;
+      letter-spacing: .25px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .v{
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin-bottom: 4px;
+    }
+
+    .s{
+      font-size: 12px;
+      color: rgba(255,255,255,.72);
+    }
+
+    .badge{
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .bear{ border-color: rgba(255,90,122,.35); background: rgba(255,90,122,.10); }
+    .base{ border-color: rgba(67,240,138,.35); background: rgba(67,240,138,.10); }
+    .bull{ border-color: rgba(255,211,90,.35); background: rgba(255,211,90,.10); }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 14px;
+    }
+    th, td{
+      text-align:left;
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      font-size: 13px;
+    }
+    th{ color: rgba(255,255,255,.78); font-weight: 800; }
+    td{ color: rgba(255,255,255,.88); }
+    td.right, th.right{ text-align:right; }
+    td.nowrap, th.nowrap{ white-space:nowrap; }
+
     .footer{
-      margin-top:30px;
-      font-size:13px;
-      color:var(--muted);
+      margin-top: 14px;
       text-align:center;
+      color: rgba(255,255,255,.62);
+      font-size: 12px;
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.75);
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 38px rgba(0,0,0,.5);
+      display:none;
+      z-index: 60;
+      max-width: min(520px, calc(100vw - 24px));
+      font-size: 13px;
+    }
+
+    .modalBackdrop{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.62);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 80;
+      padding: 18px;
+    }
+    .modal{
+      width: min(640px, 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(16,18,40,.92), rgba(10,12,28,.92));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+    }
+    .modalHead .t{
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+    .xbtn{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      color: rgba(255,255,255,.92);
+      font-weight: 800;
+    }
+    .modalBody{
+      padding: 14px;
+      color: rgba(255,255,255,.88);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .warnBox{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,211,90,.25);
+      background: rgba(255,211,90,.08);
+      color: rgba(255,255,255,.88);
+      display:none;
     }
   </style>
 </head>
 
 <body>
-<div class="wrap">
+  <div class="wrap">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="title" id="ui_title">Equity Analyzer</div>
-    <select class="lang" id="sel_lang">
-      <option value="en">EN</option>
-      <option value="cz">CZ</option>
-    </select>
+    <div class="topbar">
+      <div class="brand">
+        <h1 id="ui_title">Equity Analyzer</h1>
+        <div class="sub" id="ui_sub">Fair value calculator • Watchlist • Guide</div>
+      </div>
+
+      <div class="controls">
+        <div class="pill">
+          <label id="ui_langLbl" for="sel_lang">Language</label>
+          <select id="sel_lang">
+            <option value="en">EN</option>
+            <option value="cz">CZ</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion" id="accordion">
+
+      <!-- 1) CALCULATOR -->
+      <div class="acc open" id="acc_calc">
+        <div class="head" data-acc="calc">
+          <div class="title">
+            <span id="ui_calcTitle">Valuation</span>
+            <span class="tag" id="ui_calcTag">Universal model</span>
+          </div>
+          <div class="chev">▼</div>
+        </div>
+
+        <div class="body">
+          <div class="grid">
+
+            <!-- LEFT: INPUTS -->
+            <div class="card">
+              <h3 id="ui_inputsTitle">Inputs</h3>
+              <div class="muted" id="ui_inputsText">
+                Enter a metric (per share or total), growth scenarios, discount rate and terminal growth. The tool computes Bear/Base/Bull fair value.
+              </div>
+
+              <div class="row" style="margin-top:12px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_tickerLbl">Ticker</span>
+                    <span class="hint" data-help="ticker">i</span>
+                  </div>
+                  <input id="in_ticker" placeholder="e.g. AAPL" />
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_priceLbl">Current price</span>
+                    <span class="hint" data-help="price">i</span>
+                  </div>
+                  <input id="in_price" inputmode="decimal" placeholder="e.g. 180" />
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_currLbl">Currency</span>
+                    <span class="hint" data-help="currency">i</span>
+                  </div>
+                  <select class="input" id="sel_cur">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="CZK">CZK</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                  <div class="mini" id="ui_currMini">Used only for formatting.</div>
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_basisLbl">Metric basis</span>
+                    <span class="hint" data-help="basis">i</span>
+                  </div>
+                  <select class="input" id="sel_basis">
+                    <option value="per_share" id="opt_basis_ps">Per share</option>
+                    <option value="total" id="opt_basis_total">Total (company-level)</option>
+                  </select>
+                  <div class="mini" id="ui_basisMini">If you choose Total, you must enter Shares Outstanding.</div>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_metricLbl">Metric type</span>
+                    <span class="hint" data-help="metric">i</span>
+                  </div>
+                  <select class="input" id="sel_metric">
+                    <option value="fcf" id="opt_m_fcf">FCF (best for most companies)</option>
+                    <option value="affo" id="opt_m_affo">AFFO (REIT)</option>
+                    <option value="eps" id="opt_m_eps">EPS (fallback)</option>
+                    <option value="div" id="opt_m_div">Dividend (utilities/defensive)</option>
+                  </select>
+                  <div class="mini" id="ui_metricMini">Pick the metric that best matches the business type.</div>
+                </div>
+
+                <div class="field" id="wrap_shares" style="display:none;">
+                  <div class="lbl">
+                    <span id="ui_sharesLbl">Shares outstanding</span>
+                    <span class="hint" data-help="shares">i</span>
+                  </div>
+                  <input id="in_shares" inputmode="decimal" placeholder="e.g. 2.45B or 2450000000" />
+                  <div class="mini" id="ui_sharesMini">Tip: you can type 2.45B, 2450M, 2450000000, etc.</div>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_metricValLbl">Metric value</span>
+                    <span class="hint" data-help="metric_value">i</span>
+                  </div>
+                  <input id="in_metric" inputmode="decimal" placeholder="e.g. 6.5 or 10B" />
+                  <div class="mini" id="ui_metricValMini">Supports commas, spaces, and suffixes K/M/B.</div>
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_mosLbl">Margin of Safety (%)</span>
+                    <span class="hint" data-help="mos">i</span>
+                  </div>
+                  <input id="in_mos" inputmode="decimal" placeholder="e.g. 15" value="15" />
+                  <div class="mini" id="ui_mosMini">Target price = Base × (1 − MoS).</div>
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_yearsLbl">Projection years</span>
+                    <span class="hint" data-help="years">i</span>
+                  </div>
+                  <input id="in_years" inputmode="numeric" placeholder="10" value="10" />
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_discLbl">Discount rate (%)</span>
+                    <span class="hint" data-help="disc">i</span>
+                  </div>
+                  <input id="in_disc" inputmode="decimal" placeholder="9" value="9" />
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_termLbl">Terminal growth (%)</span>
+                    <span class="hint" data-help="term">i</span>
+                  </div>
+                  <input id="in_term" inputmode="decimal" placeholder="2.5" value="2.5" />
+                  <div class="mini" id="ui_termMini">Must be lower than discount rate.</div>
+                </div>
+
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_decimalTipLbl">Input tip</span>
+                    <span class="hint" data-help="number_tip">i</span>
+                  </div>
+                  <div class="mini" id="ui_decimalTip">
+                    You can type: 1000000000, 1 000 000 000, 1B, 1000M, 2.5k, 2,5 (comma).
+                  </div>
+                </div>
+              </div>
+
+              <div class="btns">
+                <button id="btn_calc">Calculate</button>
+                <button class="secondary" id="btn_save">Save to Watchlist</button>
+                <button class="secondary" id="btn_reset">Reset</button>
+              </div>
+
+              <div class="warnBox" id="warnBox"></div>
+            </div>
+
+            <!-- RIGHT: SCENARIOS + RESULTS -->
+            <div class="card">
+              <h3 id="ui_scenTitle">Scenarios (annual growth)</h3>
+              <div class="muted" id="ui_scenText">
+                Bear/Base/Bull are growth rates for the selected metric (FCF/AFFO/EPS/Dividend).
+              </div>
+
+              <div class="row" style="margin-top:12px;">
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_bearLbl">Bear (%)</span>
+                    <span class="hint" data-help="bear">i</span>
+                  </div>
+                  <input id="in_bear" inputmode="decimal" placeholder="2" value="2" />
+                </div>
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_baseLbl">Base (%)</span>
+                    <span class="hint" data-help="base">i</span>
+                  </div>
+                  <input id="in_base" inputmode="decimal" placeholder="5" value="5" />
+                </div>
+                <div class="field">
+                  <div class="lbl">
+                    <span id="ui_bullLbl">Bull (%)</span>
+                    <span class="hint" data-help="bull">i</span>
+                  </div>
+                  <input id="in_bull" inputmode="decimal" placeholder="8" value="8" />
+                </div>
+              </div>
+
+              <div class="results" style="margin-top:12px;">
+                <div class="res">
+                  <div class="k"><span class="badge bear" id="ui_bearTag">BEAR</span><span id="r_bear_pct"></span></div>
+                  <div class="v" id="r_bear">—</div>
+                  <div class="s" id="r_bear_s">—</div>
+                </div>
+                <div class="res">
+                  <div class="res">
+              <div class="k">
+                <span class="badge base" id="ui_baseTag">BASE</span>
+                <span id="r_base_pct"></span>
+              </div>
+              <div class="v" id="r_base">—</div>
+              <div class="s" id="r_base_s">—</div>
+            </div>
+
+            <div class="res">
+              <div class="k">
+                <span class="badge bull" id="ui_bullTag">BULL</span>
+                <span id="r_bull_pct"></span>
+              </div>
+              <div class="v" id="r_bull">—</div>
+              <div class="s" id="r_bull_s">—</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h3 id="ui_targetsTitle">Target & Range</h3>
+            <div class="muted" id="ui_targetsText">
+              Target = Base with Margin of Safety. Range = Bear to Bull.
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <div class="field">
+                <div class="lbl">
+                  <span id="ui_targetLbl">Target price</span>
+                </div>
+                <input id="out_target" readonly placeholder="—" />
+              </div>
+              <div class="field">
+                <div class="lbl">
+                  <span id="ui_rangeLbl">Fair value range</span>
+                </div>
+                <input id="out_range" readonly placeholder="—" />
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /card right -->
+      </div> <!-- /grid -->
+    </div> <!-- /body -->
+  </div> <!-- /acc_calc -->
+
+  <!-- 2) WATCHLIST -->
+  <div class="acc" id="acc_watch">
+    <div class="head" data-acc="watch">
+      <div class="title">
+        <span id="ui_watchTitle">Watchlist</span>
+        <span class="tag" id="ui_watchTag">Local storage</span>
+      </div>
+      <div class="chev">▼</div>
+    </div>
+
+    <div class="body">
+      <div class="card">
+        <h3 id="ui_watchIntroTitle">Saved valuations</h3>
+        <div class="muted" id="ui_watchIntroText">
+          Saved items are stored locally in your browser (localStorage).
+        </div>
+        <div class="btns" style="margin-top:10px;">
+          <button class="secondary" id="btn_export">Export CSV</button>
+          <button class="secondary" id="btn_clear">Clear</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div style="overflow:auto;">
+          <table id="watchTable">
+            <thead>
+              <tr>
+                <th id="th_date">Date</th>
+                <th id="th_ticker">Ticker</th>
+                <th class="right" id="th_price">Price</th>
+                <th id="th_metric">Metric</th>
+                <th class="right" id="th_bear">Bear</th>
+                <th class="right" id="th_base">Base</th>
+                <th class="right" id="th_bull">Bull</th>
+                <th class="right nowrap" id="th_target">Target</th>
+                <th class="right nowrap" id="th_range">Range</th>
+                <th class="right" id="th_action">Action</th>
+              </tr>
+            </thead>
+            <tbody id="watchTbody">
+              <tr><td colspan="10" class="muted" id="watchEmpty">No saved items yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="footer" id="ui_watchFooter">
+        Note: Watchlist is stored locally in your browser (localStorage).
+      </div>
+    </div>
   </div>
 
-  <!-- ACCORDION 1: INPUTS -->
-  <div class="acc open" id="acc_inputs">
-    <div class="acc-head">
-      <h2 id="ui_inputs_title">1) Valuation Inputs</h2>
-      <div class="chev">⌄</div>
+  <!-- 3) GUIDE / DISCLAIMER -->
+  <div class="acc" id="acc_guide">
+    <div class="head" data-acc="guide">
+      <div class="title">
+        <span id="ui_guideTitle">Guide</span>
+        <span class="tag" id="ui_guideTag">Educational</span>
+      </div>
+      <div class="chev">▼</div>
     </div>
-    <div class="acc-body">
 
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_ticker_lbl">Ticker / Company</span>
-          <span class="hint">i</span>
-        </div>
-        <input id="in_ticker" placeholder="e.g. AAPL" />
-        <div class="mini" id="ui_ticker_help">
-          Company name or stock ticker.
-        </div>
+    <div class="body">
+      <div class="card">
+        <h3 id="ui_guideH1">What this app is</h3>
+        <div class="muted" id="ui_guideT1"></div>
       </div>
 
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_price_lbl">Current Share Price</span>
-          <span class="hint">i</span>
-        </div>
-        <input id="in_price" placeholder="e.g. 180" inputmode="decimal"/>
-        <div class="mini" id="ui_price_help">
-          Market price of one share.
-        </div>
+      <div class="card" style="margin-top:12px;">
+        <h3 id="ui_guideH2">Which metric to choose</h3>
+        <div class="muted" id="ui_guideT2"></div>
       </div>
 
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_fcf_lbl">Free Cash Flow (total)</span>
-          <span class="hint">i</span>
-        </div>
-        <input id="in_fcf" placeholder="e.g. 70000000000" />
-        <div class="mini" id="ui_fcf_help">
-          Annual FCF for the whole company.
-        </div>
+      <div class="card" style="margin-top:12px;">
+        <h3 id="ui_guideH3">Important disclaimer</h3>
+        <div class="muted" id="ui_guideT3"></div>
       </div>
-
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_shares_lbl">Shares Outstanding</span>
-          <span class="hint">i</span>
-        </div>
-        <input id="in_shares" placeholder="e.g. 16000000000" />
-        <div class="mini" id="ui_shares_help">
-          Total number of shares.
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- ACCORDION 2: RESULTS / WATCHLIST -->
-  <div class="acc" id="acc_results">
-    <div class="acc-head">
-      <h2 id="ui_results_title">2) Result & Watchlist</h2>
-      <div class="chev">⌄</div>
+</div> <!-- /accordion -->
+
+<div class="footer" id="ui_footer">Educational tool • Not investment advice</div>
+
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"></div>
+
+<div class="modalBackdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modalHead">
+      <div class="t" id="modalTitle">Info</div>
+      <button class="xbtn" id="modalClose">Close</button>
     </div>
-    <div class="acc-body">
-
-      <div class="field">
-        <div class="lbl" id="ui_value_lbl">Estimated Fair Value</div>
-        <input readonly placeholder="—" />
-      </div>
-
-      <div class="btns">
-        <button id="btn_calc">Calculate</button>
-        <button class="secondary" id="btn_save">Save to Watchlist</button>
-      </div>
-
-    </div>
+    <div class="modalBody" id="modalBody"></div>
   </div>
-
-  <!-- ACCORDION 3: ABOUT -->
-  <div class="acc" id="acc_about">
-    <div class="acc-head">
-      <h2 id="ui_about_title">3) About This Tool</h2>
-      <div class="chev">⌄</div>
-    </div>
-    <div class="acc-body" id="ui_about_text">
-
-      This educational tool helps estimate intrinsic value of stocks using simplified valuation logic.
-      It is designed for learning and comparison purposes only.
-      <br><br>
-      <strong>This is NOT financial advice.</strong>
-
-    </div>
-  </div>
-
-  <div class="footer" id="ui_footer">
-    Educational valuation tool · No financial advice
-  </div>
-
 </div>
 
 <script>
-  /* ACCORDION TOGGLE (UI only) */
-  document.querySelectorAll(".acc-head").forEach(h=>{
-    h.addEventListener("click",()=>{
-      h.parentElement.classList.toggle("open");
-    });
-  });
+"use strict";
 
-  /* PART 2 WILL CONTINUE HERE */
+/* === PART 2: sem patří celý JS blok (TEXTS + funkce) ===
+   Pokud chceš, pošli mi screenshot, kde ti začíná <script>
+   a já ti dám přesně navazující JS bez duplicit.
+*/
 </script>
-
-<!-- =======================
-     PART 1 END
-     PART 2 STARTS BELOW
-======================= -->
 
 </body>
-</html>
-      
-    <script>
-/* =========================================================
-   EQUITY ANALYZER — PART 2
-   - i18n EN/CZ (all UI text)
-   - Universal valuation model (FCF-per-share DCF simplified)
-   - Watchlist (localStorage)
-   - Info modal (ℹ) for every input
-   - Safe accordion + stable wiring (no broken drawers)
-   ========================================================= */
-
-/* ---------- tiny helpers ---------- */
-const $ = (id)=>document.getElementById(id);
-
-const state = {
-  lang: "en",
-  currency: "USD",
-  mos: 25,      // margin of safety %
-  years: 10,
-  disc: 9,      // discount rate %
-  term: 2.5,    // terminal growth %
-  scen: { bear: 2, base: 5, bull: 8 }, // growth (FCF growth)
-};
-
-/* ---------- modal UI (created here so Part 1 can stay simple) ---------- */
-(function ensureModal(){
-  if ($("modalBack")) return;
-
-  const back = document.createElement("div");
-  back.id = "modalBack";
-  back.style.cssText = `
-    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-    background:rgba(0,0,0,.55); z-index:9999; padding:18px;
-  `;
-  back.innerHTML = `
-    <div style="
-      width:min(560px, 100%); background:#141a33; border:1px solid rgba(255,255,255,.10);
-      border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5);
-    ">
-      <div style="
-        display:flex; justify-content:space-between; align-items:center;
-        padding:14px 16px; background:linear-gradient(180deg,#1b2350,#141a33);
-        border-bottom:1px solid rgba(255,255,255,.08);
-      ">
-        <div id="modalTitle" style="font-weight:800">Info</div>
-        <button id="modalClose" style="
-          border:none; cursor:pointer; font-weight:800; color:#fff;
-          padding:10px 12px; border-radius:12px; background:#222a55;
-        ">Close</button>
-      </div>
-      <div id="modalBody" style="padding:16px; color:#e9ecff; line-height:1.45"></div>
-    </div>
-  `;
-  document.body.appendChild(back);
-
-  back.addEventListener("click",(e)=>{
-    if(e.target === back) closeModal();
-  });
-  $("modalClose").addEventListener("click", closeModal);
-})();
-
-function openModal(title, bodyHtml){
-  $("modalTitle").textContent = title;
-  $("modalBody").innerHTML = bodyHtml;
-  $("modalBack").style.display = "flex";
-}
-function closeModal(){
-  $("modalBack").style.display = "none";
-}
-
-/* ---------- number parsing (supports spaces, comma, k/m/b) ---------- */
-function parseNum(v){
-  if (v === null || v === undefined) return NaN;
-  let s = String(v).trim();
-  if(!s) return NaN;
-
-  // remove spaces
-  s = s.replace(/\s+/g,"");
-
-  // accept comma decimal
-  s = s.replace(",", ".");
-
-  // suffix multipliers
-  const last = s.slice(-1).toLowerCase();
-  let mult = 1;
-  if (last === "k"){ mult = 1e3; s = s.slice(0,-1); }
-  if (last === "m"){ mult = 1e6; s = s.slice(0,-1); }
-  if (last === "b"){ mult = 1e9; s = s.slice(0,-1); }
-
-  const n = Number(s);
-  if(!Number.isFinite(n)) return NaN;
-  return n * mult;
-}
-
-/* ---------- formatting ---------- */
-function fmtMoney(n, cur){
-  if(!Number.isFinite(n)) return "—";
-  const c = cur || state.currency || "USD";
-  try{
-    return new Intl.NumberFormat(state.lang==="cz"?"cs-CZ":"en-US",{
-      style:"currency",
-      currency:c,
-      maximumFractionDigits:2
-    }).format(n);
-  }catch{
-    return `${n.toFixed(2)} ${c}`;
-  }
-}
-
-function fmtPct(n){
-  if(!Number.isFinite(n)) return "";
-  const sign = n>0?"+":"";
-  return `${sign}${n.toFixed(1)}%`;
-}
-
-/* ---------- i18n texts ---------- */
-const TEXTS = {
-  en:{
-    inputsTitle:"1) Valuation Inputs",
-    resultsTitle:"2) Result & Watchlist",
-    aboutTitle:"3) About This Tool",
-    footer:"Educational valuation tool · No financial advice",
-
-    tickerLbl:"Ticker / Company",
-    tickerHelp:"Company name or stock ticker (used in your watchlist).",
-
-    priceLbl:"Current Share Price",
-    priceHelp:"Market price of one share. Used to show upside/downside vs fair value.",
-
-    fcfLbl:"Free Cash Flow (total)",
-    fcfHelp:"Annual Free Cash Flow for the whole company. Tip: you can type 70b, 70B, 70000000000 or 70 000 000 000.",
-
-    sharesLbl:"Shares Outstanding",
-    sharesHelp:"Total number of shares. Used to convert company value into value per share. Tip: you can type 16b / 16B.",
-
-    yearsLbl:"Projection length (years)",
-    yearsHelp:"How many years you project cash flow growth. Typical: 10.",
-
-    discLbl:"Discount rate (%)",
-    discHelp:"Required return. Higher = more conservative. Typical: 8–12%. Must be > terminal growth.",
-
-    termLbl:"Terminal growth (%)",
-    termHelp:"Long-term growth after projection. Typical: 2–3%.",
-
-    mosLbl:"Margin of Safety (%)",
-    mosHelp:"Extra discount applied to Base case to get a more conservative target price.",
-
-    scenTitle:"Scenario growth rates (annual %)",
-    scenText:"We estimate 3 cases: Bear / Base / Bull. These are annual growth assumptions for the chosen metric (here: FCF).",
-    bearLbl:"Bear growth (%)",
-    baseLbl:"Base growth (%)",
-    bullLbl:"Bull growth (%)",
-
-    btnCalc:"Calculate",
-    btnSave:"Save to Watchlist",
-    btnReset:"Reset",
-    valueLbl:"Estimated Fair Value (Base)",
-    targetLbl:"Target price (Base with MoS)",
-    rangeLbl:"Fair Value Range (Bear → Bull)",
-    upsideLbl:"Upside vs current price",
-
-    aboutHtml:`
-      <div style="color:#a9b0ff; font-size:14px; line-height:1.5">
-        <b>What this app does:</b> it estimates an intrinsic value using a simplified cash-flow model (DCF-style).
-        <br><br>
-        <b>Who it is for:</b> education, training, and quick comparisons between stocks.
-        <br><br>
-        <b>How to use:</b> enter current price, total annual FCF, shares outstanding, and scenario growth rates.
-        Adjust discount rate / terminal growth for conservatism.
-        <br><br>
-        <b>Important:</b> This tool is <b>not financial advice</b>. Values are approximate and depend on assumptions.
-      </div>
-    `,
-
-    watchEmpty:"No saved items yet.",
-    watchTitle:"Saved items",
-    del:"Delete"
-  },
-
-  cz:{
-    inputsTitle:"1) Vstupy pro výpočet",
-    resultsTitle:"2) Výsledek & Watchlist",
-    aboutTitle:"3) O aplikaci",
-    footer:"Vzdělávací nástroj · Nejde o finanční doporučení",
-
-    tickerLbl:"Ticker / Firma",
-    tickerHelp:"Název firmy nebo ticker (uloží se do watchlistu).",
-
-    priceLbl:"Aktuální cena akcie",
-    priceHelp:"Tržní cena 1 akcie. Podle ní ukážeme % rozdíl oproti férové hodnotě.",
-
-    fcfLbl:"Free Cash Flow (celkem)",
-    fcfHelp:"Roční Free Cash Flow celé firmy. Tip: můžeš psát 70b / 70B / 70 000 000 000.",
-
-    sharesLbl:"Počet akcií (Shares Outstanding)",
-    sharesHelp:"Počet akcií v oběhu. Použije se pro přepočet na hodnotu 1 akcie. Tip: můžeš psát 16b / 16B.",
-
-    yearsLbl:"Délka projekce (roky)",
-    yearsHelp:"Počet let projekce růstu cash flow. Typicky 10.",
-
-    discLbl:"Diskontní sazba (%)",
-    discHelp:"Požadovaný výnos/riziko. Vyšší = konzervativnější. Typicky 8–12 %. Musí být > terminál.",
-
-    termLbl:"Terminální růst (%)",
-    termHelp:"Dlouhodobý růst po projekci. Typicky 2–3 %.",
-
-    mosLbl:"Margin of Safety (%)",
-    mosHelp:"Dodatečná rezerva – sníží Base scénář pro konzervativní target cenu.",
-
-    scenTitle:"Scénáře růstu (ročně v %)",
-    scenText:"Počítáme 3 scénáře: Bear / Base / Bull. Zde jsou to předpoklady ročního růstu FCF.",
-    bearLbl:"Bear růst (%)",
-    baseLbl:"Base růst (%)",
-    bullLbl:"Bull růst (%)",
-
-    btnCalc:"Spočítat",
-    btnSave:"Uložit do Watchlistu",
-    btnReset:"Reset",
-    valueLbl:"Odhad férové hodnoty (Base)",
-    targetLbl:"Target cena (Base s MoS)",
-    rangeLbl:"Rozmezí férové hodnoty (Bear → Bull)",
-    upsideLbl:"Potenciál vs aktuální cena",
-
-    aboutHtml:`
-      <div style="color:#a9b0ff; font-size:14px; line-height:1.5">
-        <b>Co aplikace dělá:</b> odhaduje vnitřní hodnotu pomocí zjednodušeného cash-flow modelu (DCF-styl).
-        <br><br>
-        <b>Pro koho je:</b> vzdělávání, školení a rychlé srovnání akcií.
-        <br><br>
-        <b>Jak použít:</b> zadej aktuální cenu, celkové roční FCF, počet akcií a růstové scénáře.
-        Diskont a terminál uprav podle konzervativnosti.
-        <br><br>
-        <b>Důležité:</b> Toto <b>není finanční doporučení</b>. Výsledek závisí na předpokladech.
-      </div>
-    `,
-
-    watchEmpty:"Zatím nic uloženého.",
-    watchTitle:"Uložené položky",
-    del:"Smazat"
-  }
-};
-
-/* ---------- upgrade Part 1 UI: add missing inputs + results blocks ---------- */
-(function enhanceUI(){
-  // Insert advanced inputs + results table into accordion 1 and 2, if not already inserted
-  const inputsBody = $("acc_inputs")?.querySelector(".acc-body");
-  const resultsBody = $("acc_results")?.querySelector(".acc-body");
-
-  if(inputsBody && !inputsBody.querySelector("#block_adv")){
-    const adv = document.createElement("div");
-    adv.id = "block_adv";
-    adv.innerHTML = `
-      <div class="field" style="margin-top:10px;">
-        <div class="lbl">
-          <span id="ui_years_lbl">Projection length (years)</span>
-          <span class="hint" data-help="years">i</span>
-        </div>
-        <input id="in_years" placeholder="10" value="10" inputmode="numeric" />
-        <div class="mini" id="ui_years_help"></div>
-      </div>
-
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_disc_lbl">Discount rate (%)</span>
-          <span class="hint" data-help="disc">i</span>
-        </div>
-        <input id="in_disc" placeholder="9" value="9" inputmode="decimal" />
-        <div class="mini" id="ui_disc_help"></div>
-      </div>
-
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_term_lbl">Terminal growth (%)</span>
-          <span class="hint" data-help="term">i</span>
-        </div>
-        <input id="in_term" placeholder="2.5" value="2.5" inputmode="decimal" />
-        <div class="mini" id="ui_term_help"></div>
-      </div>
-
-      <div class="field">
-        <div class="lbl">
-          <span id="ui_mos_lbl">Margin of Safety (%)</span>
-          <span class="hint" data-help="mos">i</span>
-        </div>
-        <input id="in_mos" placeholder="25" value="25" inputmode="decimal" />
-        <div class="mini" id="ui_mos_help"></div>
-      </div>
-
-      <div class="field" style="padding:14px; border:1px solid rgba(255,255,255,.08); border-radius:14px; background:#0e1430;">
-        <div style="font-weight:800; margin-bottom:8px;" id="ui_scen_title">Scenario growth rates (annual %)</div>
-        <div class="mini" id="ui_scen_text" style="margin-bottom:10px;"></div>
-
-        <div class="field">
-          <div class="lbl">
-            <span id="ui_bear_lbl">Bear growth (%)</span>
-            <span class="hint" data-help="bear">i</span>
-          </div>
-          <input id="in_bear" placeholder="2" value="2" inputmode="decimal" />
-        </div>
-
-        <div class="field">
-          <div class="lbl">
-            <span id="ui_base_lbl">Base growth (%)</span>
-            <span class="hint" data-help="base">i</span>
-          </div>
-          <input id="in_base" placeholder="5" value="5" inputmode="decimal" />
-        </div>
-
-        <div class="field" style="margin-bottom:0;">
-          <div class="lbl">
-            <span id="ui_bull_lbl">Bull growth (%)</span>
-            <span class="hint" data-help="bull">i</span>
-          </div>
-          <input id="in_bull" placeholder="8" value="8" inputmode="decimal" />
-        </div>
-      </div>
-
-      <div class="btns">
-        <button class="secondary" id="btn_reset">Reset</button>
-      </div>
-    `;
-    inputsBody.appendChild(adv);
+</html>// ===================== UI HELPERS =====================
+  function toast(msg){
+    const t = $("toast");
+    if(!t) return;
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(toast._tm);
+    toast._tm = setTimeout(()=>{ t.style.display="none"; }, 2200);
   }
 
-  if(resultsBody && !resultsBody.querySelector("#block_results")){
-    const r = document.createElement("div");
-    r.id = "block_results";
-    r.innerHTML = `
-      <div class="field">
-        <div class="lbl" id="ui_value_lbl">Estimated Fair Value (Base)</div>
-        <input id="out_value" readonly placeholder="—" />
-      </div>
-
-      <div class="field">
-        <div class="lbl" id="ui_target_lbl">Target price (Base with MoS)</div>
-        <input id="out_target" readonly placeholder="—" />
-      </div>
-
-      <div class="field">
-        <div class="lbl" id="ui_range_lbl">Fair Value Range (Bear → Bull)</div>
-        <input id="out_range" readonly placeholder="—" />
-      </div>
-
-      <div class="field">
-        <div class="lbl" id="ui_upside_lbl">Upside vs current price</div>
-        <input id="out_upside" readonly placeholder="—" />
-      </div>
-
-      <div style="margin-top:16px; padding:14px; border:1px solid rgba(255,255,255,.08); border-radius:14px; background:#0e1430;">
-        <div style="font-weight:900; margin-bottom:10px;" id="ui_watch_title">Saved items</div>
-        <div id="watchBox"></div>
-      </div>
-    `;
-    // put results ABOVE buttons
-    const btns = resultsBody.querySelector(".btns");
-    resultsBody.insertBefore(r, btns || null);
+  function openModal(title, bodyHtml){
+    $("modalTitle").textContent = title;
+    $("modalBody").innerHTML = bodyHtml;
+    $("modalBackdrop").style.display = "flex";
   }
-})();
-
-/* ---------- help texts for ℹ (every input) ---------- */
-const HELPS = {
-  en:{
-    ticker:["Ticker / Company","Enter the stock ticker (e.g. AAPL) or company name."],
-    price:["Current Share Price","Current market price per share."],
-    fcf:["Free Cash Flow (total)","Annual company-level free cash flow. You can type 70b or 70 000 000 000."],
-    shares:["Shares Outstanding","Total shares. Used to convert company value into per-share value."],
-    years:["Projection length","Years of growth projection. Typical: 10."],
-    disc:["Discount rate","Required return (risk). Typical 8–12%. Must be higher than terminal growth."],
-    term:["Terminal growth","Long-term growth after projection. Typical 2–3%."],
-    mos:["Margin of Safety","Extra discount applied to Base to compute a conservative target price."],
-    bear:["Bear growth","Pessimistic annual growth assumption for FCF."],
-    base:["Base growth","Realistic annual growth assumption for FCF."],
-    bull:["Bull growth","Optimistic annual growth assumption for FCF."]
-  },
-  cz:{
-    ticker:["Ticker / Firma","Zadej ticker (např. AAPL) nebo název firmy."],
-    price:["Aktuální cena","Tržní cena za 1 akcii."],
-    fcf:["FCF celkem","Roční FCF celé firmy. Můžeš psát 70b nebo 70 000 000 000."],
-    shares:["Počet akcií","Počet akcií v oběhu. Použije se pro přepočet na 1 akcii."],
-    years:["Délka projekce","Počet let projekce růstu. Typicky 10."],
-    disc:["Diskont","Požadovaný výnos/riziko. Typicky 8–12 %. Musí být vyšší než terminál."],
-    term:["Terminál","Dlouhodobý růst po projekci. Typicky 2–3 %."],
-    mos:["Margin of Safety","Dodatečná rezerva – sníží Base scénář pro konzervativní target cenu."],
-    bear:["Bear růst","Pesimistický předpoklad ročního růstu FCF."],
-    base:["Base růst","Realistický předpoklad ročního růstu FCF."],
-    bull:["Bull růst","Optimistický předpoklad ročního růstu FCF."]
+  function closeModal(){
+    $("modalBackdrop").style.display = "none";
   }
-};
 
-/* ---------- apply language to all UI nodes ---------- */
-function applyLang(){
-  const T = TEXTS[state.lang] || TEXTS.en;
+  // number parser: supports spaces, comma decimals, suffix K/M/B
+  function parseNum(v){
+    if(v === null || v === undefined) return NaN;
+    let s = String(v).trim();
+    if(!s) return NaN;
 
-  // accordion titles + footer + about
-  if($("ui_inputs_title")) $("ui_inputs_title").textContent = T.inputsTitle;
-  if($("ui_results_title")) $("ui_results_title").textContent = T.resultsTitle;
-  if($("ui_about_title")) $("ui_about_title").textContent = T.aboutTitle;
-  if($("ui_footer")) $("ui_footer").textContent = T.footer;
-  if($("ui_about_text")) $("ui_about_text").innerHTML = T.aboutHtml;
+    // remove spaces
+    s = s.replace(/\s+/g, "");
+    // comma decimal
+    s = s.replace(",", ".");
 
-  // field labels
-  if($("ui_ticker_lbl")) $("ui_ticker_lbl").textContent = T.tickerLbl;
-  if($("ui_ticker_help")) $("ui_ticker_help").textContent = T.tickerHelp;
+    // suffix multipliers
+    const last = s.slice(-1).toLowerCase();
+    let mult = 1;
+    if(last === "k"){ mult = 1e3; s = s.slice(0,-1); }
+    if(last === "m"){ mult = 1e6; s = s.slice(0,-1); }
+    if(last === "b"){ mult = 1e9; s = s.slice(0,-1); }
 
-  if($("ui_price_lbl")) $("ui_price_lbl").textContent = T.priceLbl;
-  if($("ui_price_help")) $("ui_price_help").textContent = T.priceHelp;
+    const n = Number(s);
+    if(!Number.isFinite(n)) return NaN;
+    return n * mult;
+  }
 
-  if($("ui_fcf_lbl")) $("ui_fcf_lbl").textContent = T.fcfLbl;
-  if($("ui_fcf_help")) $("ui_fcf_help").textContent = T.fcfHelp;
+  function fmtMoney(n, cur){
+    if(!Number.isFinite(n)) return "—";
+    try{
+      const loc = state.lang === "cz" ? "cs-CZ" : "en-US";
+      return new Intl.NumberFormat(loc, { style:"currency", currency: cur, maximumFractionDigits: 2 }).format(n);
+    }catch{
+      return `${n.toFixed(2)} ${cur}`;
+    }
+  }
+  function fmtPct(n){
+    if(!Number.isFinite(n)) return "";
+    const sign = n > 0 ? "+" : "";
+    return `${sign}${n.toFixed(1)}%`;
+  }
 
-  if($("ui_shares_lbl")) $("ui_shares_lbl").textContent = T.sharesLbl;
-  if($("ui_shares_help")) $("ui_shares_help").textContent = T.sharesHelp;
+  function setWarn(msg){
+    const w = $("warnBox");
+    if(!w) return;
+    if(!msg){ w.style.display="none"; w.textContent=""; return; }
+    w.style.display="block";
+    w.textContent = msg;
+  }
 
-  // advanced labels + helps (inserted)
-  if($("ui_years_lbl")) $("ui_years_lbl").textContent = T.yearsLbl;
-  if($("ui_years_help")) $("ui_years_help").textContent = T.yearsHelp;
+  // ===================== I18N APPLY =====================
+  function applyLang(){
+    const T = TEXTS[state.lang];
 
-  if($("ui_disc_lbl")) $("ui_disc_lbl").textContent = T.discLbl;
-  if($("ui_disc_help")) $("ui_disc_help").textContent = T.discHelp;
+    $("ui_title").textContent = T.title;
+    $("ui_sub").textContent = T.sub;
 
-  if($("ui_term_lbl")) $("ui_term_lbl").textContent = T.termLbl;
-  if($("ui_term_help")) $("ui_term_help").textContent = T.termHelp;
+    $("ui_langLbl").textContent = T.langLbl;
 
-  if($("ui_mos_lbl")) $("ui_mos_lbl").textContent = T.mosLbl;
-  if($("ui_mos_help")) $("ui_mos_help").textContent = T.mosHelp;
+    $("ui_calcTitle").textContent = T.calcTitle;
+    $("ui_calcTag").textContent = T.calcTag;
 
-  if($("ui_scen_title")) $("ui_scen_title").textContent = T.scenTitle;
-  if($("ui_scen_text")) $("ui_scen_text").textContent = T.scenText;
+    $("ui_inputsTitle").textContent = T.inputsTitle;
+    $("ui_inputsText").textContent = T.inputsText;
 
-  if($("ui_bear_lbl")) $("ui_bear_lbl").textContent = T.bearLbl;
-  if($("ui_base_lbl")) $("ui_base_lbl").textContent = T.baseLbl;
-  if($("ui_bull_lbl")) $("ui_bull_lbl").textContent = T.bullLbl;
+    $("ui_tickerLbl").textContent = T.tickerLbl;
+    $("ui_priceLbl").textContent = T.priceLbl;
 
-  // buttons
-  if($("btn_calc")) $("btn_calc").textContent = T.btnCalc;
-  if($("btn_save")) $("btn_save").textContent = T.btnSave;
-  if($("btn_reset")) $("btn_reset").textContent = T.btnReset;
+    $("ui_currLbl").textContent = T.currLbl;
+    $("ui_currMini").textContent = T.currMini;
 
-  // results labels
-  if($("ui_value_lbl")) $("ui_value_lbl").textContent = T.valueLbl;
-  if($("ui_target_lbl")) $("ui_target_lbl").textContent = T.targetLbl;
-  if($("ui_range_lbl")) $("ui_range_lbl").textContent = T.rangeLbl;
-  if($("ui_upside_lbl")) $("ui_upside_lbl").textContent = T.upsideLbl;
-  if($("ui_watch_title")) $("ui_watch_title").textContent = T.watchTitle;
+    $("ui_basisLbl").textContent = T.basisLbl;
+    $("ui_basisMini").textContent = T.basisMini;
+    $("opt_basis_ps").textContent = T.basis_ps;
+    $("opt_basis_total").textContent = T.basis_total;
 
-  renderWatchlist();
-}
+    $("ui_metricLbl").textContent = T.metricLbl;
+    $("ui_metricMini").textContent = T.metricMini;
+    $("opt_m_fcf").textContent = T.m_fcf;
+    $("opt_m_affo").textContent = T.m_affo;
+    $("opt_m_eps").textContent = T.m_eps;
+    $("opt_m_div").textContent = T.m_div;
 
-/* ---------- bind language selector ---------- */
-function bindLang(){
-  const sel = $("sel_lang");
-  if(!sel) return;
+    $("ui_sharesLbl").textContent = T.sharesLbl;
+    $("ui_sharesMini").textContent = T.sharesMini;
 
-  sel.value = state.lang;
-  sel.addEventListener("change", ()=>{
-    state.lang = sel.value;
-    applyLang();
-  });
-}
+    $("ui_metricValLbl").textContent = T.metricValLbl;
+    $("ui_metricValMini").textContent = T.metricValMini;
 
-/* ---------- bind info hints ℹ ---------- */
-function bindHints(){
-  document.querySelectorAll(".hint").forEach(h=>{
-    // attach only once
-    if(h.dataset.bound === "1") return;
-    h.dataset.bound = "1";
+    $("ui_mosLbl").textContent = T.mosLbl;
+    $("ui_mosMini").textContent = T.mosMini;
 
-    // if no data-help, infer by nearest input id
-    h.addEventListener("click",(e)=>{
-      e.stopPropagation();
-      let key = h.dataset.help;
+    $("ui_yearsLbl").textContent = T.yearsLbl;
+    $("ui_discLbl").textContent = T.discLbl;
+    $("ui_termLbl").textContent = T.termLbl;
+    $("ui_termMini").textContent = T.termMini;
 
-      if(!key){
-        // infer from closest field input
-        const field = h.closest(".field");
-        const inp = field?.querySelector("input");
-        if(inp){
-          const id = inp.id;
-          if(id==="in_ticker") key="ticker";
-          if(id==="in_price") key="price";
-          if(id==="in_fcf") key="fcf";
-          if(id==="in_shares") key="shares";
-          if(id==="in_years") key="years";
-          if(id==="in_disc") key="disc";
-          if(id==="in_term") key="term";
-          if(id==="in_mos") key="mos";
-          if(id==="in_bear") key="bear";
-          if(id==="in_base") key="base";
-          if(id==="in_bull") key="bull";
-        }
-      }
+    $("ui_decimalTipLbl").textContent = T.decimalTipLbl;
+    $("ui_decimalTip").textContent = T.decimalTip;
 
-      const H = (HELPS[state.lang]||HELPS.en)[key];
-      if(!H){
-        openModal("Info", state.lang==="cz"
-          ? "K této položce chybí popis (doplníme)."
-          : "Help text missing for this item (we'll add it)."
-        );
-        return;
-      }
-      openModal(H[0], `<div style="color:#a9b0ff">${H[1]}</div>`);
+    $("btn_calc").textContent = T.btnCalc;
+    $("btn_save").textContent = T.btnSave;
+    $("btn_reset").textContent = T.btnReset;
+
+    $("ui_scenTitle").textContent = T.scenTitle;
+    $("ui_scenText").textContent = T.scenText;
+    $("ui_bearLbl").textContent = T.bearLbl;
+    $("ui_baseLbl").textContent = T.baseLbl;
+    $("ui_bullLbl").textContent = T.bullLbl;
+
+    $("ui_targetsTitle").textContent = T.targetsTitle;
+    $("ui_targetsText").textContent = T.targetsText;
+    $("ui_targetLbl").textContent = T.targetLbl;
+    $("ui_rangeLbl").textContent = T.rangeLbl;
+
+    $("ui_watchTitle").textContent = T.watchTitle;
+    $("ui_watchTag").textContent = T.watchTag;
+    $("ui_watchIntroTitle").textContent = T.watchIntroTitle;
+    $("ui_watchIntroText").textContent = T.watchIntroText;
+    $("ui_watchFooter").textContent = T.watchFooter;
+    $("btn_export").textContent = T.exportCsv;
+    $("btn_clear").textContent = T.clear;
+    $("watchEmpty").textContent = T.empty;
+
+    $("th_date").textContent = T.th.date;
+    $("th_ticker").textContent = T.th.ticker;
+    $("th_price").textContent = T.th.price;
+    $("th_metric").textContent = T.th.metric;
+    $("th_bear").textContent = T.th.bear;
+    $("th_base").textContent = T.th.base;
+    $("th_bull").textContent = T.th.bull;
+    $("th_target").textContent = T.th.target;
+    $("th_range").textContent = T.th.range;
+    $("th_action").textContent = T.th.action;
+
+    $("ui_guideTitle").textContent = T.guideTitle;
+    $("ui_guideTag").textContent = T.guideTag;
+    $("ui_guideH1").textContent = T.guideH1;
+    $("ui_guideH2").textContent = T.guideH2;
+    $("ui_guideH3").textContent = T.guideH3;
+    $("ui_guideT1").textContent = ""; // set below (html vs text)
+    $("ui_guideT1").innerHTML = T.guideT1;
+    $("ui_guideT2").innerHTML = T.guideT2;
+    $("ui_guideT3").innerHTML = T.guideT3;
+
+    $("ui_footer").textContent = T.footer;
+
+    // refresh watchlist labels
+    renderWatch();
+  }
+
+  // ===================== ACCORDION (OPEN/CLOSE) =====================
+  function bindAccordion(){
+    document.querySelectorAll(".acc .head").forEach(h=>{
+      h.addEventListener("click", ()=>{
+        const acc = h.closest(".acc");
+        acc.classList.toggle("open");
+      });
     });
+  }
+
+  // ===================== TOOLTIP HINTS =====================
+  function bindHints(){
+    document.querySelectorAll(".hint").forEach(el=>{
+      el.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const key = el.getAttribute("data-help");
+        const T = TEXTS[state.lang];
+        const obj = T.helps[key];
+        if(!obj) return;
+        openModal(obj.t, `<div>${obj.b}</div>`);
+      });
+    });
+  }
+
+  // ===================== BASIS SWITCH (show shares field) =====================
+  function refreshBasis(){
+    const basis = $("sel_basis").value;
+    $("wrap_shares").style.display = (basis === "total") ? "" : "none";
+  }
+
+  // ===================== CORE VALUATION (universal DCF) =====================
+  function pvPerShare(startPerShare, years, g, r, gTerm){
+    let pv = 0;
+    let x = startPerShare;
+
+    for(let t=1; t<=years; t++){
+      x = x * (1 + g);
+      pv += x / Math.pow(1 + r, t);
+    }
+
+    // terminal value at year N (Gordon Growth on year N cashflow)
+    const tv = (x * (1 + gTerm)) / (r - gTerm);
+    pv += tv / Math.pow(1 + r, years);
+
+    return pv;
+  }
+
+  function metricName(metric){
+    const T = TEXTS[state.lang];
+    if(metric === "fcf") return T.m_fcf;
+    if(metric === "affo") return T.m_affo;
+    if(metric === "eps") return T.m_eps;
+    if(metric === "div") return T.m_div;
+    return metric;
+  }
+
+  function calc(){
+    setWarn("");
+
+    const T = TEXTS[state.lang];
+
+    const cur = $("sel_cur").value;
+    const price = parseNum($("in_price").value);
+    const years = Math.max(1, Math.floor(parseNum($("in_years").value)));
+    const r = parseNum($("in_disc").value) / 100;
+    const gTerm = parseNum($("in_term").value) / 100;
+
+    const gBear = parseNum($("in_bear").value) / 100;
+    const gBase = parseNum($("in_base").value) / 100;
+    const gBull = parseNum($("in_bull").value) / 100;
+
+    const mos = parseNum($("in_mos").value) / 100;
+
+    const metric = $("sel_metric").value;
+    const basis = $("sel_basis").value;
+
+    const metricRaw = parseNum($("in_metric").value);
+    if(!Number.isFinite(metricRaw) || !Number.isFinite(r) || !Number.isFinite(years)){
+      setWarn(T.warns.needInputs);
+      return null;
+    }
+
+    if(!(r > gTerm)){
+      setWarn(T.warns.badRates);
+      return null;
+    }
+
+    let metricPS = metricRaw;
+    if(basis === "total"){
+      const shares = parseNum($("in_shares").value);
+      if(!Number.isFinite(shares) || shares <= 0){
+        setWarn(T.warns.needShares);
+        return null;
+      }
+      metricPS = metricRaw / shares;
+    }
+
+    const bear = pvPerShare(metricPS, years, gBear, r, gTerm);
+    const base = pvPerShare(metricPS, years, gBase, r, gTerm);
+    const bull = pvPerShare(metricPS, years, gBull, r, gTerm);
+
+    const target = base * (1 - (Number.isFinite(mos) ? mos : 0));
+    const range = `${fmtMoney(bear, cur)} – ${fmtMoney(bull, cur)}`;
+
+    // render
+    $("r_bear").textContent = fmtMoney(bear, cur);
+    $("r_base").textContent = fmtMoney(base, cur);
+    $("r_bull").textContent = fmtMoney(bull, cur);
+
+    $("out_target").value = fmtMoney(target, cur);
+    $("out_range").value = range;
+
+    const pct = (v)=> (Number.isFinite(price) && price>0) ? ((v/price)-1)*100 : NaN;
+    $("r_bear_pct").textContent = Number.isFinite(pct(bear)) ? ` ${fmtPct(pct(bear))}` : "";
+    $("r_base_pct").textContent = Number.isFinite(pct(base)) ? ` ${fmtPct(pct(base))}` : "";
+    $("r_bull_pct").textContent = Number.isFinite(pct(bull)) ? ` ${fmtPct(pct(bull))}` : "";
+
+    $("r_bear_s").textContent = Number.isFinite(price) ? `${T.priceLbl}: ${fmtMoney(price, cur)}` : "—";
+    $("r_base_s").textContent = metricName(metric);
+    $("r_bull_s").textContent = `${T.yearsLbl}: ${years}, ${T.discLbl}: ${(r*100).toFixed(1)}%`;
+
+    const result = {
+      ts: Date.now(),
+      date: new Date().toISOString().slice(0,10),
+      ticker: ($("in_ticker").value || "").trim().toUpperCase(),
+      cur,
+      price,
+      metric,
+      basis,
+      metricRaw,
+      metricPS,
+      years,
+      r,
+      gTerm,
+      gBear, gBase, gBull,
+      mos,
+      bear, base, bull,
+      target,
+      rangeText: range
+    };
+
+    state.last = result;
+    return result;
+  }
+
+  // ===================== WATCHLIST (localStorage) =====================
+  const KEY = "equity_analyzer_watch_v1";
+
+  function loadWatch(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      state.watch = raw ? JSON.parse(raw) : [];
+      if(!Array.isArray(state.watch)) state.watch = [];
+    }catch{
+      state.watch = [];
+    }
+  }
+
+  function saveWatch(){
+    localStorage.setItem(KEY, JSON.stringify(state.watch));
+  }
+
+  function renderWatch(){
+    const tb = $("watchTbody");
+    const T = TEXTS[state.lang];
+    if(!tb) return;
+
+    tb.innerHTML = "";
+
+    if(!state.watch.length){
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 10;
+      td.className = "muted";
+      td.id = "watchEmpty";
+      td.textContent = T.empty;
+      tr.appendChild(td);
+      tb.appendChild(tr);
+      return;
+    }
+
+    state.watch.slice().reverse().forEach((it, idxFromEnd)=>{
+      const idx = state.watch.length - 1 - idxFromEnd;
+
+      const tr = document.createElement("tr");
+      const metricLabel = metricName(it.metric);
+
+      const cells = [
+        it.date || "",
+        it.ticker || "",
+        fmtMoney(it.price, it.cur),
+        metricLabel,
+        fmtMoney(it.bear, it.cur),
+        fmtMoney(it.base, it.cur),
+        fmtMoney(it.bull, it.cur),
+        fmtMoney(it.target, it.cur),
+        it.rangeText || "",
+        "" // action
+      ];
+
+      cells.forEach((c, i)=>{
+        const td = document.createElement("td");
+        if([2,4,5,6,7,8,9].includes(i)) td.classList.add("right");
+        if(i===7 || i===8) td.classList.add("nowrap");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+
+      // action button
+      const tdA = tr.lastChild;
+      tdA.innerHTML = "";
+      const btn = document.createElement("button");
+      btn.className = "secondary";
+      btn.style.padding = "8px 10px";
+      btn.style.borderRadius = "12px";
+      btn.textContent = T.del;
+      btn.addEventListener("click", ()=>{
+        state.watch.splice(idx, 1);
+        saveWatch();
+        renderWatch();
+      });
+      tdA.appendChild(btn);
+
+      tb.appendChild(tr);
+    });
+  }
+
+  function exportCSV(){
+    const T = TEXTS[state.lang];
+    if(!state.watch.length){
+      toast(T.empty);
+      return;
+    }
+    const header = ["date","ticker","price","currency","metric","bear","base","bull","target","range"];
+    const rows = [header.join(",")];
+
+    state.watch.forEach(it=>{
+      const row = [
+        it.date || "",
+        (it.ticker||""),
+        (Number.isFinite(it.price)? it.price : ""),
+        it.cur || "",
+        it.metric || "",
+        it.bear || "",
+        it.base || "",
+        it.bull || "",
+        it.target || "",
+        `"${it.rangeText || ""}"`
+      ];
+      rows.push(row.join(","));
+    });
+
+    const blob = new Blob([rows.join("\n")], { type:"text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "equity-analyzer-watchlist.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ===================== BIND EVENTS =====================
+  function bindAll(){
+    // language
+    $("sel_lang").addEventListener("change", ()=>{
+      state.lang = $("sel_lang").value;
+      applyLang();
+    });
+
+    // modal close
+    $("modalClose").addEventListener("click", closeModal);
+    $("modalBackdrop").addEventListener("click", (e)=>{
+      if(e.target === $("modalBackdrop")) closeModal();
+    });
+
+    // accordion
+    bindAccordion();
+
+    // hints
+    bindHints();
+
+    // basis change
+    $("sel_basis").addEventListener("change", refreshBasis);
+    refreshBasis();
+
+    // buttons
+    $("btn_calc").addEventListener("click", ()=>{
+      const res = calc();
+      if(res) toast("OK");
+    });
+
+    $("btn_save").addEventListener("click", ()=>{
+      const T = TEXTS[state.lang];
+      const res = state.last || calc();
+      if(!res) return;
+      state.watch.push(res);
+      saveWatch();
+      renderWatch();
+      toast(T.warns.saved);
+    });
+
+    $("btn_reset").addEventListener("click", ()=>{
+      ["in_ticker","in_price","in_metric","in_shares"].forEach(id=>{ const el=$(id); if(el) el.value=""; });
+      $("in_years").value = "10";
+      $("in_disc").value = "9";
+      $("in_term").value = "2.5";
+      $("in_mos").value = "15";
+      $("in_bear").value = "2";
+      $("in_base").value = "5";
+      $("in_bull").value = "8";
+      $("sel_metric").value = "fcf";
+      $("sel_basis").value = "per_share";
+      refreshBasis();
+
+      ["r_bear","r_base","r_bull"].forEach(id=> $(id).textContent="—");
+      ["r_bear_s","r_base_s","r_bull_s"].forEach(id=> $(id).textContent="—");
+      ["r_bear_pct","r_base_pct","r_bull_pct"].forEach(id=> $(id).textContent="");
+      $("out_target").value = "";
+      $("out_range").value = "";
+      setWarn("");
+      state.last = null;
+    });
+
+    $("btn_export").addEventListener("click", exportCSV);
+    $("btn_clear").addEventListener("click", ()=>{
+      const T = TEXTS[state.lang];
+      state.watch = [];
+      saveWatch();
+      renderWatch();
+      toast(T.warns.cleared);
+    });
+  }
+
+  // ===================== INIT =====================
+  document.addEventListener("DOMContentLoaded", ()=>{
+    loadWatch();
+    state.lang = $("sel_lang").value || "en";
+    applyLang();
+    renderWatch();
+    bindAll();
   });
-}
 
-/* ---------- universal valuation model (simplified DCF) ----------
-   Steps:
-   - Convert total FCF to FCF per share (FCF_total / shares)
-   - Project FCF per share for N years with growth g (scenario)
-   - Discount each year at discount rate r
-   - Terminal value using Gordon growth on year N FCF: TV = FCF_N*(1+tg)/(r-tg)
-   - PV sum => fair value per share
-*/
-function dcfPerShare({ fcfTotal, shares, years, g, r, tg }){
-  const fcfPS0 = fcfTotal / shares;
-  if(!Number.isFinite(fcfPS0) || fcfPS0<=0) return NaN;
-
-  const rr = r/100;
-  const gg = g/100;
-  const tt = tg/100;
-
-  if(rr <= tt) return NaN;
-
-  let pv = 0;
-  let f = fcfPS0;
-
-  for(let t=1; t<=years; t++){
-    f = f * (1+gg);
-    pv += f / Math.pow(1+rr, t);
-  }
-
-  // terminal value at year N (after growth)
-  const tv = (f * (1+tt)) / (rr - tt);
-  pv += tv / Math.pow(1+rr, years);
-
-  return pv;
-}
-<script>
-/* -------- calculate & render -------- */
-
-function calculate() {
-  const fcf0   = parseFloat(document.getElementById("in_fcf").value);
-  const growth = parseFloat(document.getElementById("in_growth").value) / 100;
-  const disc   = parseFloat(document.getElementById("in_disc").value) / 100;
-  const term   = parseFloat(document.getElementById("in_term").value) / 100;
-  const years  = parseInt(document.getElementById("in_years").value, 10);
-  const shares = parseFloat(document.getElementById("in_shares").value);
-
-  if (
-    !isFinite(fcf0) || !isFinite(growth) || !isFinite(disc) ||
-    !isFinite(term) || !isFinite(years) || !isFinite(shares) ||
-    disc <= term
-  ) {
-    alert(state.lang === "cz"
-      ? "Zkontroluj vstupy (diskont musí být vyšší než terminální růst)."
-      : "Check inputs (discount rate must be higher than terminal growth)."
-    );
-    return;
-  }
-
-  let pv = 0;
-  let f = fcf0;
-
-  for (let t = 1; t <= years; t++) {
-    f = f * (1 + growth);
-    pv += f / Math.pow(1 + disc, t);
-  }
-
-  const terminalValue = (f * (1 + term)) / (disc - term);
-  pv += terminalValue / Math.pow(1 + disc, years);
-
-  const fairValue = pv / shares;
-
-  document.getElementById("out_value").textContent =
-    fairValue.toFixed(2) + " $";
-}
-
-/* -------- buttons -------- */
-
-document.getElementById("btn_calc").addEventListener("click", calculate);
-
-document.getElementById("btn_lang").addEventListener("click", () => {
-  state.lang = state.lang === "en" ? "cz" : "en";
-  applyLang();
-});
-
-/* -------- init -------- */
-
-applyLang();
-</script>
-
-
+  </script>
+</body>
+      </html>
+          
       
 
-    
+
+
 
 
 
