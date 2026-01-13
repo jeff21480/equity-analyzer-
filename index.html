@@ -2,1688 +2,1656 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#090a16" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Equity Analyzer</title>
-  <style>
-    :root{
-      --bg0:#060711;
-      --bg1:#090a16;
-      --card:#0e1030;
-      --card2:#0b0d25;
-      --border:rgba(255,255,255,.10);
-      --border2:rgba(255,255,255,.16);
-      --txt:rgba(255,255,255,.92);
-      --mut:rgba(255,255,255,.66);
-      --mut2:rgba(255,255,255,.52);
+  <meta name="theme-color" content="#4f46e5" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-      --p:#7b5cff;      /* purple */
-      --b:#2bc5ff;      /* cyan */
-      --g:#00e1a4;      /* mint */
-      --w:#ffb020;
-      --r:#ff4d7d;
+<body>
+  <div class="bg"></div>
 
-      --shadow: 0 18px 45px rgba(0,0,0,.52);
-      --radius: 18px;
-      --radius2: 24px;
-
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--txt);
-      background:
-        radial-gradient(1100px 700px at 20% 10%, rgba(123,92,255,.22), transparent 60%),
-        radial-gradient(1100px 700px at 85% 25%, rgba(43,197,255,.18), transparent 62%),
-        radial-gradient(900px 600px at 60% 92%, rgba(0,225,164,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
-    }
-
-    .wrap{
-      width:min(1100px, 94vw);
-      margin: 18px auto 70px;
-    }
-
-    .top{
-      position:sticky;
-      top:10px;
-      z-index:30;
-      border:1px solid var(--border);
-      border-radius: var(--radius2);
-      background: rgba(10,12,26,.72);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
-      padding: 14px 14px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-
-    .brand{
-      display:flex; gap:12px; align-items:center;
-      min-width: 250px;
-    }
-    .logo{
-      width:44px;height:44px;border-radius: 16px;
-      border:1px solid rgba(255,255,255,.18);
-      background:
-        radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
-        linear-gradient(135deg, var(--p), var(--b));
-      box-shadow: 0 18px 35px rgba(123,92,255,.22);
-      flex:0 0 auto;
-    }
-    .brand h1{
-      margin:0;
-      font-size:20px;
-      line-height:1.05;
-      letter-spacing:.3px;
-    }
-    .brand .sub{
-      margin-top:3px;
-      font-size:12px;
-      color:var(--mut);
-    }
-
-    .rightTools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-    .seg{
-      display:flex; overflow:hidden;
-      border:1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(255,255,255,.04);
-    }
-    .seg button{
-      border:0; background:transparent; color:var(--mut);
-      padding:10px 12px; cursor:pointer; font-weight:800;
-      min-width:56px;
-    }
-    .seg button.active{
-      background: rgba(255,255,255,.08);
-      color: var(--txt);
-    }
-
-    .btn{
-      border:1px solid var(--border2);
-      background: rgba(255,255,255,.06);
-      color: var(--txt);
-      padding: 10px 12px;
-      border-radius: 14px;
-      cursor:pointer;
-      font-weight:800;
-      transition: transform .08s ease, background .15s ease, border-color .15s ease;
-      user-select:none;
-    }
-    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      border:0;
-      background: linear-gradient(135deg, var(--p), var(--b));
-      box-shadow: 0 16px 34px rgba(123,92,255,.20);
-    }
-    .btn.danger{
-      border:1px solid rgba(255,77,125,.35);
-      background: rgba(255,77,125,.10);
-    }
-
-    .tabs{
-      margin-top: 14px;
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    @media (max-width: 760px){
-      .tabs{grid-template-columns:1fr}
-    }
-    .tab{
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.03);
-      padding: 14px 14px;
-      cursor:pointer;
-      transition: background .15s ease, border-color .15s ease, transform .08s ease;
-      position:relative;
-      overflow:hidden;
-      min-height: 80px;
-    }
-    .tab:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
-    .tab:active{transform: translateY(1px)}
-    .tab.active{
-      background:
-        radial-gradient(900px 220px at 20% 10%, rgba(123,92,255,.22), transparent 60%),
-        radial-gradient(700px 200px at 90% 40%, rgba(43,197,255,.16), transparent 60%),
-        rgba(255,255,255,.05);
-      border-color: rgba(255,255,255,.22);
-      box-shadow: 0 16px 40px rgba(0,0,0,.38);
-    }
-    .tab h3{margin:0;font-size:15px}
-    .tab p{margin:6px 0 0;font-size:12px;color:var(--mut);line-height:1.35}
-
-    .panel{
-      margin-top: 12px;
-      border:1px solid var(--border);
-      border-radius: var(--radius2);
-      background: rgba(255,255,255,.03);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .pHead{
-      padding: 14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-    }
-    .pHead b{font-size:15px}
-    .pHead span{font-size:12px;color:var(--mut)}
-    .pBody{padding: 14px 16px 16px}
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.18fr .82fr;
-      gap: 12px;
-      align-items:start;
-    }
-    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
-
-    .card{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(14,16,48,.62);
-      border-radius: var(--radius);
-      padding: 14px;
-    }
-    .card.soft{background: rgba(11,13,37,.52)}
-    .card h4{
-      margin:0 0 10px;
-      font-size:13px;
-      letter-spacing:.25px;
-      color: rgba(255,255,255,.88);
-      display:flex; gap:8px; align-items:center;
-    }
-    .mut{color:var(--mut)}
-    .mut2{color:var(--mut2)}
-    .mono{font-family:var(--mono)}
-
-    .row{
-      display:grid;
-      grid-template-columns: 1fr 160px;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items:end;
-    }
-    @media (max-width: 520px){ .row{grid-template-columns:1fr} }
-
-    label{display:block;font-size:12px;color:var(--mut);margin:0 0 6px}
-    .field{
-      width:100%;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: var(--txt);
-      padding: 11px 12px;
-      border-radius: 14px;
-      outline:none;
-      transition: border-color .15s ease, background .15s ease;
-    }
-    .field:focus{border-color: rgba(43,197,255,.40); background: rgba(0,0,0,.24)}
-    .unit{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding: 9px 10px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color: var(--mut2);
-      font-size: 11px;
-      font-family: var(--mono);
-      white-space:nowrap;
-    }
-    .help{
-      font-size:12px;
-      color: var(--mut2);
-      line-height:1.35;
-      margin-top: 6px;
-    }
-
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color: var(--mut);
-      font-size: 12px;
-    }
-
-    .btnRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      margin-top: 10px;
-    }
-    .btnRow .L, .btnRow .R{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-
-    .kpi{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 720px){ .kpi{grid-template-columns:1fr} }
-    .big{
-      font-size: 26px;
-      font-weight: 950;
-      letter-spacing:.2px;
-    }
-
-    .tableWrap{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.10)}
-    table{width:100%;border-collapse:collapse;background: rgba(0,0,0,.14)}
-    th,td{
-      padding:10px 10px;
-      font-size:12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      text-align:left;
-      vertical-align:top;
-      white-space:nowrap;
-    }
-    th{color:var(--mut);font-weight:900}
-    tr:last-child td{border-bottom:0}
-
-    .toast{
-      position:fixed; left:50%; bottom: 18px; transform: translateX(-50%);
-      background: rgba(10,12,26,.88);
-      border:1px solid rgba(255,255,255,.14);
-      color: var(--txt);
-      padding: 12px 14px;
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      display:none;
-      z-index:999;
-      max-width: 94vw;
-      backdrop-filter: blur(10px);
-      font-size: 13px;
-    }
-
-    .badge{
-      padding: 8px 10px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-    .badge.good{border-color: rgba(0,225,164,.35); background: rgba(0,225,164,.10)}
-    .badge.warn{border-color: rgba(255,176,32,.35); background: rgba(255,176,32,.10)}
-    .badge.bad{border-color: rgba(255,77,125,.35); background: rgba(255,77,125,.10)}
-
-    .divider{height:1px;background: rgba(255,255,255,.08); margin: 12px 0}
-
-    .footerNote{
-      margin-top: 12px;
-      color: var(--mut2);
-      font-size:12px;
-      line-height:1.45;
-    }
-  </style>
-</head><body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1 id="t_title">Equity Analyzer</h1>
-          <div class="sub" id="t_sub">DCF fair value • Watchlist • Education</div>
-        </div>
-      </div>
-
-      <div class="rightTools">
-        <div class="seg" aria-label="Language">
-          <button id="btnEN" type="button" class="active">EN</button>
-          <button id="btnCZ" type="button">CZ</button>
-        </div>
-        <button class="btn" id="btnDemo" type="button">Demo values</button>
-        <button class="btn primary" id="btnSaveTop" type="button">Save to Watchlist</button>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div class="brandText">
+        <div class="brandTitle">Equity Analyzer</div>
+        <div class="brandSub" data-i18n="tagline">DCF fair value • Watchlist • Education</div>
       </div>
     </div>
 
-    <div class="tabs">
-      <div class="tab active" id="tabModel">
-        <h3 id="t_tab1">DCF Model</h3>
-        <p id="t_tab1s">Universal DCF for many company types (3 scenarios).</p>
+    <div class="topActions">
+      <div class="segmented" role="group" aria-label="Language">
+        <button id="btnLangEN" class="segBtn" type="button">EN</button>
+        <button id="btnLangCZ" class="segBtn" type="button">CZ</button>
       </div>
-      <div class="tab" id="tabWatch">
-        <h3 id="t_tab2">Watchlist</h3>
-        <p id="t_tab2s">Saved calculations on this device (localStorage).</p>
-      </div>
-      <div class="tab" id="tabAbout">
-        <h3 id="t_tab3">About</h3>
-        <p id="t_tab3s">Educational app • Not financial advice.</p>
-      </div>
+      <button id="btnDemo" class="btn btnGhost" type="button" data-i18n="demo">Demo values</button>
     </div>
+  </header>
 
-    <!-- PANEL 1: MODEL -->
-    <section class="panel" id="panelModel">
-      <div class="pHead">
-        <div>
-          <b id="t_p1h">DCF Model (3 scenarios)</b><br/>
-          <span id="t_p1s">Choose company type + input method, then calculate Bear/Base/Bull.</span>
+  <main class="wrap">
+    <section class="card hero">
+      <div class="heroInner">
+        <h1 class="heroTitle">Equity Analyzer</h1>
+        <p class="heroLead" data-i18n="heroLead">
+          Multi-scenario DCF with guardrails. Use ranges (Bear/Base/Bull) and stay conservative.
+        </p>
+
+        <div class="drawerTabs" role="tablist" aria-label="App sections">
+          <button class="tabBtn active" data-tab="dcf" type="button">
+            <span data-i18n="tabDCF">DCF Model</span>
+          </button>
+          <button class="tabBtn" data-tab="watchlist" type="button">
+            <span data-i18n="tabWatchlist">Watchlist</span>
+          </button>
+          <button class="tabBtn" data-tab="about" type="button">
+            <span data-i18n="tabAbout">About</span>
+          </button>
         </div>
-        <div class="badge" id="badgeMode">MODE: Quick</div>
       </div>
-      <div class="pBody">
-        <div class="grid">
+    </section>
 
-    <!-- LEFT: Inputs -->
-          <div class="card">
-            <h4 id="t_inH">Inputs</h4>
+    <!-- DCF -->
+    <section id="tab-dcf" class="panel active">
+      <div class="grid">
+        <div class="card">
+          <div class="cardHeader">
+            <h2 class="cardTitle" data-i18n="inputsTitle">Inputs</h2>
+            <div class="pill" id="modePill"></div>
+          </div>
 
-            <div class="row">
-              <div>
-                <label id="t_tickerL" for="in_ticker">Ticker / Name</label>
-                <input class="field" id="in_ticker" placeholder="e.g., AAPL / SOFI / PLTR" />
-                <div class="help" id="t_tickerH">Just for your notes (watchlist).</div>
+          <div class="form">
+            <div class="row2">
+              <div class="field">
+                <label data-i18n="ticker">Ticker / Name</label>
+                <input id="in_ticker" placeholder="e.g., AAPL / SOFI / PLTR" />
+                <div class="hint" data-i18n="tickerHint">Used for watchlist label.</div>
               </div>
-              <div>
-                <label id="t_curL" for="in_cur">Currency</label>
-                <select class="field" id="in_cur">
+              <div class="field">
+                <label data-i18n="currency">Currency</label>
+                <select id="in_currency">
                   <option value="USD">USD</option>
                   <option value="EUR">EUR</option>
                   <option value="CZK">CZK</option>
                 </select>
+                <div class="hint" data-i18n="currencyHint">All inputs should be in the selected currency.</div>
               </div>
             </div>
 
-            <div class="row">
-              <div>
-                <label id="t_typeL" for="in_type">Company type</label>
-                <select class="field" id="in_type">
+            <div class="row2">
+              <div class="field">
+                <label data-i18n="companyType">Company type</label>
+                <select id="in_type">
                   <option value="growth">Growth / Tech</option>
-                  <option value="mature">Mature / Blue-chip</option>
-                  <option value="cyclical">Cyclical / Industrials</option>
-                  <option value="reits">REIT / Yield</option>
-                  <option value="financial">Financial (use conservative)</option>
+                  <option value="quality">Quality / Compounder</option>
+                  <option value="mature">Mature / Stable</option>
+                  <option value="cyclical">Cyclical</option>
+                  <option value="turnaround">Turnaround / Risky</option>
                 </select>
-                <div class="help" id="t_typeH">Sets sensible defaults + warnings (you can override).</div>
+                <div class="hint" id="typeHint"></div>
               </div>
-              <div>
-                <label id="t_modeL" for="in_mode">Mode</label>
-                <select class="field" id="in_mode">
-                  <option value="quick">Quick (Bear/Bull auto)</option>
-                  <option value="advanced">Advanced (edit all scenarios)</option>
+
+              <div class="field">
+                <label data-i18n="mode">Mode</label>
+                <select id="in_mode">
+                  <option value="quick" data-i18n="modeQuick">Quick (Bear/Bull auto)</option>
+                  <option value="advanced" data-i18n="modeAdv">Advanced (edit all)</option>
                 </select>
+                <div class="hint" data-i18n="modeHint">Quick: enter Base; Bear/Bull are derived (±2pp by default).</div>
               </div>
             </div>
 
-            <div class="row">
-              <div>
-                <label id="t_priceL" for="in_price">Current price (optional)</label>
-                <input class="field num" id="in_price" placeholder="e.g., 180.50" />
-                <div class="help" id="t_priceH">Used for upside & margin of safety.</div>
+            <div class="row2">
+              <div class="field">
+                <label data-i18n="price">Current price (optional)</label>
+                <input id="in_price" inputmode="decimal" placeholder="e.g., 180.50" />
+                <div class="hint" data-i18n="priceHint">Used only for upside / margin-of-safety view.</div>
               </div>
-              <div>
-                <label id="t_mosL" for="in_mos">Margin of Safety</label>
-                <select class="field" id="in_mos">
-                  <option value="0">OFF</option>
+              <div class="field">
+                <label data-i18n="mos">Margin of Safety</label>
+                <select id="in_mos">
+                  <option value="0" data-i18n="mosOff">OFF</option>
                   <option value="10">10%</option>
+                  <option value="15">15%</option>
                   <option value="20">20%</option>
                   <option value="30">30%</option>
                 </select>
+                <div class="hint" data-i18n="mosHint">Applied after valuation (to Base) for a conservative target.</div>
               </div>
             </div>
 
             <div class="divider"></div>
 
-            <div class="card soft">
-              <h4 id="t_methodH">DCF input method</h4>
-
-              <div class="row">
-                <div>
-                  <label id="t_methodL" for="in_method">Method</label>
-                  <select class="field" id="in_method">
-                    <option value="fcf">Direct FCF (recommended)</option>
-                    <option value="rev">Revenue × FCF margin</option>
+            <div class="cardMini">
+              <div class="miniTitle" data-i18n="methodTitle">DCF method</div>
+              <div class="row2">
+                <div class="field">
+                  <label data-i18n="method">Method</label>
+                  <select id="in_method">
+                    <option value="direct" data-i18n="methodDirect">Direct FCF (recommended)</option>
+                    <option value="revmargin" data-i18n="methodRevMargin">Revenue + FCF margin (estimate)</option>
                   </select>
-                  <div class="help" id="t_methodHelp">
-                    If you do not know FCF, approximate using Revenue and a realistic FCF margin.
+                  <div class="hint" data-i18n="methodHint">
+                    If you don’t know FCF, estimate it via revenue × FCF margin.
                   </div>
                 </div>
-                <div>
-                  <label id="t_yearsL" for="in_years">Projection (years)</label>
-                  <input class="field num" id="in_years" value="10" />
-                </div>
-              </div>
-
-              <!-- METHOD: FCF -->
-              <div id="blk_fcf">
-                <div class="row">
-                  <div>
-                    <label id="t_fcfL" for="in_fcf">FCF (TTM or avg 3–5y)</label>
-                    <input class="field num" id="in_fcf" placeholder="e.g., 110000000000" />
-                    <div class="help" id="t_fcfH">Annual free cash flow in selected currency.</div>
-                  </div>
-                  <div class="unit" id="u_fcf">currency / year</div>
+                <div class="field">
+                  <label data-i18n="years">Projection (years)</label>
+                  <input id="in_years" inputmode="numeric" placeholder="10" />
+                  <div class="hint" data-i18n="yearsHint">Commonly 5–10 years depending on predictability.</div>
                 </div>
               </div>
 
-              <!-- METHOD: Revenue × Margin -->
-              <div id="blk_rev" style="display:none">
-                <div class="row">
-                  <div>
-                    <label id="t_revL" for="in_rev">Revenue (annual)</label>
-                    <input class="field num" id="in_rev" placeholder="e.g., 350000000000" />
-                    <div class="help" id="t_revH">Annual revenue in selected currency.</div>
+              <div id="method_direct" class="row2">
+                <div class="field">
+                  <label data-i18n="fcf">FCF (TTM or 3–5y avg)</label>
+                  <input id="in_fcf" inputmode="decimal" placeholder="e.g., 11000000000" />
+                  <div class="hint" data-i18n="fcfHint">
+                    Prefer a 3–5 year average for cyclical firms (avoid “one great year”).
                   </div>
-                  <div class="unit" id="u_rev">currency / year</div>
                 </div>
+                <div class="field">
+                  <label data-i18n="fcfPerYear">Units</label>
+                  <div class="ghostInput" id="fcfUnits"></div>
+                  <div class="hint" data-i18n="fcfUnitsHint">Annual FCF in selected currency.</div>
+                </div>
+              </div>
 
-                <div class="row">
-                  <div>
-                    <label id="t_margL" for="in_marg">FCF margin (base)</label>
-                    <input class="field num" id="in_marg" placeholder="e.g., 18" />
-                    <div class="help" id="t_margH">FCF = Revenue × Margin. Margin is %.</div>
-                  </div>
-                  <div class="unit">%</div>
+              <div id="method_revmargin" class="row2 hidden">
+                <div class="field">
+                  <label data-i18n="revenue">Revenue (TTM)</label>
+                  <input id="in_rev" inputmode="decimal" placeholder="e.g., 40000000000" />
+                  <div class="hint" data-i18n="revenueHint">Use trailing twelve months revenue.</div>
+                </div>
+                <div class="field">
+                  <label data-i18n="fcfMargin">FCF margin (%)</label>
+                  <input id="in_margin" inputmode="decimal" placeholder="e.g., 20" />
+                  <div class="hint" data-i18n="fcfMarginHint">FCF ≈ revenue × margin. Use conservative margin.</div>
                 </div>
               </div>
             </div>
 
             <div class="divider"></div>
 
-            <div class="card soft">
-              <h4 id="t_capH">Capital structure</h4>
-
-              <div class="row">
-                <div>
-                  <label id="t_shL" for="in_shares">Shares (diluted)</label>
-                  <input class="field num" id="in_shares" placeholder="e.g., 15500000000" />
-                  <div class="help" id="t_shH">Used to convert total equity value into per-share fair value.</div>
+            <div class="cardMini">
+              <div class="miniTitle" data-i18n="capStructTitle">Capital structure</div>
+              <div class="row2">
+                <div class="field">
+                  <label data-i18n="shares">Shares (diluted)</label>
+                  <input id="in_shares" inputmode="decimal" placeholder="e.g., 15500000000" />
+                  <div class="hint" data-i18n="sharesHint">Used to convert equity value to per-share fair value.</div>
                 </div>
-                <div class="unit">shares</div>
+                <div class="field">
+                  <label data-i18n="cash">Cash (optional)</label>
+                  <input id="in_cash" inputmode="decimal" placeholder="e.g., 50000000000" />
+                  <div class="hint" data-i18n="cashHint">Added to enterprise value.</div>
+                </div>
               </div>
 
-              <div class="row">
-                <div>
-                  <label id="t_cashL" for="in_cash">Cash</label>
-                  <input class="field num" id="in_cash" placeholder="e.g., 50000000000" />
-                  <div class="help" id="t_cashH">Added to enterprise value.</div>
+              <div class="row2">
+                <div class="field">
+                  <label data-i18n="debt">Debt (optional)</label>
+                  <input id="in_debt" inputmode="decimal" placeholder="e.g., 70000000000" />
+                  <div class="hint" data-i18n="debtHint">Subtracted to get equity value.</div>
                 </div>
-                <div class="unit" id="u_cash">currency</div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_debtL" for="in_debt">Debt</label>
-                  <input class="field num" id="in_debt" placeholder="e.g., 70000000000" />
-                  <div class="help" id="t_debtH">Subtracted to get equity value.</div>
+                <div class="field">
+                  <label data-i18n="netNote">Note</label>
+                  <div class="ghostInput" data-i18n="netNoteText">
+                    Equity value = PV(FCF) + Cash − Debt
+                  </div>
+                  <div class="hint" data-i18n="netNoteHint">If unknown, leave Cash/Debt empty (0).</div>
                 </div>
-                <div class="unit" id="u_debt">currency</div>
               </div>
             </div>
 
             <div class="divider"></div>
 
-            <div class="card soft">
-              <h4 id="t_assH">Assumptions (3 scenarios)</h4>
+            <div class="cardMini">
+              <div class="miniTitle" data-i18n="assumptions">Assumptions (3 scenarios)</div>
 
-              <div class="row">
-                <div>
-                  <label id="t_drL" for="in_dr">Discount rate (base)</label>
-                  <input class="field num" id="in_dr" value="9" />
-                  <div class="help" id="t_drH">Higher risk → higher discount rate → lower fair value.</div>
+              <div class="row2">
+                <div class="field">
+                  <label data-i18n="discBase">Discount rate (Base, %)</label>
+                  <input id="in_disc" inputmode="decimal" placeholder="e.g., 9" />
+                  <div class="hint" id="discHint"></div>
                 </div>
-                <div class="unit">%</div>
+                <div class="field">
+                  <label data-i18n="terminal">Terminal growth (%)</label>
+                  <input id="in_term" inputmode="decimal" placeholder="e.g., 2.5" />
+                  <div class="hint" data-i18n="terminalHint">
+                    Long-run growth should generally not exceed the economy (be conservative).
+                  </div>
+                </div>
               </div>
 
-              <div class="row">
-                <div>
-                  <label id="t_tgL" for="in_tg">Terminal growth</label>
-                  <input class="field num" id="in_tg" value="2.5" />
-                  <div class="help" id="t_tgH">Long-term growth after projection. Keep conservative.</div>
+              <div class="row3">
+                <div class="field">
+                  <label data-i18n="gBase">Base growth (%)</label>
+                  <input id="in_g_base" inputmode="decimal" placeholder="e.g., 12" />
+                  <div class="hint" data-i18n="gBaseHint">Annual FCF growth during projection period.</div>
                 </div>
-                <div class="unit">%</div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_gBaseL" for="in_g_base">Base growth</label>
-                  <input class="field num" id="in_g_base" placeholder="e.g., 8" />
-                  <div class="help" id="t_gBaseH">Annual FCF growth during projection.</div>
+                <div class="field">
+                  <label data-i18n="gBear">Bear growth (%)</label>
+                  <input id="in_g_bear" inputmode="decimal" placeholder="e.g., 10" />
+                  <div class="hint" id="bearHint"></div>
                 </div>
-                <div class="unit">%</div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_gBearL" for="in_g_bear">Bear growth</label>
-                  <input class="field num" id="in_g_bear" placeholder="auto" />
-                  <div class="help" id="t_gBearH">Quick mode: Base − 2pp (editable in Advanced).</div>
+                <div class="field">
+                  <label data-i18n="gBull">Bull growth (%)</label>
+                  <input id="in_g_bull" inputmode="decimal" placeholder="e.g., 14" />
+                  <div class="hint" id="bullHint"></div>
                 </div>
-                <div class="unit">%</div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_gBullL" for="in_g_bull">Bull growth</label>
-                  <input class="field num" id="in_g_bull" placeholder="auto" />
-                  <div class="help" id="t_gBullH">Quick mode: Base + 2pp (editable in Advanced).</div>
-                </div>
-                <div class="unit">%</div>
               </div>
             </div>
 
-            <div class="btnRow">
-              <div class="L">
-                <button class="btn" type="button" id="btnCalc">Calculate</button>
-                <button class="btn" type="button" id="btnReset">Reset</button>
-              </div>
-              <div class="R">
-                <button class="btn primary" type="button" id="btnSave">Save result</button>
-              </div>
+            <div class="actions">
+              <button id="btnCalc" class="btn btnPrimary" type="button" data-i18n="calc">Calculate</button>
+              <button id="btnReset" class="btn btnGhost" type="button" data-i18n="reset">Reset</button>
+              <button id="btnSave" class="btn btnGlow" type="button" data-i18n="saveResult">Save result</button>
             </div>
 
-            <div class="footerNote" id="t_tip">
-              Tip: In Quick mode, you enter only Base growth. Bear/Bull are derived automatically.
-            </div>
+            <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="cardHeader">
+            <h2 class="cardTitle" data-i18n="outputsTitle">Outputs</h2>
+            <div class="pill" id="qualityPill"></div>
           </div>
 
-          <!-- RIGHT: Outputs -->
-          <div class="card">
-            <h4 id="t_outH">Outputs</h4>
+          <div class="kpis">
+            <div class="kpi">
+              <div class="kpiLabel" data-i18n="fairBase">Fair value (Base)</div>
+              <div class="kpiValue" id="out_base">—</div>
+              <div class="kpiSub" id="out_base_sub">—</div>
+            </div>
 
             <div class="kpi">
-              <div class="card soft">
-                <div class="mut" id="t_baseFV">Base fair value</div>
-                <div class="big" id="out_base">—</div>
-                <div class="help" id="out_base_sub">—</div>
-              </div>
-
-              <div class="card soft">
-                <div class="mut" id="t_rangeFV">Range (Bear → Bull)</div>
-                <div class="big" id="out_range">—</div>
-                <div class="help" id="out_range_sub">—</div>
-              </div>
+              <div class="kpiLabel" data-i18n="range">Range (Bear → Bull)</div>
+              <div class="kpiValue" id="out_range">—</div>
+              <div class="kpiSub" id="out_range_sub">—</div>
             </div>
 
-            <div style="height:10px"></div>
-
-            <div class="card soft">
-              <div class="mut" id="t_upside">Upside vs price</div>
-              <div class="big" id="out_upside">—</div>
-              <div class="help" id="out_upside_sub">Enter current price to see upside & MOS target.</div>
+            <div class="kpi">
+              <div class="kpiLabel" data-i18n="upside">Upside vs price</div>
+              <div class="kpiValue" id="out_upside">—</div>
+              <div class="kpiSub" id="out_upside_sub">—</div>
             </div>
 
-            <div style="height:10px"></div>
-
-            <div class="card soft">
-              <div class="mut" id="t_details">Details</div>
-              <div class="help" id="out_details">
-                Fill inputs → Calculate.
-              </div>
-            </div>
-
-            <div style="height:10px"></div>
-
-            <div class="card soft">
-              <div class="mut" id="t_warn">Warnings / checks</div>
-              <div class="help" id="out_warn">—</div>
+            <div class="kpi">
+              <div class="kpiLabel" data-i18n="targetMos">Conservative target (MoS)</div>
+              <div class="kpiValue" id="out_target">—</div>
+              <div class="kpiSub" id="out_target_sub">—</div>
             </div>
           </div>
 
-        </div><!-- grid -->
-      </div><!-- body -->
-    </section><!-- panelModel --><!-- PANEL 2: WATCHLIST -->
-    <section class="panel" id="panelWatch" style="display:none">
-      <div class="pHead">
-        <div>
-          <b id="t_wH">Watchlist</b><br/>
-          <span id="t_wS">Saved calculations on this device (localStorage).</span>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" id="btnExport" type="button">Export CSV</button>
-          <button class="btn danger" id="btnClear" type="button">Clear all</button>
-        </div>
-      </div>
-      <div class="pBody">
-        <div class="card soft">
-          <h4 id="t_wTableH">Saved items</h4>
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th id="t_wDate">Date</th>
-                  <th id="t_wTicker">Ticker</th>
-                  <th id="t_wCur">Cur</th>
-                  <th id="t_wPrice">Price</th>
-                  <th id="t_wBear">Bear</th>
-                  <th id="t_wBase">Base</th>
-                  <th id="t_wBull">Bull</th>
-                  <th id="t_wMos">MOS</th>
-                  <th id="t_wAct">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="watchBody"></tbody>
-            </table>
-          </div>
-          <div class="footerNote" id="t_wNote">
-            Watchlist is stored locally in your browser. If you clear browser data or switch devices, items disappear.
+          <div class="details">
+            <h3 class="secTitle" data-i18n="details">Details</h3>
+            <div class="monoBox" id="out_details">—</div>
+
+            <h3 class="secTitle" data-i18n="checks">Warnings / checks</h3>
+            <div class="monoBox" id="out_checks">—</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- PANEL 3: ABOUT -->
-    <section class="panel" id="panelAbout" style="display:none">
-      <div class="pHead">
-        <div>
-          <b id="t_aH">About & Disclaimer</b><br/>
-          <span id="t_aS">Educational app • not financial advice.</span>
+    <!-- WATCHLIST -->
+    <section id="tab-watchlist" class="panel">
+      <div class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" data-i18n="watchTitle">Watchlist</h2>
+          <div class="rightActions">
+            <button id="btnExport" class="btn btnGhost" type="button" data-i18n="exportCsv">Export CSV</button>
+            <button id="btnClear" class="btn btnDanger" type="button" data-i18n="clear">Clear</button>
+          </div>
         </div>
-      </div>
-      <div class="pBody">
-        <div class="card">
-          <h4 id="t_a1">What this app is</h4>
-          <div class="mut" id="t_a1p">
-            Equity Analyzer is a learning tool. It estimates fair value using DCF scenarios (Bear/Base/Bull).
-          </div>
 
-          <div class="divider"></div>
+        <div class="hint" data-i18n="watchHint">
+          Stored locally in your browser (localStorage). No cloud.
+        </div>
 
-          <h4 id="t_a2">For whom it is useful</h4>
-          <div class="mut" id="t_a2p">
-            For investors who want to practice valuation thinking, compare scenarios, and store notes in a watchlist.
-          </div>
-
-          <div class="divider"></div>
-
-          <h4 id="t_a3">Disclaimer (important)</h4>
-          <div class="mut" id="t_a3p">
-            This is NOT financial advice. Outputs depend heavily on assumptions. Use at your own risk.
-          </div>
-
-          <div class="divider"></div>
-
-          <h4 id="t_a4">How to use</h4>
-          <div class="mut" id="t_a4p">
-            Choose company type → fill inputs → Calculate → Save to Watchlist. Try conservative assumptions.
-          </div>
+        <div class="tableWrap">
+          <table class="table" id="watchTable">
+            <thead>
+              <tr>
+                <th data-i18n="colDate">Date</th>
+                <th data-i18n="colTicker">Ticker</th>
+                <th data-i18n="colCur">Cur</th>
+                <th data-i18n="colPrice">Price</th>
+                <th data-i18n="colBear">Bear</th>
+                <th data-i18n="colBase">Base</th>
+                <th data-i18n="colBull">Bull</th>
+                <th data-i18n="colTarget">Target</th>
+                <th data-i18n="colDel">Del</th>
+              </tr>
+            </thead>
+            <tbody id="watchBody">
+              <tr><td colspan="9" class="muted" data-i18n="empty">Nothing saved yet.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
-  </div><!-- wrap -->
+    <!-- ABOUT -->
+    <section id="tab-about" class="panel">
+      <div class="card">
+        <div class="cardHeader">
+          <h2 class="cardTitle" data-i18n="aboutTitle">About the app</h2>
+          <div class="pill" data-i18n="educational">Educational</div>
+        </div>
 
-  <div class="toast" id="toast"></div>
+        <div class="prose" id="aboutContent"></div>
+      </div>
+    </section>
 
-  <!-- JS will be in Part 5 --><script>
-    // ========= State / Constants =========
-    const LS_KEY = "equity_analyzer_watchlist_v2";
-    const state = {
-      lang: "en",
-      last: null
-    };
+    <footer class="footer">
+      <div class="footerInner">
+        <span class="muted" data-i18n="footer">
+          Educational tool only. Not financial advice.
+        </span>
+      </div>
+    </footer>
+  </main>
 
-    // ========= i18n =========
-    const T = {
-      en: {
-        title:"Equity Analyzer",
-        sub:"DCF fair value • Watchlist • Education",
-        tab1:"DCF Model",
-        tab1s:"Universal DCF for many company types (3 scenarios).",
-        tab2:"Watchlist",
-        tab2s:"Saved calculations on this device (localStorage).",
-        tab3:"About",
-        tab3s:"Educational app • Not financial advice.",
-        p1h:"DCF Model (3 scenarios)",
-        p1s:"Choose company type + input method, then calculate Bear/Base/Bull.",
-        inH:"Inputs",
-        tickerL:"Ticker / Name",
-        tickerH:"Just for your notes (watchlist).",
-        curL:"Currency",
-        typeL:"Company type",
-        typeH:"Sets sensible defaults + warnings (you can override).",
-        modeL:"Mode",
-        priceL:"Current price (optional)",
-        priceH:"Used for upside & margin of safety.",
-        mosL:"Margin of Safety",
-        methodH:"DCF input method",
-        methodL:"Method",
-        methodHelp:"If you do not know FCF, approximate using Revenue and a realistic FCF margin.",
-        yearsL:"Projection (years)",
-        fcfL:"FCF (TTM or avg 3–5y)",
-        fcfH:"Annual free cash flow in selected currency.",
-        revL:"Revenue (annual)",
-        revH:"Annual revenue in selected currency.",
-        margL:"FCF margin (base)",
-        margH:"FCF = Revenue × Margin. Margin is %.",
-        capH:"Capital structure",
-        shL:"Shares (diluted)",
-        shH:"Convert equity value into fair value per share.",
-        cashL:"Cash",
-        cashH:"Added to enterprise value.",
-        debtL:"Debt",
-        debtH:"Subtracted to get equity value.",
-        assH:"Assumptions (3 scenarios)",
-        drL:"Discount rate (base)",
-        drH:"Higher risk → higher discount rate → lower fair value.",
-        tgL:"Terminal growth",
-        tgH:"Long-term growth after projection. Keep conservative.",
-        gBaseL:"Base growth",
-        gBaseH:"Annual FCF growth during projection.",
-        gBearL:"Bear growth",
-        gBearH:"Quick mode: Base − 2pp (editable in Advanced).",
-        gBullL:"Bull growth",
-        gBullH:"Quick mode: Base + 2pp (editable in Advanced).",
-        tip:"Tip: In Quick mode, you enter only Base growth. Bear/Bull are derived automatically.",
-        calc:"Calculate",
-        reset:"Reset",
-        save:"Save result",
-        demo:"Demo values",
-        saveTop:"Save to Watchlist",
-        outH:"Outputs",
-        baseFV:"Base fair value",
-        rangeFV:"Range (Bear → Bull)",
-        upside:"Upside vs price",
-        details:"Details",
-        warn:"Warnings / checks",
-        wH:"Watchlist",
-        wS:"Saved calculations on this device (localStorage).",
-        wTableH:"Saved items",
-        wNote:"Watchlist is stored locally in your browser. If you clear browser data or switch devices, items disappear.",
-        export:"Export CSV",
-        clearAll:"Clear all",
-        wDate:"Date",
-        wTicker:"Ticker",
-        wCur:"Cur",
-        wPrice:"Price",
-        wBear:"Bear",
-        wBase:"Base",
-        wBull:"Bull",
-        wMos:"MOS",
-        wAct:"Actions",
-        aboutH:"About & Disclaimer",
-        aboutS:"Educational app • not financial advice.",
-        a1:"What this app is",
-        a1p:"Equity Analyzer is a learning tool. It estimates fair value using DCF scenarios (Bear/Base/Bull).",
-        a2:"For whom it is useful",
-        a2p:"For investors who want to practice valuation thinking, compare scenarios, and store notes in a watchlist.",
-        a3:"Disclaimer (important)",
-        a3p:"This is NOT financial advice. Outputs depend heavily on assumptions. Use at your own risk.",
-        a4:"How to use",
-        a4p:"Choose company type → fill inputs → Calculate → Save to Watchlist. Try conservative assumptions.",
-        toastNeedCalc:"First calculate a result.",
-        toastSaved:"Saved ✅",
-        toastDeleted:"Deleted.",
-        toastCleared:"Cleared.",
-        toastInvalid:"Some inputs are missing/invalid.",
-        modeQuick:"MODE: Quick",
-        modeAdv:"MODE: Advanced",
-        btnLoad:"Load",
-        btnDel:"Delete"
+  <script defer src="./i18n.js"></script>
+  <script defer src="./dcf.js"></script>
+  <script defer src="./app.js"></script>
+</body>
+</html>:root{
+  --bg0:#070818;
+  --bg1:#0a0b22;
+  --panel:#0e1030cc;
+  --panel2:#0e1030a6;
+  --border:rgba(130,140,255,.18);
+  --text:#eef0ff;
+  --muted:rgba(238,240,255,.68);
+
+  /* Purple-heavy */
+  --p1:#a855f7; /* violet */
+  --p2:#6366f1; /* indigo */
+  --p3:#22d3ee; /* cyan accent (tiny) */
+  --danger:#ef4444;
+
+  --shadow: 0 16px 40px rgba(0,0,0,.45);
+  --r:18px;
+  --r2:24px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color:var(--text);
+  background: radial-gradient(1200px 800px at 20% 0%, rgba(168,85,247,.22), transparent 60%),
+              radial-gradient(900px 700px at 90% 15%, rgba(99,102,241,.22), transparent 55%),
+              radial-gradient(700px 600px at 30% 90%, rgba(168,85,247,.16), transparent 55%),
+              linear-gradient(180deg, var(--bg0), var(--bg1));
+  overflow-x:hidden;
+}
+
+.bg{
+  position:fixed; inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(800px 600px at 10% 10%, rgba(168,85,247,.22), transparent 60%),
+    radial-gradient(700px 500px at 85% 20%, rgba(99,102,241,.22), transparent 60%),
+    radial-gradient(600px 420px at 50% 85%, rgba(168,85,247,.16), transparent 60%);
+  filter: saturate(1.25);
+  opacity:.9;
+}
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px;
+  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(10,12,35,.78), rgba(10,12,35,.35));
+  border-bottom:1px solid var(--border);
+}
+
+.brand{display:flex; align-items:center; gap:12px}
+.logo{
+  width:46px; height:46px; border-radius:16px;
+  background:
+    radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.9), transparent 60%),
+    linear-gradient(135deg, rgba(168,85,247,.95), rgba(99,102,241,.95));
+  box-shadow: 0 10px 22px rgba(168,85,247,.18), 0 10px 22px rgba(99,102,241,.14);
+  border:1px solid rgba(255,255,255,.14);
+}
+.brandTitle{
+  font-weight:900;
+  font-size:18px;
+  letter-spacing:.2px;
+}
+.brandSub{font-size:12px; color:var(--muted)}
+
+.topActions{display:flex; gap:10px; align-items:center}
+
+.wrap{position:relative; max-width:1120px; margin:0 auto; padding:18px 14px 40px}
+
+.card{
+  background: linear-gradient(180deg, rgba(14,16,48,.72), rgba(14,16,48,.42));
+  border:1px solid var(--border);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow);
+}
+
+.hero{margin-top:10px}
+.heroInner{padding:22px}
+.heroTitle{
+  margin:0;
+  font-size:46px;
+  line-height:1.05;
+  letter-spacing:-.6px;
+  font-weight:950;
+  background: linear-gradient(90deg, rgba(168,85,247,.98), rgba(99,102,241,.98));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.heroLead{margin:10px 0 0; color:var(--muted); max-width:760px}
+
+.drawerTabs{
+  margin-top:18px;
+  display:flex; gap:10px; flex-wrap:wrap;
+}
+.tabBtn{
+  border:1px solid var(--border);
+  background: rgba(10,12,35,.35);
+  color:var(--text);
+  padding:10px 14px;
+  border-radius: 999px;
+  cursor:pointer;
+  transition:.18s transform, .18s background, .18s border;
+}
+.tabBtn:hover{transform: translateY(-1px); border-color: rgba(168,85,247,.38)}
+.tabBtn.active{
+  background: linear-gradient(135deg, rgba(168,85,247,.22), rgba(99,102,241,.18));
+  border-color: rgba(168,85,247,.45);
+}
+
+.panel{display:none; margin-top:14px}
+.panel.active{display:block}
+
+.grid{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:14px;
+}
+@media (max-width: 980px){
+  .grid{grid-template-columns: 1fr}
+  .heroTitle{font-size:38px}
+}
+
+.cardHeader{
+  padding:16px 18px;
+  display:flex; justify-content:space-between; align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.cardTitle{margin:0; font-size:18px; font-weight:850}
+.rightActions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+.pill{
+  border:1px solid rgba(168,85,247,.35);
+  background: rgba(168,85,247,.12);
+  color: rgba(238,240,255,.92);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+}
+
+.form{padding:16px 18px 18px}
+.field label{
+  display:block;
+  font-size:12px;
+  color:rgba(238,240,255,.78);
+  margin-bottom:6px;
+}
+.field input, .field select{
+  width:100%;
+  padding:12px 12px;
+  border-radius: 14px;
+  border:1px solid rgba(130,140,255,.22);
+  background: rgba(7,8,24,.55);
+  color:var(--text);
+  outline:none;
+}
+.field input:focus, .field select:focus{
+  border-color: rgba(168,85,247,.55);
+  box-shadow: 0 0 0 4px rgba(168,85,247,.14);
+}
+.hint{
+  margin-top:6px;
+  font-size:12px;
+  color:rgba(238,240,255,.62);
+}
+.ghostInput{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px dashed rgba(130,140,255,.22);
+  background: rgba(7,8,24,.28);
+  color:rgba(238,240,255,.75);
+}
+
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
+@media (max-width: 720px){
+  .row2,.row3{grid-template-columns:1fr}
+}
+
+.divider{
+  height:1px;
+  background: rgba(130,140,255,.16);
+  margin:14px 0;
+}
+
+.cardMini{
+  border-radius: var(--r);
+  border:1px solid rgba(130,140,255,.18);
+  background: rgba(10,12,35,.25);
+  padding:12px;
+}
+.miniTitle{font-weight:850; font-size:13px; margin-bottom:10px; color:rgba(238,240,255,.9)}
+.hidden{display:none}
+
+.actions{
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.btn{
+  border:1px solid rgba(130,140,255,.22);
+  background: rgba(10,12,35,.35);
+  color:var(--text);
+  padding:12px 14px;
+  border-radius: 14px;
+  cursor:pointer;
+  transition:.18s transform, .18s border, .18s background, .18s filter;
+}
+.btn:hover{transform: translateY(-1px); border-color: rgba(168,85,247,.45)}
+.btn:active{transform: translateY(0px)}
+.btnPrimary{
+  border-color: rgba(168,85,247,.55);
+  background: linear-gradient(135deg, rgba(168,85,247,.62), rgba(99,102,241,.52));
+}
+.btnGlow{
+  border-color: rgba(99,102,241,.55);
+  background: linear-gradient(135deg, rgba(99,102,241,.55), rgba(168,85,247,.45));
+  filter: saturate(1.1);
+}
+.btnGhost{background: rgba(10,12,35,.25)}
+.btnDanger{
+  border-color: rgba(239,68,68,.5);
+  background: rgba(239,68,68,.12);
+}
+
+.segmented{
+  display:flex;
+  border:1px solid rgba(130,140,255,.22);
+  border-radius: 999px;
+  overflow:hidden;
+  background: rgba(10,12,35,.25);
+}
+.segBtn{
+  padding:10px 12px;
+  border:0;
+  background:transparent;
+  color:rgba(238,240,255,.84);
+  cursor:pointer;
+}
+.segBtn.active{
+  background: rgba(168,85,247,.22);
+  color: var(--text);
+}
+
+.kpis{
+  padding:16px 18px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+}
+@media (max-width: 720px){
+  .kpis{grid-template-columns:1fr}
+}
+.kpi{
+  border:1px solid rgba(130,140,255,.18);
+  background: rgba(10,12,35,.22);
+  border-radius: var(--r);
+  padding:14px;
+}
+.kpiLabel{font-size:12px; color:rgba(238,240,255,.72)}
+.kpiValue{font-size:26px; font-weight:950; margin-top:4px}
+.kpiSub{font-size:12px; color:rgba(238,240,255,.62); margin-top:4px}
+
+.details{padding:0 18px 18px}
+.secTitle{margin:14px 0 8px; font-size:14px; font-weight:850}
+.monoBox{
+  border:1px solid rgba(130,140,255,.18);
+  background: rgba(7,8,24,.40);
+  border-radius: var(--r);
+  padding:12px;
+  color:rgba(238,240,255,.86);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:12px;
+  white-space: pre-wrap;
+  overflow:auto;
+}
+
+.tableWrap{padding:14px 18px 18px; overflow:auto}
+.table{
+  width:100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+.table th, .table td{
+  padding:10px 10px;
+  border-bottom:1px solid rgba(130,140,255,.14);
+  font-size:12px;
+  text-align:left;
+}
+.table th{color:rgba(238,240,255,.78); font-weight:850}
+.muted{color:rgba(238,240,255,.55)}
+.linkBtn{
+  border:1px solid rgba(130,140,255,.18);
+  background: rgba(10,12,35,.22);
+  color:var(--text);
+  padding:8px 10px;
+  border-radius: 12px;
+  cursor:pointer;
+}
+
+.prose{padding:16px 18px 18px; color:rgba(238,240,255,.86)}
+.prose h3{margin:14px 0 8px}
+.prose p{margin:10px 0; color:rgba(238,240,255,.78)}
+.prose ul{margin:8px 0 12px 18px; color:rgba(238,240,255,.78)}
+.prose li{margin:6px 0}
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius: 999px;
+  border:1px solid rgba(130,140,255,.2);
+  background: rgba(168,85,247,.12);
+  font-size:12px;
+  margin-right:6px;
+}
+.warn{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10)}
+.good{border-color: rgba(34,211,238,.28); background: rgba(34,211,238,.08)}
+
+.toast{
+  margin-top:12px;
+  display:none;
+  padding:10px 12px;
+  border-radius: 14px;
+  border:1px solid rgba(168,85,247,.32);
+  background: rgba(168,85,247,.12);
+  color:rgba(238,240,255,.92);
+}
+.toast.show{display:block}
+
+.footer{margin-top:14px}
+.footerInner{
+  padding:14px 6px 0;
+  text-align:center;
+  color:rgba(238,240,255,.55);
+}// i18n.js
+(() => {
+  const dict = {
+    en: {
+      tagline: "DCF fair value • Watchlist • Education",
+      demo: "Demo values",
+      tabDCF: "DCF Model",
+      tabWatchlist: "Watchlist",
+      tabAbout: "About",
+      heroLead: "Multi-scenario DCF with guardrails. Use ranges (Bear/Base/Bull) and stay conservative.",
+
+      inputsTitle: "Inputs",
+      outputsTitle: "Outputs",
+
+      ticker: "Ticker / Name",
+      tickerHint: "Used for watchlist label.",
+      currency: "Currency",
+      currencyHint: "All inputs should be in the selected currency.",
+      companyType: "Company type",
+      mode: "Mode",
+      modeQuick: "Quick (Bear/Bull auto)",
+      modeAdv: "Advanced (edit all)",
+      modeHint: "Quick: enter Base; Bear/Bull are derived (±2pp by default).",
+
+      price: "Current price (optional)",
+      priceHint: "Used only for upside / margin-of-safety view.",
+      mos: "Margin of Safety",
+      mosOff: "OFF",
+      mosHint: "Applied after valuation (to Base) for a conservative target.",
+
+      methodTitle: "DCF method",
+      method: "Method",
+      methodDirect: "Direct FCF (recommended)",
+      methodRevMargin: "Revenue + FCF margin (estimate)",
+      methodHint: "If you don’t know FCF, estimate it via revenue × FCF margin.",
+      years: "Projection (years)",
+      yearsHint: "Commonly 5–10 years depending on predictability.",
+      fcf: "FCF (TTM or 3–5y avg)",
+      fcfHint: "Prefer a 3–5 year average for cyclical firms (avoid “one great year”).",
+      fcfPerYear: "Units",
+      fcfUnitsHint: "Annual FCF in selected currency.",
+      revenue: "Revenue (TTM)",
+      revenueHint: "Use trailing twelve months revenue.",
+      fcfMargin: "FCF margin (%)",
+      fcfMarginHint: "FCF ≈ revenue × margin. Use conservative margin.",
+
+      capStructTitle: "Capital structure",
+      shares: "Shares (diluted)",
+      sharesHint: "Used to convert equity value to per-share fair value.",
+      cash: "Cash (optional)",
+      cashHint: "Added to enterprise value.",
+      debt: "Debt (optional)",
+      debtHint: "Subtracted to get equity value.",
+      netNote: "Note",
+      netNoteText: "Equity value = PV(FCF) + Cash − Debt",
+      netNoteHint: "If unknown, leave Cash/Debt empty (0).",
+
+      assumptions: "Assumptions (3 scenarios)",
+      discBase: "Discount rate (Base, %)",
+      terminal: "Terminal growth (%)",
+      terminalHint: "Long-run growth should generally not exceed the economy (be conservative).",
+      gBase: "Base growth (%)",
+      gBaseHint: "Annual FCF growth during projection period.",
+      gBear: "Bear growth (%)",
+      gBull: "Bull growth (%)",
+
+      calc: "Calculate",
+      reset: "Reset",
+      saveResult: "Save result",
+
+      fairBase: "Fair value (Base)",
+      range: "Range (Bear → Bull)",
+      upside: "Upside vs price",
+      targetMos: "Conservative target (MoS)",
+      details: "Details",
+      checks: "Warnings / checks",
+
+      watchTitle: "Watchlist",
+      watchHint: "Stored locally in your browser (localStorage). No cloud.",
+      exportCsv: "Export CSV",
+      clear: "Clear",
+      colDate: "Date",
+      colTicker: "Ticker",
+      colCur: "Cur",
+      colPrice: "Price",
+      colBear: "Bear",
+      colBase: "Base",
+      colBull: "Bull",
+      colTarget: "Target",
+      colDel: "Del",
+      empty: "Nothing saved yet.",
+
+      aboutTitle: "About the app",
+      educational: "Educational",
+      footer: "Educational tool only. Not financial advice.",
+
+      toastSaved: "Saved to watchlist ✅",
+      toastCalcFirst: "Calculate first (valid inputs) ⚠️",
+      toastCleared: "Watchlist cleared ✅",
+      toastDeleted: "Deleted ✅",
+      toastCSV: "CSV downloaded ✅",
+      toastInvalid: "Some inputs are missing/invalid ⚠️",
+    },
+
+    cz: {
+      tagline: "DCF férová cena • Watchlist • Výuka",
+      demo: "Demo hodnoty",
+      tabDCF: "DCF Model",
+      tabWatchlist: "Watchlist",
+      tabAbout: "O aplikaci",
+      heroLead: "DCF ve 3 scénářích s kontrolami. Používej rozsah (Bear/Base/Bull) a buď konzervativní.",
+
+      inputsTitle: "Vstupy",
+      outputsTitle: "Výstupy",
+
+      ticker: "Ticker / Název",
+      tickerHint: "Použije se jako popisek do watchlistu.",
+      currency: "Měna",
+      currencyHint: "Všechny vstupy zadávej v zvolené měně.",
+      companyType: "Typ firmy",
+      mode: "Režim",
+      modeQuick: "Quick (Bear/Bull auto)",
+      modeAdv: "Advanced (ručně vše)",
+      modeHint: "Quick: zadáš Base; Bear/Bull se dopočítá (výchozí ±2 p.b.).",
+
+      price: "Aktuální cena (volitelně)",
+      priceHint: "Pouze pro výpočet potenciálu / margin of safety.",
+      mos: "Margin of Safety",
+      mosOff: "OFF",
+      mosHint: "Aplikuje se až po valuaci (na Base) pro konzervativní target.",
+
+      methodTitle: "Zadání pro DCF",
+      method: "Metoda",
+      methodDirect: "Direct FCF (doporučeno)",
+      methodRevMargin: "Tržby + FCF marže (odhad)",
+      methodHint: "Když neznáš FCF, odhadni ho přes tržby × FCF marži.",
+      years: "Projekce (roky)",
+      yearsHint: "Běžně 5–10 let podle předvídatelnosti.",
+      fcf: "FCF (TTM nebo průměr 3–5 let)",
+      fcfHint: "U cyklických firem raději průměr 3–5 let (ne „jeden skvělý rok“).",
+      fcfPerYear: "Jednotky",
+      fcfUnitsHint: "Roční FCF ve zvolené měně.",
+      revenue: "Tržby (TTM)",
+      revenueHint: "Použij trailing twelve months tržby.",
+      fcfMargin: "FCF marže (%)",
+      fcfMarginHint: "FCF ≈ tržby × marže. Buď konzervativní.",
+
+      capStructTitle: "Kapitálová struktura",
+      shares: "Počet akcií (diluted)",
+      sharesHint: "Přepočet equity value na férovku na akcii.",
+      cash: "Hotovost (volitelně)",
+      cashHint: "Přičítá se k PV/EV.",
+      debt: "Dluh (volitelně)",
+      debtHint: "Odečítá se pro equity value.",
+      netNote: "Poznámka",
+      netNoteText: "Equity value = PV(FCF) + Cash − Debt",
+      netNoteHint: "Když nevíš, nech Cash/Debt prázdné (0).",
+
+      assumptions: "Předpoklady (3 scénáře)",
+      discBase: "Diskontní sazba (Base, %)",
+      terminal: "Terminální růst (%)",
+      terminalHint: "Dlouhodobě by růst neměl převýšit ekonomiku (buď konzervativní).",
+      gBase: "Base růst (%)",
+      gBaseHint: "Roční růst FCF během projekce.",
+      gBear: "Bear růst (%)",
+      gBull: "Bull růst (%)",
+
+      calc: "Spočítat",
+      reset: "Reset",
+      saveResult: "Uložit výsledek",
+
+      fairBase: "Férovka (Base)",
+      range: "Rozsah (Bear → Bull)",
+      upside: "Potenciál vs cena",
+      targetMos: "Konzervativní target (MoS)",
+      details: "Detaily",
+      checks: "Upozornění / kontrola",
+
+      watchTitle: "Watchlist",
+      watchHint: "Ukládá se lokálně v prohlížeči (localStorage). Bez cloudu.",
+      exportCsv: "Export CSV",
+      clear: "Smazat vše",
+      colDate: "Datum",
+      colTicker: "Ticker",
+      colCur: "Měna",
+      colPrice: "Cena",
+      colBear: "Bear",
+      colBase: "Base",
+      colBull: "Bull",
+      colTarget: "Target",
+      colDel: "Smazat",
+      empty: "Zatím nic uloženého.",
+
+      aboutTitle: "O aplikaci",
+      educational: "Poučná",
+      footer: "Pouze vzdělávací nástroj. Ne finanční doporučení.",
+
+      toastSaved: "Uloženo do watchlistu ✅",
+      toastCalcFirst: "Nejdřív spočítej (platné vstupy) ⚠️",
+      toastCleared: "Watchlist smazán ✅",
+      toastDeleted: "Smazáno ✅",
+      toastCSV: "CSV staženo ✅",
+      toastInvalid: "Některé vstupy chybí/nejsou validní ⚠️",
+    }
+  };
+
+  const state = {
+    lang: (localStorage.getItem("ea_lang") || "cz").toLowerCase(),
+  };
+
+  function t(key){
+    const pack = dict[state.lang] || dict.cz;
+    return pack[key] ?? (dict.en[key] ?? key);
+  }
+
+  function applyI18n(){
+    document.querySelectorAll("[data-i18n]").forEach(el=>{
+      el.textContent = t(el.getAttribute("data-i18n"));
+    });
+  }
+
+  function setLang(lang){
+    state.lang = (lang === "en" ? "en" : "cz");
+    localStorage.setItem("ea_lang", state.lang);
+    document.getElementById("btnLangEN").classList.toggle("active", state.lang==="en");
+    document.getElementById("btnLangCZ").classList.toggle("active", state.lang==="cz");
+    applyI18n();
+    window.EA_LANG = state.lang;
+    window.dispatchEvent(new CustomEvent("ea:lang"));
+  }
+
+  window.EA_I18N = { t, setLang, getLang:()=>state.lang, applyI18n };
+
+  window.addEventListener("DOMContentLoaded", ()=>{
+    setLang(state.lang);
+    document.getElementById("btnLangEN").addEventListener("click", ()=>setLang("en"));
+    document.getElementById("btnLangCZ").addEventListener("click", ()=>setLang("cz"));
+  });
+})();
+// dcf.js
+(() => {
+  const clamp = (x, a, b) => Math.min(Math.max(x, a), b);
+
+  function parseNum(v){
+    if (v == null) return NaN;
+    const s = String(v).trim().replace(/\s+/g,"").replace(",",".");
+    if (!s) return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function fmtMoney(x, cur){
+    if (!Number.isFinite(x)) return "—";
+    const abs = Math.abs(x);
+    const digits = abs >= 100 ? 0 : abs >= 10 ? 2 : 2;
+    return new Intl.NumberFormat(undefined, {
+      style:"currency",
+      currency: cur || "USD",
+      maximumFractionDigits: digits
+    }).format(x);
+  }
+
+  function fmtPct(x){
+    if (!Number.isFinite(x)) return "—";
+    return `${x.toFixed(1)}%`;
+  }
+
+  const typePresets = {
+    growth:   { disc: 10.0, term: 2.5, gBase: 14, quickDelta: 3, noteEN:"Higher uncertainty → consider higher discount.", noteCZ:"Vyšší nejistota → zvaž vyšší diskont." },
+    quality:  { disc:  9.0, term: 2.5, gBase: 10, quickDelta: 2, noteEN:"Stable compounders can justify moderate discount.", noteCZ:"Stabilní compoundeři snesou střední diskont." },
+    mature:   { disc:  8.0, term: 2.0, gBase:  6, quickDelta: 2, noteEN:"Mature firms: conservative growth & terminal.", noteCZ:"Zralé firmy: konzervativní růst i terminál." },
+    cyclical: { disc: 11.0, term: 2.0, gBase:  5, quickDelta: 3, noteEN:"Use 3–5y avg FCF; beware cycle peaks.", noteCZ:"Použij průměr FCF 3–5 let; pozor na vrchol cyklu." },
+    turnaround:{disc: 12.0, term: 2.0, gBase:  8, quickDelta: 4, noteEN:"High risk: keep discount high, MoS recommended.", noteCZ:"Vysoké riziko: vyšší diskont, doporučen MoS." },
+  };
+
+  function buildWarnings(inputs){
+    const w = [];
+
+    // Discount guidance
+    const d = inputs.disc;
+    if (Number.isFinite(d)){
+      if (d <= 7.5) w.push({k:"disc", lvl:"warn", en:"Discount looks very low. Only for extremely stable businesses.", cz:"Diskont je hodně nízký. Jen pro extrémně stabilní firmy."});
+      if (d >= 12.5) w.push({k:"disc", lvl:"warn", en:"Discount is very high. Valuation will be very conservative (or inputs too risky).", cz:"Diskont je hodně vysoký. Výsledek bude velmi konzervativní (nebo je firma hodně riziková)."});
+    }
+
+    // Terminal growth guidance
+    const tg = inputs.term;
+    if (Number.isFinite(tg) && tg > 3.5){
+      w.push({k:"term", lvl:"warn", en:"Terminal growth is quite high. Long-run should not exceed the economy.", cz:"Terminální růst je dost vysoký. Dlouhodobě by neměl převýšit ekonomiku."});
+    }
+
+    // FCF sanity
+    if (inputs.method === "direct"){
+      if (!Number.isFinite(inputs.fcf) || inputs.fcf <= 0){
+        w.push({k:"fcf", lvl:"warn", en:"FCF must be a positive annual number (TTM or 3–5y avg).", cz:"FCF musí být kladné roční číslo (TTM nebo průměr 3–5 let)."});
+      }
+    } else {
+      if (!Number.isFinite(inputs.rev) || inputs.rev <= 0) w.push({k:"rev", lvl:"warn", en:"Revenue must be positive.", cz:"Tržby musí být kladné."});
+      if (!Number.isFinite(inputs.margin) || inputs.margin < -50 || inputs.margin > 60) w.push({k:"m", lvl:"warn", en:"FCF margin looks unusual. Use conservative estimates.", cz:"FCF marže vypadá neobvykle. Buď konzervativní."});
+    }
+
+    if (!Number.isFinite(inputs.shares) || inputs.shares <= 0){
+      w.push({k:"sh", lvl:"warn", en:"Shares diluted must be > 0 to get per-share fair value.", cz:"Počet akcií (diluted) musí být > 0 pro férovku na akcii."});
+    }
+
+    return w;
+  }
+
+  function dcfPV(fcf0, years, g, disc, term){
+    // Simple DCF: grow FCF during projection, discount, add terminal with Gordon growth.
+    // disc and term in decimals (e.g., 0.09, 0.025)
+    let pv = 0;
+    let f = fcf0;
+    for (let y=1; y<=years; y++){
+      f = f * (1 + g);
+      pv += f / Math.pow(1 + disc, y);
+    }
+
+    // Terminal value at end of year "years"
+    const fN = f; // FCF in final projection year
+    const denom = (disc - term);
+    if (denom <= 0) return { pv: NaN, tv: NaN, pvTv: NaN, fN };
+    const tv = (fN * (1 + term)) / denom;
+    const pvTv = tv / Math.pow(1 + disc, years);
+    return { pv, tv, pvTv, fN };
+  }
+
+  function compute(inputs){
+    // normalize
+    const years = Math.round(inputs.years);
+    const discBase = inputs.disc / 100;
+    const term = inputs.term / 100;
+
+    const fcf0 = (inputs.method === "direct")
+      ? inputs.fcf
+      : (inputs.rev * (inputs.margin/100));
+
+    // growth rates
+    const gBase = inputs.gBase/100;
+    const gBear = inputs.gBear/100;
+    const gBull = inputs.gBull/100;
+
+    // discount per scenario: we can keep one base discount (simple & teachable)
+    const discBear = discBase + 0.01; // slightly harsher
+    const discBull = Math.max(discBase - 0.005, 0.001);
+
+    const base = dcfPV(fcf0, years, gBase, discBase, term);
+    const bear = dcfPV(fcf0, years, gBear, discBear, term);
+    const bull = dcfPV(fcf0, years, gBull, discBull, term);
+
+    const cash = inputs.cash || 0;
+    const debt = inputs.debt || 0;
+
+    const eqBase = base.pv + base.pvTv + cash - debt;
+    const eqBear = bear.pv + bear.pvTv + cash - debt;
+    const eqBull = bull.pv + bull.pvTv + cash - debt;
+
+    const perBase = eqBase / inputs.shares;
+    const perBear = eqBear / inputs.shares;
+    const perBull = eqBull / inputs.shares;
+
+    const mos = inputs.mos/100;
+    const target = perBase * (1 - mos);
+
+    const price = inputs.price;
+    const upside = (Number.isFinite(price) && price>0) ? ((perBase/price)-1)*100 : NaN;
+    const upsideTarget = (Number.isFinite(price) && price>0) ? ((target/price)-1)*100 : NaN;
+
+    // quality heuristics
+    const checks = buildWarnings(inputs);
+    const quality = checks.length ? "⚠️" : "✅";
+
+    return {
+      fcf0,
+      scenarios: {
+        bear: perBear,
+        base: perBase,
+        bull: perBull
       },
+      raw: {
+        bear, base, bull,
+        eqBear, eqBase, eqBull
+      },
+      target,
+      upside,
+      upsideTarget,
+      checks,
+      quality
+    };
+  }
 
-      cs: {
-        title:"Equity Analyzer",
-        sub:"DCF férová cena • Watchlist • Výuka",
-        tab1:"DCF Model",
-        tab1s:"Univerzální DCF pro více typů firem (3 scénáře).",
-        tab2:"Watchlist",
-        tab2s:"Uložené výpočty v zařízení (localStorage).",
-        tab3:"O aplikaci",
-        tab3s:"Výuková appka • Nejde o finanční doporučení.",
-        p1h:"DCF Model (3 scénáře)",
-        p1s:"Vyber typ firmy + způsob zadání, pak spočítej Bear/Base/Bull.",
-        inH:"Vstupy",
-        tickerL:"Ticker / Název",
-        tickerH:"Jen pro poznámky (watchlist).",
-        curL:"Měna",
-        typeL:"Typ firmy",
-        typeH:"Nastaví rozumné defaulty + upozornění (můžeš přepsat).",
-        modeL:"Režim",
-        priceL:"Aktuální cena (volitelné)",
-        priceH:"Pro potenciál a margin of safety.",
-        mosL:"Margin of Safety",
-        methodH:"Zadání pro DCF",
-        methodL:"Metoda",
-        methodHelp:"Když neznáš FCF, můžeš ho odhadnout přes Tržby a FCF marži.",
-        yearsL:"Projekce (roky)",
-        fcfL:"FCF (TTM nebo průměr 3–5 let)",
-        fcfH:"Roční FCF v zvolené měně.",
-        revL:"Tržby (ročně)",
-        revH:"Roční tržby v zvolené měně.",
-        margL:"FCF marže (base)",
-        margH:"FCF = Tržby × marže. Marže v %.",
-        capH:"Kapitálová struktura",
-        shL:"Počet akcií (diluted)",
-        shH:"Přepočet equity value na férovku na akcii.",
-        cashL:"Hotovost (Cash)",
-        cashH:"Přičítá se k EV.",
-        debtL:"Dluh (Debt)",
-        debtH:"Odečítá se pro equity value.",
-        assH:"Předpoklady (3 scénáře)",
-        drL:"Diskontní sazba (base)",
-        drH:"Vyšší riziko → vyšší diskont → nižší férovka.",
-        tgL:"Terminální růst",
-        tgH:"Dlouhodobý růst po projekci. Konzervativně.",
-        gBaseL:"Base růst",
-        gBaseH:"Roční růst FCF během projekce.",
-        gBearL:"Bear růst",
-        gBearH:"Quick: Base − 2 p.b. (v Advanced editovatelné).",
-        gBullL:"Bull růst",
-        gBullH:"Quick: Base + 2 p.b. (v Advanced editovatelné).",
-        tip:"Tip: V Quick režimu zadáš jen Base. Bear/Bull se dopočítá.",
-        calc:"Spočítat",
-        reset:"Reset",
-        save:"Uložit výsledek",
-        demo:"Demo hodnoty",
-        saveTop:"Uložit do Watchlistu",
-        outH:"Výstupy",
-        baseFV:"Férovka (Base)",
-        rangeFV:"Rozsah (Bear → Bull)",
-        upside:"Potenciál vs cena",
-        details:"Detaily",
-        warn:"Upozornění / kontrola",
-        wH:"Watchlist",
-        wS:"Uložené výpočty v tomto zařízení (localStorage).",
-        wTableH:"Uložené položky",
-        wNote:"Watchlist je lokální v prohlížeči. Vymazání dat nebo jiné zařízení = položky zmizí.",
-        export:"Export CSV",
-        clearAll:"Smazat vše",
-        wDate:"Datum",
-        wTicker:"Ticker",
-        wCur:"Měna",
-        wPrice:"Cena",
-        wBear:"Bear",
-        wBase:"Base",
-        wBull:"Bull",
-        wMos:"MOS",
-        wAct:"Akce",
-        aboutH:"O aplikaci & upozornění",
-        aboutS:"Výuková appka • ne finanční doporučení.",
-        a1:"Co to je",
-        a1p:"Equity Analyzer je výukový nástroj. Odhaduje férovou cenu přes DCF scénáře (Bear/Base/Bull).",
-        a2:"Pro koho je to",
-        a2p:"Pro investory, kteří chtějí trénovat ocenění, porovnávat scénáře a ukládat si poznámky.",
-        a3:"Upozornění (důležité)",
-        a3p:"Tohle NENÍ finanční doporučení. Výsledek je extrémně citlivý na předpoklady. Používej na vlastní riziko.",
-        a4:"Jak používat",
-        a4p:"Vyber typ firmy → vyplň vstupy → Spočítat → Uložit do Watchlistu. Zkoušej konzervativní předpoklady.",
-        toastNeedCalc:"Nejdřív něco spočítej.",
-        toastSaved:"Uloženo ✅",
-        toastDeleted:"Smazáno.",
-        toastCleared:"Vymazáno.",
-        toastInvalid:"Některé vstupy chybí / jsou špatně.",
-        modeQuick:"REŽIM: Quick",
-        modeAdv:"REŽIM: Advanced",
-        btnLoad:"Nahrát",
-        btnDel:"Smazat"
-      }
+  window.EA_DCF = {
+    parseNum,
+    fmtMoney,
+    fmtPct,
+    typePresets,
+    compute,
+    clamp,
+  };
+})();// app.js
+(() => {
+  const $ = (id)=>document.getElementById(id);
+  const LS_KEY = "ea_watchlist_v1";
+
+  const state = {
+    lastResult: null,
+  };
+
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>el.classList.remove("show"), 2200);
+  }
+
+  function getLang(){
+    return (window.EA_I18N?.getLang?.() || "cz");
+  }
+
+  function t(key){
+    return window.EA_I18N?.t?.(key) || key;
+  }
+
+  function tabInit(){
+    document.querySelectorAll(".tabBtn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.getAttribute("data-tab");
+        document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+        $(`tab-${tab}`).classList.add("active");
+      });
+    });
+  }
+
+  function loadWatchlist(){
+    try{
+      const raw = localStorage.getItem(LS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{ return []; }
+  }
+
+  function saveWatchlist(arr){
+    localStorage.setItem(LS_KEY, JSON.stringify(arr));
+  }
+
+  function renderWatchlist(){
+    const arr = loadWatchlist();
+    const body = $("watchBody");
+    body.innerHTML = "";
+
+    if (!arr.length){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="9" class="muted">${t("empty")}</td>`;
+      body.appendChild(tr);
+      return;
+    }
+
+    for (const it of arr){
+      const d = new Date(it.dt);
+      const date = isNaN(d) ? "—" : d.toISOString().slice(0,10);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${date}</td>
+        <td>${escapeHtml(it.ticker || "")}</td>
+        <td>${escapeHtml(it.currency || "USD")}</td>
+        <td>${it.priceTxt || "—"}</td>
+        <td>${it.bearTxt}</td>
+        <td>${it.baseTxt}</td>
+        <td>${it.bullTxt}</td>
+        <td>${it.targetTxt}</td>
+        <td><button class="linkBtn" data-del="${it.id}">×</button></td>
+      `;
+      body.appendChild(tr);
+    }
+
+    body.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del");
+        const next = loadWatchlist().filter(x=>x.id !== id);
+        saveWatchlist(next);
+        renderWatchlist();
+        toast(t("toastDeleted"));
+      });
+    });
+  }
+
+  function exportCSV(){
+    const arr = loadWatchlist();
+    if (!arr.length){ toast(t("empty")); return; }
+
+    const rows = [];
+    rows.push(["date","ticker","currency","price","bear","base","bull","target"].join(","));
+    for (const it of arr){
+      const d = new Date(it.dt);
+      const date = isNaN(d) ? "" : d.toISOString().slice(0,10);
+      rows.push([
+        date,
+        csvSafe(it.ticker),
+        csvSafe(it.currency),
+        csvSafe(it.priceTxt),
+        csvSafe(it.bearTxt),
+        csvSafe(it.baseTxt),
+        csvSafe(it.bullTxt),
+        csvSafe(it.targetTxt),
+      ].join(","));
+    }
+
+    const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "equity-analyzer-watchlist.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast(t("toastCSV"));
+  }
+
+  function csvSafe(v){
+    const s = (v ?? "").toString();
+    const q = s.replace(/"/g,'""');
+    return `"${q}"`;
+  }
+  function escapeHtml(s){
+    return (s ?? "").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+
+  function readInputs(){
+    const N = window.EA_DCF.parseNum;
+    const method = $("in_method").value;
+
+    const price = N($("in_price").value);
+    const years = N($("in_years").value);
+
+    const inputs = {
+      ticker: $("in_ticker").value.trim(),
+      currency: $("in_currency").value,
+      type: $("in_type").value,
+      mode: $("in_mode").value,
+      mos: N($("in_mos").value) || 0,
+
+      price: Number.isFinite(price) ? price : NaN,
+
+      method,
+      years: Number.isFinite(years) ? years : NaN,
+
+      fcf: N($("in_fcf").value),
+      rev: N($("in_rev").value),
+      margin: N($("in_margin").value),
+
+      shares: N($("in_shares").value),
+      cash: N($("in_cash").value),
+      debt: N($("in_debt").value),
+
+      disc: N($("in_disc").value),
+      term: N($("in_term").value),
+
+      gBase: N($("in_g_base").value),
+      gBear: N($("in_g_bear").value),
+      gBull: N($("in_g_bull").value),
     };
 
-    // ========= DOM helpers =========
-    const $ = (id)=>document.getElementById(id);
-    const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+    // normalize optional cash/debt
+    inputs.cash = Number.isFinite(inputs.cash) ? inputs.cash : 0;
+    inputs.debt = Number.isFinite(inputs.debt) ? inputs.debt : 0;
 
-    function toast(msg){
-      const el = $("toast");
-      el.textContent = msg;
-      el.style.display = "block";
-      clearTimeout(toast._t);
-      toast._t = setTimeout(()=>{el.style.display="none";}, 2200);
+    return inputs;
+  }
+
+  function applyMethodUI(){
+    const method = $("in_method").value;
+    $("method_direct").classList.toggle("hidden", method !== "direct");
+    $("method_revmargin").classList.toggle("hidden", method !== "revmargin");
+  }
+
+  function applyTypePreset(){
+    const type = $("in_type").value;
+    const p = window.EA_DCF.typePresets[type] || window.EA_DCF.typePresets.quality;
+
+    // Only set if empty or in "demo" flow? We'll do gentle set: always set on type change.
+    $("in_disc").value = String(p.disc);
+    $("in_term").value = String(p.term);
+    $("in_g_base").value = String(p.gBase);
+
+    // In quick mode we derive bear/bull later; but we set placeholders now
+    const lang = getLang();
+    $("typeHint").textContent = (lang==="en" ? p.noteEN : p.noteCZ);
+
+    updateHints();
+    applyModeRules();
+  }
+
+  function updateHints(){
+    const lang = getLang();
+    $("modePill").textContent = `${t("mode")}: ${$("in_mode").value === "quick" ? "Quick" : "Advanced"}`;
+
+    // discount hint simple mapping
+    const d = window.EA_DCF.parseNum($("in_disc").value);
+    let discTextEN = "Typical: 8–10% for common stocks. Higher risk → higher discount.";
+    let discTextCZ = "Typicky: 8–10 % pro běžné akcie. Vyšší riziko → vyšší diskont.";
+    if (Number.isFinite(d)){
+      if (d <= 8) { discTextEN = "Low discount (stable). Make sure the business is truly resilient."; discTextCZ="Nízký diskont (stabilní). Ověř, že firma je opravdu odolná."; }
+      if (d >= 11) { discTextEN = "High discount (riskier). Results will be conservative."; discTextCZ="Vysoký diskont (rizikovější). Výsledek bude konzervativní."; }
     }
+    $("discHint").textContent = (lang==="en" ? discTextEN : discTextCZ);
 
-    function nval(v){
-      const s = String(v ?? "").trim().replace(/\s+/g,"").replace(",",".");
-      if(!s) return NaN;
-      const x = Number(s);
-      return Number.isFinite(x) ? x : NaN;
-    }
+    // bear/bull hint
+    const type = $("in_type").value;
+    const delta = (window.EA_DCF.typePresets[type]?.quickDelta ?? 2);
+    $("bearHint").textContent = $("in_mode").value === "quick"
+      ? (lang==="en" ? `Quick: Bear = Base − ${delta}pp (editable in Advanced).` : `Quick: Bear = Base − ${delta} p.b. (v Advanced editovatelné).`)
+      : (lang==="en" ? "Advanced: you control Bear growth." : "Advanced: Bear růst nastavuješ ručně.");
+    $("bullHint").textContent = $("in_mode").value === "quick"
+      ? (lang==="en" ? `Quick: Bull = Base + ${delta}pp (editable in Advanced).` : `Quick: Bull = Base + ${delta} p.b. (v Advanced editovatelné).`)
+      : (lang==="en" ? "Advanced: you control Bull growth." : "Advanced: Bull růst nastavuješ ručně.");
 
-    function money(x, cur){
-      if(!Number.isFinite(x)) return "—";
-      try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cur,maximumFractionDigits:2}).format(x); }
-      catch{ return `${x.toFixed(2)} ${cur}`; }
-    }
-    function pct(x){
-      if(!Number.isFinite(x)) return "—";
-      const v = x*100;
-      return `${v>=0?"+":""}${v.toFixed(1)}%`;
-    }
-    function dateStr(iso){
-      const d = new Date(iso);
-      if(isNaN(d.getTime())) return "—";
-      return d.toLocaleString(undefined,{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
-    }
+    // fcf units display
+    $("fcfUnits").textContent = `${$("in_currency").value} / year`;
+  }
 
-    // ========= Apply language =========
-    function applyLang(){
-      const t = T[state.lang];
+  function applyModeRules(){
+    const mode = $("in_mode").value;
+    const type = $("in_type").value;
+    const delta = (window.EA_DCF.typePresets[type]?.quickDelta ?? 2);
 
-      $("t_title").textContent = t.title;
-      $("t_sub").textContent = t.sub;
-
-      $("t_tab1").textContent = t.tab1; $("t_tab1s").textContent = t.tab1s;
-      $("t_tab2").textContent = t.tab2; $("t_tab2s").textContent = t.tab2s;
-      $("t_tab3").textContent = t.tab3; $("t_tab3s").textContent = t.tab3s;
-
-      $("t_p1h").textContent = t.p1h;
-      $("t_p1s").textContent = t.p1s;
-
-      $("t_inH").textContent = t.inH;
-      $("t_tickerL").textContent = t.tickerL;
-      $("t_tickerH").textContent = t.tickerH;
-      $("t_curL").textContent = t.curL;
-      $("t_typeL").textContent = t.typeL;
-      $("t_typeH").textContent = t.typeH;
-      $("t_modeL").textContent = t.modeL;
-      $("t_priceL").textContent = t.priceL;
-      $("t_priceH").textContent = t.priceH;
-      $("t_mosL").textContent = t.mosL;
-
-      $("t_methodH").textContent = t.methodH;
-      $("t_methodL").textContent = t.methodL;
-      $("t_methodHelp").textContent = t.methodHelp;
-      $("t_yearsL").textContent = t.yearsL;
-
-      $("t_fcfL").textContent = t.fcfL;
-      $("t_fcfH").textContent = t.fcfH;
-      $("t_revL").textContent = t.revL;
-      $("t_revH").textContent = t.revH;
-      $("t_margL").textContent = t.margL;
-      $("t_margH").textContent = t.margH;
-
-      $("t_capH").textContent = t.capH;
-      $("t_shL").textContent = t.shL;
-      $("t_shH").textContent = t.shH;
-      $("t_cashL").textContent = t.cashL;
-      $("t_cashH").textContent = t.cashH;
-      $("t_debtL").textContent = t.debtL;
-      $("t_debtH").textContent = t.debtH;
-
-      $("t_assH").textContent = t.assH;
-      $("t_drL").textContent = t.drL;
-      $("t_drH").textContent = t.drH;
-      $("t_tgL").textContent = t.tgL;
-      $("t_tgH").textContent = t.tgH;
-      $("t_gBaseL").textContent = t.gBaseL;
-      $("t_gBaseH").textContent = t.gBaseH;
-      $("t_gBearL").textContent = t.gBearL;
-      $("t_gBearH").textContent = t.gBearH;
-      $("t_gBullL").textContent = t.gBullL;
-      $("t_gBullH").textContent = t.gBullH;
-
-      $("t_tip").textContent = t.tip;
-
-      $("btnCalc").textContent = t.calc;
-      $("btnReset").textContent = t.reset;
-      $("btnSave").textContent = t.save;
-      $("btnDemo").textContent = t.demo;
-      $("btnSaveTop").textContent = t.saveTop;
-
-      $("t_outH").textContent = t.outH;
-      $("t_baseFV").textContent = t.baseFV;
-      $("t_rangeFV").textContent = t.rangeFV;
-      $("t_upside").textContent = t.upside;
-      $("t_details").textContent = t.details;
-      $("t_warn").textContent = t.warn;
-
-      $("t_wH").textContent = t.wH;
-      $("t_wS").textContent = t.wS;
-      $("t_wTableH").textContent = t.wTableH;
-      $("t_wNote").textContent = t.wNote;
-      $("btnExport").textContent = t.export;
-      $("btnClear").textContent = t.clearAll;
-
-      $("t_wDate").textContent = t.wDate;
-      $("t_wTicker").textContent = t.wTicker;
-      $("t_wCur").textContent = t.wCur;
-      $("t_wPrice").textContent = t.wPrice;
-      $("t_wBear").textContent = t.wBear;
-      $("t_wBase").textContent = t.wBase;
-      $("t_wBull").textContent = t.wBull;
-      $("t_wMos").textContent = t.wMos;
-      $("t_wAct").textContent = t.wAct;
-
-      $("t_aH").textContent = t.aboutH;
-      $("t_aS").textContent = t.aboutS;
-      $("t_a1").textContent = t.a1; $("t_a1p").textContent = t.a1p;
-      $("t_a2").textContent = t.a2; $("t_a2p").textContent = t.a2p;
-      $("t_a3").textContent = t.a3; $("t_a3p").textContent = t.a3p;
-      $("t_a4").textContent = t.a4; $("t_a4p").textContent = t.a4p;
-
-      // Badge mode
-      syncModeUI();
-      renderWatchlist();
-    }
-
-    // ========= Tabs =========
-    function showPanel(which){
-      $("tabModel").classList.toggle("active", which==="model");
-      $("tabWatch").classList.toggle("active", which==="watch");
-      $("tabAbout").classList.toggle("active", which==="about");
-
-      $("panelModel").style.display = (which==="model") ? "" : "none";
-      $("panelWatch").style.display = (which==="watch") ? "" : "none";
-      $("panelAbout").style.display = (which==="about") ? "" : "none";
-
-      if(which==="watch") renderWatchlist();
-    }
-
-    // ========= Defaults by type =========
-    function applyDefaultsByType(){
-      const type = $("in_type").value;
-      // only set defaults if fields are empty (so you can override)
-      const setIfEmpty = (id,val)=>{
-        const el = $(id);
-        if(!String(el.value||"").trim()) el.value = String(val);
-      };
-
-      if(type==="growth"){
-        setIfEmpty("in_dr", 10);
-        setIfEmpty("in_tg", 2.5);
-        setIfEmpty("in_g_base", 12);
-      }else if(type==="mature"){
-        setIfEmpty("in_dr", 8.5);
-        setIfEmpty("in_tg", 2.0);
-        setIfEmpty("in_g_base", 5);
-      }else if(type==="cyclical"){
-        setIfEmpty("in_dr", 10);
-        setIfEmpty("in_tg", 1.8);
-        setIfEmpty("in_g_base", 4);
-      }else if(type==="reits"){
-        setIfEmpty("in_dr", 8.5);
-        setIfEmpty("in_tg", 2.0);
-        setIfEmpty("in_g_base", 3.5);
-      }else{ // financial
-        setIfEmpty("in_dr", 10.5);
-        setIfEmpty("in_tg", 1.8);
-        setIfEmpty("in_g_base", 3.5);
+    if (mode === "quick"){
+      // derive bear/bull from base
+      const base = window.EA_DCF.parseNum($("in_g_base").value);
+      if (Number.isFinite(base)){
+        $("in_g_bear").value = String(base - delta);
+        $("in_g_bull").value = String(base + delta);
       }
-
-      syncModeUI();
+      $("in_g_bear").disabled = true;
+      $("in_g_bull").disabled = true;
+    } else {
+      $("in_g_bear").disabled = false;
+      $("in_g_bull").disabled = false;
     }
 
-    // ========= Method switch =========
-    function syncMethodUI(){
-      const m = $("in_method").value;
-      $("blk_fcf").style.display = (m==="fcf") ? "" : "none";
-      $("blk_rev").style.display = (m==="rev") ? "" : "none";
+    $("modePill").textContent = `${t("mode")}: ${mode === "quick" ? "Quick" : "Advanced"}`;
+    updateHints();
+  }
+
+  function validate(inputs){
+    const ok = (x)=>Number.isFinite(x) && x > 0;
+    if (!ok(inputs.years) || inputs.years < 1 || inputs.years > 25) return false;
+    if (!ok(inputs.shares)) return false;
+    if (!ok(inputs.disc) || inputs.disc <= 0 || inputs.disc > 30) return false;
+    if (!Number.isFinite(inputs.term) || inputs.term < -2 || inputs.term > 6) return false;
+    if (!Number.isFinite(inputs.gBase) || inputs.gBase < -50 || inputs.gBase > 60) return false;
+    if (!Number.isFinite(inputs.gBear) || inputs.gBear < -50 || inputs.gBear > 60) return false;
+    if (!Number.isFinite(inputs.gBull) || inputs.gBull < -50 || inputs.gBull > 60) return false;
+
+    if (inputs.method === "direct"){
+      if (!ok(inputs.fcf)) return false;
+    } else {
+      if (!ok(inputs.rev)) return false;
+      if (!Number.isFinite(inputs.margin)) return false;
+    }
+    return true;
+  }
+
+  function calc(){
+    const inputs = readInputs();
+    if (!validate(inputs)){
+      state.lastResult = null;
+      renderOutputs(null, inputs);
+      toast(t("toastInvalid"));
+      return;
     }
 
-    function syncUnits(){
-      const cur = $("in_cur").value;
-      $("u_fcf").textContent = `${cur} / year`;
-      $("u_rev").textContent = `${cur} / year`;
-      $("u_cash").textContent = cur;
-      $("u_debt").textContent = cur;
+    const res = window.EA_DCF.compute(inputs);
+    state.lastResult = { inputs, res, dt: Date.now() };
+    renderOutputs(res, inputs);
+  }
+
+  function renderOutputs(res, inputs){
+    const cur = $("in_currency").value;
+    const fmt = window.EA_DCF.fmtMoney;
+
+    if (!res){
+      $("out_base").textContent = "—";
+      $("out_base_sub").textContent = "—";
+      $("out_range").textContent = "—";
+      $("out_range_sub").textContent = "—";
+      $("out_upside").textContent = "—";
+      $("out_upside_sub").textContent = "—";
+      $("out_target").textContent = "—";
+      $("out_target_sub").textContent = "—";
+      $("out_details").textContent = "—";
+      $("out_checks").textContent = "—";
+      $("qualityPill").textContent = "—";
+      return;
     }
 
-    // ========= Mode (Quick / Advanced) =========
-    function syncModeUI(){
-      const t = T[state.lang];
-      const mode = $("in_mode").value;
-      $("badgeMode").textContent = (mode==="quick") ? t.modeQuick : t.modeAdv;
+    const { bear, base, bull } = res.scenarios;
 
-      const bear = $("in_g_bear");
-      const bull = $("in_g_bull");
+    $("out_base").textContent = fmt(base, cur);
+    $("out_base_sub").textContent = `Bear ${fmt(bear,cur)} • Bull ${fmt(bull,cur)}`;
 
-      if(mode==="quick"){
-        bear.setAttribute("disabled","disabled");
-        bull.setAttribute("disabled","disabled");
-        // derive from base
-        const base = nval($("in_g_base").value);
-        if(Number.isFinite(base)){
-          bear.value = String(Math.max(base - 2, -50));
-          bull.value = String(Math.min(base + 2, 80));
-        }else{
-          bear.value = "";
-          bull.value = "";
-        }
-      }else{
-        bear.removeAttribute("disabled");
-        bull.removeAttribute("disabled");
-        // if empty, prefill from base ±2
-        const base = nval($("in_g_base").value);
-        if(Number.isFinite(base)){
-          if(!String(bear.value||"").trim()) bear.value = String(Math.max(base - 2, -50));
-          if(!String(bull.value||"").trim()) bull.value = String(Math.min(base + 2, 80));
-        }
-      }
+    $("out_range").textContent = `${fmt(bear,cur)} → ${fmt(bull,cur)}`;
+    $("out_range_sub").textContent = `${t("assumptions")}: g ${inputs.gBear}/${inputs.gBase}/${inputs.gBull} • d ${inputs.disc}% • tg ${inputs.term}%`;
+
+    if (Number.isFinite(res.upside)){
+      const u = res.upside;
+      $("out_upside").textContent = `${u.toFixed(1)}%`;
+      $("out_upside_sub").textContent = (Number.isFinite(inputs.price) ? `${t("price")}: ${fmt(inputs.price,cur)}` : "—");
+    } else {
+      $("out_upside").textContent = "—";
+      $("out_upside_sub").textContent = t("priceHint");
     }
 
-    // ========= Core DCF =========
-    function impliedFCFBase(){
-      const method = $("in_method").value;
-      if(method==="fcf"){
-        return nval($("in_fcf").value);
-      }
-      // revenue × margin
-      const rev = nval($("in_rev").value);
-      const marg = nval($("in_marg").value) / 100;
-      if(!Number.isFinite(rev) || !Number.isFinite(marg)) return NaN;
-      return rev * marg;
+    $("out_target").textContent = fmt(res.target, cur);
+    if (Number.isFinite(res.upsideTarget)){
+      $("out_target_sub").textContent = `${t("mos")}: ${inputs.mos}% • ${t("upside")}: ${res.upsideTarget.toFixed(1)}%`;
+    } else {
+      $("out_target_sub").textContent = `${t("mos")}: ${inputs.mos}%`;
     }
 
-    function dcfPerShare(fcf0, g, years, dr, tg, cash, debt, shares){
-      // fcf0 is current annual FCF (base year)
-      // We grow for N years, discount each year.
-      let f = fcf0;
-      let pv = 0;
+    const fcf0 = res.fcf0;
+    const lines = [];
+    lines.push(`FCF0: ${fmt(fcf0,cur)} (${inputs.method})`);
+    lines.push(`PV(FCF)+PV(TV) base: ${fmt(res.raw.eqBase + (inputs.debt||0) - (inputs.cash||0), cur)} (approx, before cash/debt adj)`);
+    lines.push(`Equity base: ${fmt(res.raw.eqBase, cur)}`);
+    lines.push(`Per-share base: ${fmt(base, cur)}`);
+    lines.push(`Bear/Bull discounts: base ${inputs.disc}%, bear +1pp, bull -0.5pp`);
+    $("out_details").textContent = lines.join("\n");
 
-      for(let y=1; y<=years; y++){
-        f = f * (1 + g);
-        pv += f / Math.pow(1 + dr, y);
-      }
-
-      const fN = f; // last projected year FCF
-      // Terminal value (Gordon growth)
-      const tv = (fN * (1 + tg)) / (dr - tg);
-      const pvTV = tv / Math.pow(1 + dr, years);
-
-      const ev = pv + pvTV;
-      const eq = ev + cash - debt;
-      const perShare = eq / shares;
-
-      return { perShare, pv, pvTV, ev, eq, tv };
+    const w = res.checks || [];
+    if (!w.length){
+      $("out_checks").textContent = getLang()==="en"
+        ? "Looks consistent ✅\nTip: use 3–5y average FCF for cyclical businesses."
+        : "Vypadá konzistentně ✅\nTip: u cyklických firem použij průměr FCF 3–5 let.";
+    } else {
+      const txt = w.map(x => `• ${getLang()==="en" ? x.en : x.cz}`).join("\n");
+      $("out_checks").textContent = txt;
     }
+    $("qualityPill").textContent = `${res.quality} ${w.length ? (getLang()==="en" ? "Needs attention" : "Zkontroluj") : (getLang()==="en" ? "OK" : "OK")}`;
+  }
 
-    function calcAll(){
-      const cur = $("in_cur").value;
+  function reset(){
+    [
+      "in_ticker","in_price","in_fcf","in_rev","in_margin",
+      "in_shares","in_cash","in_debt","in_years","in_disc","in_term",
+      "in_g_base","in_g_bear","in_g_bull"
+    ].forEach(id=>$(id).value="");
 
-      const ticker = ($("in_ticker").value || "").trim() || "—";
-      const price = nval($("in_price").value);
-      const mosPct = nval($("in_mos").value) / 100;
+    $("in_currency").value = "USD";
+    $("in_method").value = "direct";
+    $("in_mode").value = "quick";
+    $("in_mos").value = "0";
+    $("in_type").value = "growth";
 
-      const years = Math.max(1, Math.min(50, Math.floor(nval($("in_years").value) || 10)));
-      const dr = nval($("in_dr").value) / 100;
-      const tg = nval($("in_tg").value) / 100;
+    applyMethodUI();
+    applyTypePreset();
+    state.lastResult = null;
+    renderOutputs(null, readInputs());
+  }
 
-      const shares = nval($("in_shares").value);
-      const cash = nval($("in_cash").value) || 0;
-      const debt = nval($("in_debt").value) || 0;
-
-      const gBase = nval($("in_g_base").value) / 100;
-      const gBear = nval($("in_g_bear").value) / 100;
-      const gBull = nval($("in_g_bull").value) / 100;
-
-      const fcf0 = impliedFCFBase();
-
-      // Validation
-      const invalid =
-        !Number.isFinite(fcf0) || fcf0<=0 ||
-        !Number.isFinite(shares) || shares<=0 ||
-        !Number.isFinite(dr) || dr<=0 ||
-        !Number.isFinite(tg) ||
-        tg >= dr ||
-        !Number.isFinite(gBase) || !Number.isFinite(gBear) || !Number.isFinite(gBull);
-
-      if(invalid){
-        return { ok:false };
-      }
-
-      // Run 3 scenarios
-      const bear = dcfPerShare(fcf0, gBear, years, dr, tg, cash, debt, shares);
-      const base = dcfPerShare(fcf0, gBase, years, dr, tg, cash, debt, shares);
-      const bull = dcfPerShare(fcf0, gBull, years, dr, tg, cash, debt, shares);
-
-      // Upside & MOS
-      let upside = NaN, mosTarget = NaN;
-      if(Number.isFinite(price) && price>0){
-        upside = (base.perShare / price) - 1;
-        mosTarget = base.perShare * (1 - mosPct);
-      }
-
-      // Warnings / checks
-      const warns = [];
-      if(tg > 0.03) warns.push("Terminal growth is high (consider 1–3%).");
-      if(dr < 0.07) warns.push("Discount rate is low. Risk may be understated.");
-      if(base.pvTV/base.ev > 0.75) warns.push("Terminal value dominates (>75%). Consider more conservative growth/discount.");
-      if(gBull - gBear > 0.15) warns.push("Scenario spread is very wide. Double-check growth assumptions.");
-
-      return {
-        ok:true,
-        cur, ticker, price: Number.isFinite(price)?price:null, mosPct,
-        inputs: snapshotInputs(),
-        values: {
-          bear: bear.perShare,
-          base: base.perShare,
-          bull: bull.perShare
-        },
-        debug: { fcf0, years, dr, tg, cash, debt, shares, gBear, gBase, gBull,
-          pvBase: base.pv, pvTVBase: base.pvTV, evBase: base.ev, eqBase: base.eq },
-        upside, mosTarget,
-        warns
-      };
+  function saveCurrent(){
+    if (!state.lastResult?.res){
+      toast(t("toastCalcFirst"));
+      return;
     }
+    const { inputs, res, dt } = state.lastResult;
+    const cur = inputs.currency;
+    const fmt = window.EA_DCF.fmtMoney;
 
-    function render(res){
-      const t = T[state.lang];
-      const cur = $("in_cur").value;
+    const item = {
+      id: String(dt) + "_" + Math.random().toString(16).slice(2),
+      dt,
+      ticker: inputs.ticker || "—",
+      currency: cur,
+      priceTxt: Number.isFinite(inputs.price) ? fmt(inputs.price,cur) : "—",
+      bearTxt: fmt(res.scenarios.bear,cur),
+      baseTxt: fmt(res.scenarios.base,cur),
+      bullTxt: fmt(res.scenarios.bull,cur),
+      targetTxt: fmt(res.target,cur),
+      snapshot: { inputs, res }
+    };
 
-      if(!res.ok){
-        $("out_base").textContent = "—";
-        $("out_base_sub").textContent = "—";
-        $("out_range").textContent = "—";
-        $("out_range_sub").textContent = "—";
-        $("out_upside").textContent = "—";
-        $("out_upside_sub").textContent = t.toastInvalid;
-        $("out_details").textContent = "—";
-        $("out_warn").textContent = "—";
-        return;
-      }
+    const arr = loadWatchlist();
+    arr.unshift(item);
+    saveWatchlist(arr.slice(0, 200));
+    renderWatchlist();
+    toast(t("toastSaved"));
+  }
 
-      const bear = res.values.bear;
-      const base = res.values.base;
-      const bull = res.values.bull;
+  function demo(){
+    $("in_ticker").value = "AAPL";
+    $("in_currency").value = "USD";
+    $("in_type").value = "quality";
+    $("in_mode").value = "quick";
+    $("in_method").value = "direct";
+    $("in_price").value = "190.5";
+    $("in_years").value = "10";
+    $("in_fcf").value = "110000000000";
+    $("in_shares").value = "15500000000";
+    $("in_cash").value = "65000000000";
+    $("in_debt").value = "110000000000";
+    $("in_mos").value = "15";
+    applyMethodUI();
+    applyTypePreset(); // sets disc/term/gBase
+    applyModeRules();
+    calc();
+  }
 
-      $("out_base").textContent = money(base, cur);
-      $("out_base_sub").textContent = `Bear ${money(bear, cur)} • Bull ${money(bull, cur)}`;
+  function buildAbout(){
+    const lang = getLang();
+    const about = $("aboutContent");
 
-      $("out_range").textContent = `${money(bear, cur)} → ${money(bull, cur)}`;
-      $("out_range_sub").textContent = `Base: ${money(base, cur)} (${res.ticker})`;
+    if (lang === "en"){
+      about.innerHTML = `
+        <span class="badge good">Education</span>
+        <span class="badge warn">Not financial advice</span>
 
-      if(res.price){
-        $("out_upside").textContent = pct(res.upside);
-        const mosLabel = (res.mosPct>0) ? `MOS target: ${money(res.mosTarget, cur)}` : "MOS: OFF";
-        $("out_upside_sub").textContent = `Price: ${money(res.price, cur)} • ${mosLabel}`;
-      }else{
-        $("out_upside").textContent = "—";
-        $("out_upside_sub").textContent = (state.lang==="cs")
-          ? "Zadej cenu pro potenciál a MOS."
-          : "Enter price to see upside & MOS.";
-      }
+        <h3>What this app does</h3>
+        <p>
+          This tool estimates an <b>intrinsic (fair) value</b> using a simple DCF model in <b>three scenarios</b>
+          (Bear / Base / Bull). The output is a <b>range</b>, not a prediction.
+        </p>
 
-      // details
-      const d = res.debug;
-      $("out_details").innerHTML =
-        `<div class="mono">
-          FCF0: ${money(d.fcf0, cur)}<br/>
-          Years: ${d.years} • DR: ${(d.dr*100).toFixed(2)}% • TG: ${(d.tg*100).toFixed(2)}%<br/>
-          PV(Proj): ${money(d.pvBase, cur)} • PV(Terminal): ${money(d.pvTVBase, cur)}<br/>
-          EV: ${money(d.evBase, cur)} • Equity: ${money(d.eqBase, cur)}
-        </div>`;
+        <h3>When DCF works well</h3>
+        <ul>
+          <li><b>FCF-positive</b> businesses with relatively stable cash generation.</li>
+          <li>Quality compounders (strong margins, recurring revenue), many mature tech and SaaS.</li>
+          <li>Companies where you can form a reasonable view on 5–10y cash flows.</li>
+        </ul>
 
-      // warnings
-      if(res.warns.length){
-        $("out_warn").innerHTML = res.warns.map(x=>`• ${escapeHtml(x)}`).join("<br/>");
-      }else{
-        $("out_warn").textContent = (state.lang==="cs")
-          ? "Vypadá OK. Stejně si zkontroluj předpoklady."
-          : "Looks OK. Still double-check assumptions.";
-      }
+        <h3>When DCF is weaker</h3>
+        <ul>
+          <li>Banks/insurers (FCF-based DCF is often not the best approach).</li>
+          <li>Early-stage companies with negative/unstable FCF.</li>
+          <li>Extreme cyclicals/commodities near peak cycle (use multi-year averages).</li>
+        </ul>
+
+        <h3>Common pitfalls (read this)</h3>
+        <ul>
+          <li><b>Discount rate</b> is the biggest lever. Higher risk → higher discount.</li>
+          <li><b>Terminal growth</b> must stay conservative (long-run shouldn’t exceed the economy).</li>
+          <li><b>FCF input</b>: avoid “one great year”. Prefer a <b>3–5 year average</b> for cyclicals.</li>
+        </ul>
+
+        <h3>How to use</h3>
+        <ul>
+          <li>Start with <b>Quick</b> mode to screen.</li>
+          <li>Switch to <b>Advanced</b> to stress-test assumptions.</li>
+          <li>Use <b>Margin of Safety</b> for a conservative target, not as “math inside DCF”.</li>
+          <li>Save results to <b>Watchlist</b> to compare over time.</li>
+        </ul>
+
+        <h3>Disclaimer</h3>
+        <p>
+          This app is for educational purposes only and does not constitute investment advice.
+          You are responsible for your decisions.
+        </p>
+      `;
+    } else {
+      about.innerHTML = `
+        <span class="badge good">Výuka</span>
+        <span class="badge warn">Ne finanční doporučení</span>
+
+        <h3>Co aplikace dělá</h3>
+        <p>
+          Nástroj odhaduje <b>vnitřní (férovou) hodnotu</b> pomocí jednoduchého DCF ve <b>3 scénářích</b>
+          (Bear / Base / Bull). Výstup je <b>rozsah</b>, ne předpověď.
+        </p>
+
+        <h3>Kdy DCF funguje dobře</h3>
+        <ul>
+          <li>Firmy s <b>pozitivním FCF</b> a relativně stabilní tvorbou hotovosti.</li>
+          <li>Kvalitní compoundeři (marže, opakované příjmy), mnoho mature tech a SaaS.</li>
+          <li>Firmy, kde si umíš udělat realistický názor na cash flow na 5–10 let.</li>
+        </ul>
+
+        <h3>Kdy je DCF slabší</h3>
+        <ul>
+          <li>Banky/pojišťovny (DCF přes FCF často není ideální přístup).</li>
+          <li>Early-stage firmy s negativním / nestabilním FCF.</li>
+          <li>Extrémně cyklické komoditní firmy (pozor na vrchol cyklu, používej průměry).</li>
+        </ul>
+
+        <h3>Nejčastější pasti (důležité)</h3>
+        <ul>
+          <li><b>Diskontní sazba</b> je největší páka. Vyšší riziko → vyšší diskont.</li>
+          <li><b>Terminální růst</b> musí být konzervativní (dlouhodobě by neměl převýšit ekonomiku).</li>
+          <li><b>FCF vstup</b>: neber „jeden skvělý rok“. U cyklických firem raději <b>průměr 3–5 let</b>.</li>
+        </ul>
+
+        <h3>Jak používat</h3>
+        <ul>
+          <li>Začni v režimu <b>Quick</b> (screening).</li>
+          <li>V <b>Advanced</b> otestuj citlivost předpokladů.</li>
+          <li><b>Margin of Safety</b> používej jako konzervativní target (ne „uvnitř matematiky DCF“).</li>
+          <li>Ukládej výsledky do <b>Watchlistu</b> pro srovnání v čase.</li>
+        </ul>
+
+        <h3>Upozornění</h3>
+        <p>
+          Aplikace je pouze poučná. Nejde o investiční doporučení.
+          Za svá rozhodnutí odpovídáš ty.
+        </p>
+      `;
     }
+  }
 
-    function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
-    }
+  function init(){
+    tabInit();
 
-    // ========= Watchlist =========
-    function loadWatchlist(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        return Array.isArray(arr) ? arr : [];
-      }catch{ return []; }
-    }
-    function saveWatchlist(arr){
-      localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    }
+    $("btnCalc").addEventListener("click", calc);
+    $("btnReset").addEventListener("click", reset);
+    $("btnSave").addEventListener("click", saveCurrent);
 
-    function snapshotInputs(){
-      return {
-        ticker: $("in_ticker").value,
-        cur: $("in_cur").value,
-        type: $("in_type").value,
-        mode: $("in_mode").value,
-        mos: $("in_mos").value,
-        method: $("in_method").value,
-        years: $("in_years").value,
-        price: $("in_price").value,
-
-        fcf: $("in_fcf").value,
-        rev: $("in_rev").value,
-        marg: $("in_marg").value,
-
-        shares: $("in_shares").value,
-        cash: $("in_cash").value,
-        debt: $("in_debt").value,
-
-        dr: $("in_dr").value,
-        tg: $("in_tg").value,
-        g_base: $("in_g_base").value,
-        g_bear: $("in_g_bear").value,
-        g_bull: $("in_g_bull").value
-      };
-    }
-
-    function loadInputs(inputs){
-      if(!inputs) return;
-
-      $("in_ticker").value = inputs.ticker ?? "";
-      $("in_cur").value = inputs.cur ?? "USD";
-      $("in_type").value = inputs.type ?? "growth";
-      $("in_mode").value = inputs.mode ?? "quick";
-      $("in_mos").value = inputs.mos ?? "0";
-      $("in_method").value = inputs.method ?? "fcf";
-      $("in_years").value = inputs.years ?? "10";
-      $("in_price").value = inputs.price ?? "";
-
-      $("in_fcf").value = inputs.fcf ?? "";
-      $("in_rev").value = inputs.rev ?? "";
-      $("in_marg").value = inputs.marg ?? "";
-
-      $("in_shares").value = inputs.shares ?? "";
-      $("in_cash").value = inputs.cash ?? "";
-      $("in_debt").value = inputs.debt ?? "";
-
-      $("in_dr").value = inputs.dr ?? "9";
-      $("in_tg").value = inputs.tg ?? "2.5";
-      $("in_g_base").value = inputs.g_base ?? "";
-      $("in_g_bear").value = inputs.g_bear ?? "";
-      $("in_g_bull").value = inputs.g_bull ?? "";
-
-      syncUnits();
-      syncMethodUI();
-      syncModeUI();
-
-      const res = calcAll();
-      state.last = res.ok ? res : null;
-      render(res);
-      showPanel("model");
-      toast("Loaded ✅");
-    }
-
-    function addToWatchlist(){
-      const t = T[state.lang];
-      if(!state.last || !state.last.ok){
-        toast(t.toastNeedCalc);
-        return;
-      }
-      const now = new Date().toISOString();
-      const item = {
-        id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
-        dt: now,
-        ticker: state.last.ticker,
-        cur: state.last.cur,
-        price: state.last.price,
-        mosPct: state.last.mosPct,
-        values: state.last.values,
-        inputs: state.last.inputs
-      };
-      const arr = loadWatchlist();
-      arr.unshift(item);
-      saveWatchlist(arr);
-      renderWatchlist();
-      toast(t.toastSaved);
-    }
-
-    function delItem(id){
-      const t = T[state.lang];
-      const arr = loadWatchlist().filter(x=>x.id!==id);
-      saveWatchlist(arr);
-      renderWatchlist();
-      toast(t.toastDeleted);
-    }
-
-    function clearAll(){
-      const t = T[state.lang];
+    $("btnExport").addEventListener("click", exportCSV);
+    $("btnClear").addEventListener("click", ()=>{
       saveWatchlist([]);
       renderWatchlist();
-      toast(t.toastCleared);
-    }
+      toast(t("toastCleared"));
+    });
 
-    function exportCSV(){
-      const arr = loadWatchlist();
-      if(!arr.length){ toast(state.lang==="cs" ? "Watchlist je prázdný." : "Watchlist is empty."); return; }
+    $("btnDemo").addEventListener("click", demo);
 
-      const rows = [];
-      rows.push(["date","ticker","cur","price","bear","base","bull","mosPct"].join(","));
-      for(const it of arr){
-        rows.push([
-          it.dt,
-          safeCSV(it.ticker),
-          it.cur,
-          it.price ?? "",
-          it.values?.bear ?? "",
-          it.values?.base ?? "",
-          it.values?.bull ?? "",
-          it.mosPct ?? ""
-        ].join(","));
-      }
-      const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8;"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "equity-analyzer-watchlist.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast(state.lang==="cs" ? "CSV staženo ✅" : "CSV downloaded ✅");
-    }
+    // UI reactivity
+    $("in_method").addEventListener("change", applyMethodUI);
+    $("in_currency").addEventListener("change", updateHints);
+    $("in_type").addEventListener("change", applyTypePreset);
+    $("in_mode").addEventListener("change", applyModeRules);
+    $("in_g_base").addEventListener("input", ()=>{ if ($("in_mode").value==="quick") applyModeRules(); });
 
-    function safeCSV(s){
-      const v = String(s ?? "");
-      if(v.includes(",") || v.includes('"') || v.includes("\n")){
-        return `"${v.replaceAll('"','""')}"`;
-      }
-      return v;
-    }
-
-    function renderWatchlist(){
-      const t = T[state.lang];
-      const body = $("watchBody");
-      body.innerHTML = "";
-
-      const arr = loadWatchlist();
-      if(!arr.length){
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 9;
-        td.className = "mut";
-        td.textContent = (state.lang==="cs") ? "Zatím nic uloženého." : "Nothing saved yet.";
-        tr.appendChild(td);
-        body.appendChild(tr);
-        return;
-      }
-
-      for(const it of arr){
-        const tr = document.createElement("tr");
-
-        const tdDate = document.createElement("td");
-        tdDate.textContent = dateStr(it.dt);
-        tr.appendChild(tdDate);
-
-        const tdT = document.createElement("td");
-        tdT.innerHTML = `<b>${escapeHtml(it.ticker || "—")}</b>`;
-        tr.appendChild(tdT);
-
-        const tdC = document.createElement("td");
-        tdC.textContent = it.cur || "—";
-        tr.appendChild(tdC);
-
-        const tdP = document.createElement("td");
-        tdP.textContent = (it.price!=null && Number.isFinite(it.price)) ? money(it.price, it.cur) : "—";
-        tr.appendChild(tdP);
-
-        const tdB1 = document.createElement("td");
-        tdB1.textContent = money(it.values?.bear, it.cur);
-        tr.appendChild(tdB1);
-
-        const tdB2 = document.createElement("td");
-        tdB2.textContent = money(it.values?.base, it.cur);
-        tr.appendChild(tdB2);
-
-        const tdB3 = document.createElement("td");
-        tdB3.textContent = money(it.values?.bull, it.cur);
-        tr.appendChild(tdB3);
-
-        const tdMos = document.createElement("td");
-        tdMos.textContent = it.mosPct ? `${(it.mosPct*100).toFixed(0)}%` : "OFF";
-        tr.appendChild(tdMos);
-
-        const tdA = document.createElement("td");
-        const btnLoad = document.createElement("button");
-        btnLoad.className = "btn";
-        btnLoad.textContent = t.btnLoad;
-        btnLoad.style.padding = "8px 10px";
-        btnLoad.style.borderRadius = "12px";
-        btnLoad.addEventListener("click", ()=> loadInputs(it.inputs));
-
-        const btnDel = document.createElement("button");
-        btnDel.className = "btn danger";
-        btnDel.textContent = t.btnDel;
-        btnDel.style.padding = "8px 10px";
-        btnDel.style.borderRadius = "12px";
-        btnDel.style.marginLeft = "8px";
-        btnDel.addEventListener("click", ()=> delItem(it.id));
-
-        tdA.appendChild(btnLoad);
-        tdA.appendChild(btnDel);
-        tr.appendChild(tdA);
-
-        body.appendChild(tr);
-      }
-    }
-
-    // ========= Buttons / Events =========
-    function resetAll(){
-      $("in_ticker").value = "";
-      $("in_cur").value = "USD";
-      $("in_type").value = "growth";
-      $("in_mode").value = "quick";
-      $("in_mos").value = "0";
-      $("in_method").value = "fcf";
-      $("in_years").value = "10";
-      $("in_price").value = "";
-
-      $("in_fcf").value = "";
-      $("in_rev").value = "";
-      $("in_marg").value = "";
-
-      $("in_shares").value = "";
-      $("in_cash").value = "";
-      $("in_debt").value = "";
-
-      $("in_dr").value = "9";
-      $("in_tg").value = "2.5";
-      $("in_g_base").value = "";
-      $("in_g_bear").value = "";
-      $("in_g_bull").value = "";
-
-      syncUnits();
-      syncMethodUI();
-      applyDefaultsByType();
-      syncModeUI();
-      state.last = null;
-      render({ok:false});
-    }
-
-    function demoValues(){
-      // demo tuned for mobile testing
-      $("in_ticker").value = "AAPL";
-      $("in_cur").value = "USD";
-      $("in_type").value = "mature";
-      $("in_mode").value = "quick";
-      $("in_method").value = "fcf";
-      $("in_years").value = "10";
-      $("in_price").value = "190";
-
-      $("in_fcf").value = "100000000000";
-      $("in_shares").value = "15500000000";
-      $("in_cash").value = "60000000000";
-      $("in_debt").value = "90000000000";
-
-      $("in_dr").value = "9";
-      $("in_tg").value = "2.5";
-      $("in_g_base").value = "6";
-
-      syncUnits();
-      syncMethodUI();
-      applyDefaultsByType();
-      syncModeUI();
-
-      const res = calcAll();
-      state.last = res.ok ? res : null;
-      render(res);
-      toast(state.lang==="cs" ? "Demo nastaveno ✅" : "Demo set ✅");
-    }
-
-    // ========= Init =========
-    function init(){
-      // tabs
-      $("tabModel").addEventListener("click", ()=>showPanel("model"));
-      $("tabWatch").addEventListener("click", ()=>showPanel("watch"));
-      $("tabAbout").addEventListener("click", ()=>showPanel("about"));
-
-      // language
-      $("btnEN").addEventListener("click", ()=>{
-        state.lang = "en";
-        $("btnEN").classList.add("active");
-        $("btnCZ").classList.remove("active");
-        applyLang();
-      });
-      $("btnCZ").addEventListener("click", ()=>{
-        state.lang = "cs";
-        $("btnCZ").classList.add("active");
-        $("btnEN").classList.remove("active");
-        applyLang();
-      });
-
-      // controls
-      $("in_cur").addEventListener("change", syncUnits);
-      $("in_method").addEventListener("change", ()=>{ syncMethodUI(); });
-      $("in_mode").addEventListener("change", ()=>{ syncModeUI(); });
-      $("in_type").addEventListener("change", ()=>{ applyDefaultsByType(); });
-
-      $("in_g_base").addEventListener("input", ()=>{ syncModeUI(); });
-
-      // buttons
-      $("btnCalc").addEventListener("click", ()=>{
-        const res = calcAll();
-        if(!res.ok){
-          toast(T[state.lang].toastInvalid);
-          render({ok:false});
-          state.last = null;
-          return;
-        }
-        state.last = res;
-        render(res);
-      });
-
-      $("btnSave").addEventListener("click", addToWatchlist);
-      $("btnSaveTop").addEventListener("click", addToWatchlist);
-      $("btnReset").addEventListener("click", resetAll);
-      $("btnDemo").addEventListener("click", demoValues);
-
-      $("btnExport").addEventListener("click", exportCSV);
-      $("btnClear").addEventListener("click", clearAll);
-
-      // enter = calculate
-      $$(".num").forEach(inp=>{
-        inp.addEventListener("keydown",(e)=>{ if(e.key==="Enter") $("btnCalc").click(); });
-      });
-
-      // initial
-      syncUnits();
-      syncMethodUI();
-      applyDefaultsByType();
-      syncModeUI();
-      applyLang();
+    window.addEventListener("ea:lang", ()=>{
+      updateHints();
+      buildAbout();
       renderWatchlist();
-      render({ok:false});
-    }
+      if (state.lastResult?.res) renderOutputs(state.lastResult.res, state.lastResult.inputs);
+    });
 
-    init();
-  </script>
-</body>
-</html>
+    // first paint
+    applyMethodUI();
+    applyTypePreset();
+    applyModeRules();
+    buildAbout();
+    renderWatchlist();
+  }
 
-
-
-
-
-    
-
+  window.addEventListener("DOMContentLoaded", init);
+})();
     
 
   
