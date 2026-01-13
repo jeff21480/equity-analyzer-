@@ -1,35 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equity Analyzer — Multi-Model Fair Value</title>
-
-  <meta name="theme-color" content="#0b1020" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#090a16" />
+  <title>Equity Analyzer</title>
   <style>
     :root{
-      --bg0:#070A14;
-      --bg1:#0b1020;
-      --card:#0f1832;
-      --card2:#0d1430;
+      --bg0:#060711;
+      --bg1:#090a16;
+      --card:#0e1030;
+      --card2:#0b0d25;
       --border:rgba(255,255,255,.10);
-      --border2:rgba(255,255,255,.14);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.68);
-      --muted2:rgba(255,255,255,.55);
+      --border2:rgba(255,255,255,.16);
+      --txt:rgba(255,255,255,.92);
+      --mut:rgba(255,255,255,.66);
+      --mut2:rgba(255,255,255,.52);
 
-      --p1:#6D5BFF;   /* purple */
-      --p2:#28C7FF;   /* cyan */
-      --p3:#00E1A4;   /* mint */
-      --warn:#FFB020;
-      --bad:#FF5A7A;
+      --p:#7b5cff;      /* purple */
+      --b:#2bc5ff;      /* cyan */
+      --g:#00e1a4;      /* mint */
+      --w:#ffb020;
+      --r:#ff4d7d;
 
-      --shadow: 0 12px 30px rgba(0,0,0,.45);
+      --shadow: 0 18px 45px rgba(0,0,0,.52);
       --radius: 18px;
       --radius2: 24px;
 
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
     *{box-sizing:border-box}
@@ -37,824 +36,636 @@
     body{
       margin:0;
       font-family:var(--sans);
-      color:var(--text);
+      color:var(--txt);
       background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(109,91,255,.20), transparent 60%),
-        radial-gradient(1200px 700px at 85% 20%, rgba(40,199,255,.18), transparent 58%),
-        radial-gradient(900px 600px at 60% 90%, rgba(0,225,164,.10), transparent 60%),
+        radial-gradient(1100px 700px at 20% 10%, rgba(123,92,255,.22), transparent 60%),
+        radial-gradient(1100px 700px at 85% 25%, rgba(43,197,255,.18), transparent 62%),
+        radial-gradient(900px 600px at 60% 92%, rgba(0,225,164,.10), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    a{color:inherit}
     .wrap{
-      width:min(1100px, 92vw);
-      margin: 28px auto 60px;
+      width:min(1100px, 94vw);
+      margin: 18px auto 70px;
     }
 
-    .topbar{
+    .top{
+      position:sticky;
+      top:10px;
+      z-index:30;
+      border:1px solid var(--border);
+      border-radius: var(--radius2);
+      background: rgba(10,12,26,.72);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding: 14px 14px;
       display:flex;
+      gap:12px;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      padding: 18px 18px;
-      border:1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border-radius: var(--radius2);
-      box-shadow: var(--shadow);
-      position:sticky;
-      top:12px;
-      z-index: 50;
-      backdrop-filter: blur(10px);
+      flex-wrap:wrap;
     }
 
     .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 240px;
+      display:flex; gap:12px; align-items:center;
+      min-width: 250px;
     }
     .logo{
-      width:42px;height:42px;border-radius:14px;
+      width:44px;height:44px;border-radius: 16px;
+      border:1px solid rgba(255,255,255,.18);
       background:
         radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
-        linear-gradient(135deg, var(--p1), var(--p2));
-      box-shadow: 0 10px 25px rgba(109,91,255,.25);
-      border:1px solid rgba(255,255,255,.18);
+        linear-gradient(135deg, var(--p), var(--b));
+      box-shadow: 0 18px 35px rgba(123,92,255,.22);
+      flex:0 0 auto;
     }
     .brand h1{
       margin:0;
-      font-size: 20px;
-      letter-spacing: .4px;
+      font-size:20px;
       line-height:1.05;
+      letter-spacing:.3px;
     }
     .brand .sub{
-      margin:2px 0 0;
-      font-size: 12px;
-      color: var(--muted);
+      margin-top:3px;
+      font-size:12px;
+      color:var(--mut);
     }
 
-    .actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .pill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding: 10px 12px;
-      border-radius: 999px;
+    .rightTools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .seg{
+      display:flex; overflow:hidden;
       border:1px solid var(--border);
+      border-radius: 14px;
       background: rgba(255,255,255,.04);
-      color: var(--muted);
-      font-size: 13px;
-      user-select:none;
+    }
+    .seg button{
+      border:0; background:transparent; color:var(--mut);
+      padding:10px 12px; cursor:pointer; font-weight:800;
+      min-width:56px;
+    }
+    .seg button.active{
+      background: rgba(255,255,255,.08);
+      color: var(--txt);
     }
 
     .btn{
       border:1px solid var(--border2);
-      background: rgba(255,255,255,.05);
-      color: var(--text);
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
       padding: 10px 12px;
       border-radius: 14px;
       cursor:pointer;
+      font-weight:800;
       transition: transform .08s ease, background .15s ease, border-color .15s ease;
-      font-weight: 650;
-      letter-spacing:.2px;
+      user-select:none;
     }
-    .btn:hover{
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.22);
-    }
+    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.22)}
     .btn:active{transform: translateY(1px)}
     .btn.primary{
-      border: none;
-      background: linear-gradient(135deg, var(--p1), var(--p2));
-      box-shadow: 0 12px 28px rgba(109,91,255,.22);
-    }
-    .btn.primary:hover{filter:brightness(1.06)}
-    .btn.ghost{
-      background: rgba(0,0,0,.0);
+      border:0;
+      background: linear-gradient(135deg, var(--p), var(--b));
+      box-shadow: 0 16px 34px rgba(123,92,255,.20);
     }
     .btn.danger{
-      border:1px solid rgba(255,90,122,.35);
-      background: rgba(255,90,122,.09);
-    }
-
-    .seg{
-      display:flex;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      border-radius: 14px;
-      overflow:hidden;
-    }
-    .seg button{
-      border:0;
-      background:transparent;
-      color: var(--muted);
-      padding: 10px 12px;
-      cursor:pointer;
-      font-weight: 700;
-      min-width: 56px;
-    }
-    .seg button.active{
-      color: var(--text);
-      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,77,125,.35);
+      background: rgba(255,77,125,.10);
     }
 
     .tabs{
-      margin-top: 18px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 760px){
+      .tabs{grid-template-columns:1fr}
     }
     .tab{
-      flex:1;
-      min-width: 190px;
-      padding: 14px 14px;
-      border-radius: var(--radius);
       border:1px solid var(--border);
+      border-radius: var(--radius);
       background: rgba(255,255,255,.03);
+      padding: 14px 14px;
       cursor:pointer;
       transition: background .15s ease, border-color .15s ease, transform .08s ease;
       position:relative;
       overflow:hidden;
+      min-height: 80px;
     }
-    .tab:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
+    .tab:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
     .tab:active{transform: translateY(1px)}
     .tab.active{
       background:
-        radial-gradient(900px 220px at 20% 10%, rgba(109,91,255,.22), transparent 60%),
-        radial-gradient(700px 200px at 90% 40%, rgba(40,199,255,.18), transparent 60%),
+        radial-gradient(900px 220px at 20% 10%, rgba(123,92,255,.22), transparent 60%),
+        radial-gradient(700px 200px at 90% 40%, rgba(43,197,255,.16), transparent 60%),
         rgba(255,255,255,.05);
       border-color: rgba(255,255,255,.22);
-      box-shadow: 0 14px 32px rgba(0,0,0,.35);
+      box-shadow: 0 16px 40px rgba(0,0,0,.38);
     }
-    .tab h3{margin:0; font-size:15px}
-    .tab p{margin:6px 0 0; font-size:12px; color: var(--muted); line-height:1.35}
+    .tab h3{margin:0;font-size:15px}
+    .tab p{margin:6px 0 0;font-size:12px;color:var(--mut);line-height:1.35}
 
     .panel{
-      margin-top: 14px;
+      margin-top: 12px;
       border:1px solid var(--border);
-      background: rgba(255,255,255,.03);
       border-radius: var(--radius2);
+      background: rgba(255,255,255,.03);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-
-    .panelHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
+    .pHead{
+      padding: 14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
       background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
     }
-    .panelHead .title{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-    }
-    .panelHead .title b{font-size:15px}
-    .panelHead .title span{font-size:12px;color:var(--muted)}
-    .panelBody{ padding: 16px 18px 18px; }
+    .pHead b{font-size:15px}
+    .pHead span{font-size:12px;color:var(--mut)}
+    .pBody{padding: 14px 16px 16px}
 
     .grid{
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 14px;
+      grid-template-columns: 1.18fr .82fr;
+      gap: 12px;
       align-items:start;
     }
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
-      .brand{min-width:auto}
-    }
+    @media (max-width: 920px){ .grid{grid-template-columns:1fr} }
 
     .card{
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(15,24,50,.55);
+      background: rgba(14,16,48,.62);
       border-radius: var(--radius);
       padding: 14px;
     }
-    .card.soft{
-      background: rgba(13,20,48,.45);
-    }
+    .card.soft{background: rgba(11,13,37,.52)}
     .card h4{
       margin:0 0 10px;
-      font-size: 13px;
+      font-size:13px;
       letter-spacing:.25px;
       color: rgba(255,255,255,.88);
-      display:flex; align-items:center; gap:8px;
+      display:flex; gap:8px; align-items:center;
     }
-    .hint{
-      width:18px;height:18px;border-radius:999px;
-      display:inline-flex;align-items:center;justify-content:center;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
-      color: var(--muted);
-      font-size: 12px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .muted{color:var(--muted)}
-    .muted2{color:var(--muted2)}
+    .mut{color:var(--mut)}
+    .mut2{color:var(--mut2)}
+    .mono{font-family:var(--mono)}
 
     .row{
       display:grid;
       grid-template-columns: 1fr 160px;
       gap: 10px;
       margin-bottom: 10px;
+      align-items:end;
     }
-    @media (max-width: 480px){
-      .row{grid-template-columns:1fr}
-    }
+    @media (max-width: 520px){ .row{grid-template-columns:1fr} }
 
-    label{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
+    label{display:block;font-size:12px;color:var(--mut);margin:0 0 6px}
     .field{
       width:100%;
       border:1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.18);
-      color: var(--text);
+      color: var(--txt);
       padding: 11px 12px;
       border-radius: 14px;
       outline:none;
       transition: border-color .15s ease, background .15s ease;
     }
-    .field:focus{
-      border-color: rgba(40,199,255,.40);
-      background: rgba(0,0,0,.24);
-    }
-    .suffix{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+    .field:focus{border-color: rgba(43,197,255,.40); background: rgba(0,0,0,.24)}
     .unit{
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted2);
-      padding: 8px 10px;
-      border-radius: 12px;
+      display:inline-flex;align-items:center;justify-content:center;
+      padding: 9px 10px;
+      border-radius: 14px;
       border:1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.04);
+      color: var(--mut2);
+      font-size: 11px;
+      font-family: var(--mono);
       white-space:nowrap;
     }
+    .help{
+      font-size:12px;
+      color: var(--mut2);
+      line-height:1.35;
+      margin-top: 6px;
+    }
 
-    .split{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: var(--mut);
+      font-size: 12px;
+    }
+
+    .btnRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
       margin-top: 10px;
     }
-    .split .left, .split .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btnRow .L, .btnRow .R{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 
-    .badge{
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      color: rgba(255,255,255,.88);
-    }
-    .badge.good{border-color: rgba(0,225,164,.35); background: rgba(0,225,164,.10);}
-    .badge.warn{border-color: rgba(255,176,32,.35); background: rgba(255,176,32,.10);}
-    .badge.bad{border-color: rgba(255,90,122,.35); background: rgba(255,90,122,.10);}
-
-    .results{
+    .kpi{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-    @media (max-width: 720px){ .results{grid-template-columns:1fr} }
-
+    @media (max-width: 720px){ .kpi{grid-template-columns:1fr} }
     .big{
       font-size: 26px;
-      font-weight: 900;
-      letter-spacing: .2px;
-    }
-    .small{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-      line-height:1.35;
+      font-weight: 950;
+      letter-spacing:.2px;
     }
 
-    .table{
-      width:100%;
-      border-collapse: collapse;
-      overflow:hidden;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.12);
-    }
-    .table th,.table td{
-      padding: 10px 10px;
-      font-size: 12px;
+    .tableWrap{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.10)}
+    table{width:100%;border-collapse:collapse;background: rgba(0,0,0,.14)}
+    th,td{
+      padding:10px 10px;
+      font-size:12px;
       border-bottom:1px solid rgba(255,255,255,.08);
       text-align:left;
       vertical-align:top;
+      white-space:nowrap;
     }
-    .table th{color: var(--muted); font-weight: 800;}
-    .table tr:last-child td{border-bottom:0}
-    .table .mono{font-family: var(--mono)}
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      font-size: 11px;
-      padding: 6px 8px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-    }
+    th{color:var(--mut);font-weight:900}
+    tr:last-child td{border-bottom:0}
 
     .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
+      position:fixed; left:50%; bottom: 18px; transform: translateX(-50%);
+      background: rgba(10,12,26,.88);
+      border:1px solid rgba(255,255,255,.14);
+      color: var(--txt);
       padding: 12px 14px;
       border-radius: 14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(10,14,30,.85);
       box-shadow: var(--shadow);
-      color: var(--text);
-      font-size: 13px;
       display:none;
-      z-index: 999;
-      max-width: 92vw;
+      z-index:999;
+      max-width: 94vw;
       backdrop-filter: blur(10px);
+      font-size: 13px;
     }
 
-    .modalOverlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.62);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 1000;
-    }
-    .modal{
-      width:min(780px, 96vw);
-      border-radius: 22px;
-      border:1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(900px 260px at 20% 10%, rgba(109,91,255,.22), transparent 60%),
-        radial-gradient(700px 260px at 90% 40%, rgba(40,199,255,.18), transparent 60%),
-        rgba(13,20,48,.92);
-      box-shadow: 0 28px 60px rgba(0,0,0,.55);
-      overflow:hidden;
-    }
-    .modalHead{
-      display:flex;align-items:center;justify-content:space-between;
-      padding: 14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-    }
-    .modalHead b{font-size:14px}
-    .modalBody{padding: 14px 16px 16px; color: var(--muted); font-size: 13px; line-height:1.55}
-    .modalBody ul{margin: 8px 0 0 18px}
-    .modalBody li{margin: 6px 0}
-    .x{
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      width:36px;height:36px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight: 900;
-    }
-    .footerNote{
-      margin-top: 14px;
-      color: var(--muted2);
+    .badge{
+      padding: 8px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      font-family: var(--mono);
       font-size: 12px;
+    }
+    .badge.good{border-color: rgba(0,225,164,.35); background: rgba(0,225,164,.10)}
+    .badge.warn{border-color: rgba(255,176,32,.35); background: rgba(255,176,32,.10)}
+    .badge.bad{border-color: rgba(255,77,125,.35); background: rgba(255,77,125,.10)}
+
+    .divider{height:1px;background: rgba(255,255,255,.08); margin: 12px 0}
+
+    .footerNote{
+      margin-top: 12px;
+      color: var(--mut2);
+      font-size:12px;
       line-height:1.45;
     }
   </style>
-</head>
-
-<body>
+</head><body>
   <div class="wrap">
-    <div class="topbar">
+    <div class="top">
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div>
-          <h1 id="t_appTitle">Equity Analyzer</h1>
-          <div class="sub" id="t_appSubtitle">Fair value & portfolio helper (education-first)</div>
+          <h1 id="t_title">Equity Analyzer</h1>
+          <div class="sub" id="t_sub">DCF fair value • Watchlist • Education</div>
         </div>
       </div>
 
-      <div class="actions">
-        <div class="pill">
-          <span id="t_lang">Language</span>
-          <div class="seg" role="tablist" aria-label="Language">
-            <button id="langEN" class="active" type="button">EN</button>
-            <button id="langCS" type="button">CZ</button>
-          </div>
+      <div class="rightTools">
+        <div class="seg" aria-label="Language">
+          <button id="btnEN" type="button" class="active">EN</button>
+          <button id="btnCZ" type="button">CZ</button>
         </div>
-
-        <button class="btn ghost" type="button" id="btnHelp">
-          <span id="t_help">How it works</span>
-        </button>
-
-        <button class="btn primary" type="button" id="btnQuickSave">
-          <span id="t_quickSave">Save to Watchlist</span>
-        </button>
+        <button class="btn" id="btnDemo" type="button">Demo values</button>
+        <button class="btn primary" id="btnSaveTop" type="button">Save to Watchlist</button>
       </div>
     </div>
 
-    <div class="tabs" role="tablist">
-      <div class="tab active" role="tab" tabindex="0" id="tabValuation">
-        <h3 id="t_tab1">Valuation Models</h3>
-        <p id="t_tab1sub">DCF + Dividend + Multiples. Pick the model that fits the company.</p>
+    <div class="tabs">
+      <div class="tab active" id="tabModel">
+        <h3 id="t_tab1">DCF Model</h3>
+        <p id="t_tab1s">Universal DCF for many company types (3 scenarios).</p>
       </div>
-      <div class="tab" role="tab" tabindex="0" id="tabWatch">
+      <div class="tab" id="tabWatch">
         <h3 id="t_tab2">Watchlist</h3>
-        <p id="t_tab2sub">Saved calculations. Stored locally in your browser.</p>
+        <p id="t_tab2s">Saved calculations on this device (localStorage).</p>
       </div>
-      <div class="tab" role="tab" tabindex="0" id="tabAbout">
-        <h3 id="t_tab3">About & Disclaimer</h3>
-        <p id="t_tab3sub">Educational app. Not financial advice.</p>
+      <div class="tab" id="tabAbout">
+        <h3 id="t_tab3">About</h3>
+        <p id="t_tab3s">Educational app • Not financial advice.</p>
       </div>
     </div>
 
-    <!-- PANEL 1: VALUATION -->
-    <section class="panel" id="panelValuation">
-      <div class="panelHead">
-        <div class="title">
-          <b id="t_panel1title">Valuation Models</b>
-          <span id="t_panel1subtitle">Choose a model and enter assumptions. The app explains what each input means.</span>
+    <!-- PANEL 1: MODEL -->
+    <section class="panel" id="panelModel">
+      <div class="pHead">
+        <div>
+          <b id="t_p1h">DCF Model (3 scenarios)</b><br/>
+          <span id="t_p1s">Choose company type + input method, then calculate Bear/Base/Bull.</span>
         </div>
-        <div class="right">
-          <span class="badge" id="badgeModel">MODEL: DCF</span>
-        </div>
+        <div class="badge" id="badgeMode">MODE: Quick</div>
       </div>
-
-      <div class="panelBody">
+      <div class="pBody">
         <div class="grid">
-          <!-- LEFT: INPUTS -->
+
+    <!-- LEFT: Inputs -->
           <div class="card">
-            <h4>
-              <span id="t_company">Company</span>
-              <span class="hint" data-hint="company">i</span>
-            </h4>
+            <h4 id="t_inH">Inputs</h4>
 
             <div class="row">
               <div>
-                <label id="t_tickerLbl" for="ticker">Ticker / Name</label>
-                <input class="field" id="ticker" placeholder="e.g., SOFI / Palantir / Apple" />
+                <label id="t_tickerL" for="in_ticker">Ticker / Name</label>
+                <input class="field" id="in_ticker" placeholder="e.g., AAPL / SOFI / PLTR" />
+                <div class="help" id="t_tickerH">Just for your notes (watchlist).</div>
               </div>
-              <div class="suffix">
-                <div style="width:100%">
-                  <label id="t_currencyLbl" for="currency">Currency</label>
-                  <select class="field" id="currency">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="CZK">CZK</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="split" style="margin-top:8px">
-              <div class="left">
-                <span class="tag">💾 <span id="t_storage">Saved locally</span></span>
-                <span class="tag">🧠 <span id="t_edu">Education-first</span></span>
-              </div>
-              <div class="right">
-                <label class="muted" style="margin:0;font-size:12px" id="t_modelLbl">Model</label>
-                <select class="field" id="model" style="min-width:220px">
-                  <option value="DCF">DCF (Free Cash Flow)</option>
-                  <option value="DDM">Dividend Discount (DDM)</option>
-                  <option value="MULT">Multiples (P/E, EV/EBITDA)</option>
+              <div>
+                <label id="t_curL" for="in_cur">Currency</label>
+                <select class="field" id="in_cur">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="CZK">CZK</option>
                 </select>
               </div>
             </div>
 
-            <div style="height:12px"></div>
+            <div class="row">
+              <div>
+                <label id="t_typeL" for="in_type">Company type</label>
+                <select class="field" id="in_type">
+                  <option value="growth">Growth / Tech</option>
+                  <option value="mature">Mature / Blue-chip</option>
+                  <option value="cyclical">Cyclical / Industrials</option>
+                  <option value="reits">REIT / Yield</option>
+                  <option value="financial">Financial (use conservative)</option>
+                </select>
+                <div class="help" id="t_typeH">Sets sensible defaults + warnings (you can override).</div>
+              </div>
+              <div>
+                <label id="t_modeL" for="in_mode">Mode</label>
+                <select class="field" id="in_mode">
+                  <option value="quick">Quick (Bear/Bull auto)</option>
+                  <option value="advanced">Advanced (edit all scenarios)</option>
+                </select>
+              </div>
+            </div>
 
-            <div class="card soft" id="blockDCF">
-              <h4>
-                <span id="t_dcfTitle">DCF Inputs</span>
-                <span class="hint" data-hint="dcf">i</span>
-              </h4>
+            <div class="row">
+              <div>
+                <label id="t_priceL" for="in_price">Current price (optional)</label>
+                <input class="field num" id="in_price" placeholder="e.g., 180.50" />
+                <div class="help" id="t_priceH">Used for upside & margin of safety.</div>
+              </div>
+              <div>
+                <label id="t_mosL" for="in_mos">Margin of Safety</label>
+                <select class="field" id="in_mos">
+                  <option value="0">OFF</option>
+                  <option value="10">10%</option>
+                  <option value="20">20%</option>
+                  <option value="30">30%</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="card soft">
+              <h4 id="t_methodH">DCF input method</h4>
 
               <div class="row">
                 <div>
-                  <label id="t_fcfLbl">Current Free Cash Flow (FCF)</label>
-                  <input class="field num" id="fcf" placeholder="e.g., 500000000" />
-                  <div class="small" id="t_fcfHelp">Cash the business generates after investments. Core for DCF.</div>
+                  <label id="t_methodL" for="in_method">Method</label>
+                  <select class="field" id="in_method">
+                    <option value="fcf">Direct FCF (recommended)</option>
+                    <option value="rev">Revenue × FCF margin</option>
+                  </select>
+                  <div class="help" id="t_methodHelp">
+                    If you do not know FCF, approximate using Revenue and a realistic FCF margin.
+                  </div>
                 </div>
-                <div class="suffix">
+                <div>
+                  <label id="t_yearsL" for="in_years">Projection (years)</label>
+                  <input class="field num" id="in_years" value="10" />
+                </div>
+              </div>
+
+              <!-- METHOD: FCF -->
+              <div id="blk_fcf">
+                <div class="row">
+                  <div>
+                    <label id="t_fcfL" for="in_fcf">FCF (TTM or avg 3–5y)</label>
+                    <input class="field num" id="in_fcf" placeholder="e.g., 110000000000" />
+                    <div class="help" id="t_fcfH">Annual free cash flow in selected currency.</div>
+                  </div>
                   <div class="unit" id="u_fcf">currency / year</div>
                 </div>
               </div>
 
-              <div class="row">
-                <div>
-                  <label id="t_growthLbl">FCF Growth (Years 1-5)</label>
-                  <input class="field num" id="g1" placeholder="e.g., 15" />
-                  <div class="small" id="t_growthHelp">Your expected annual growth rate for the next 5 years.</div>
+              <!-- METHOD: Revenue × Margin -->
+              <div id="blk_rev" style="display:none">
+                <div class="row">
+                  <div>
+                    <label id="t_revL" for="in_rev">Revenue (annual)</label>
+                    <input class="field num" id="in_rev" placeholder="e.g., 350000000000" />
+                    <div class="help" id="t_revH">Annual revenue in selected currency.</div>
+                  </div>
+                  <div class="unit" id="u_rev">currency / year</div>
                 </div>
-                <div class="suffix"><div class="unit">%</div></div>
-              </div>
 
-              <div class="row">
-                <div>
-                  <label id="t_growth2Lbl">FCF Growth (Years 6-10)</label>
-                  <input class="field num" id="g2" placeholder="e.g., 8" />
-                  <div class="small" id="t_growth2Help">Slower growth phase (maturing business).</div>
+                <div class="row">
+                  <div>
+                    <label id="t_margL" for="in_marg">FCF margin (base)</label>
+                    <input class="field num" id="in_marg" placeholder="e.g., 18" />
+                    <div class="help" id="t_margH">FCF = Revenue × Margin. Margin is %.</div>
+                  </div>
+                  <div class="unit">%</div>
                 </div>
-                <div class="suffix"><div class="unit">%</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_discountLbl">Discount Rate</label>
-                  <input class="field num" id="dr" placeholder="e.g., 9" value="9" />
-                  <div class="small" id="t_discountHelp">Your required return (risk). Higher = lower valuation.</div>
-                </div>
-                <div class="suffix"><div class="unit">%</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_terminalLbl">Terminal Growth</label>
-                  <input class="field num" id="tg" placeholder="e.g., 2.5" value="2.5" />
-                  <div class="small" id="t_terminalHelp">Long-term growth after year 10 (usually low).</div>
-                </div>
-                <div class="suffix"><div class="unit">%</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_cashLbl">Cash & Equivalents</label>
-                  <input class="field num" id="cash" placeholder="e.g., 2000000000" />
-                  <div class="small" id="t_cashHelp">Added to enterprise value to reach equity value.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_cash">currency</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_debtLbl">Total Debt</label>
-                  <input class="field num" id="debt" placeholder="e.g., 1500000000" />
-                  <div class="small" id="t_debtHelp">Subtracted to get equity value.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_debt">currency</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_sharesLbl">Shares Outstanding</label>
-                  <input class="field num" id="shares" placeholder="e.g., 1000000000" />
-                  <div class="small" id="t_sharesHelp">Used to convert total equity value into per-share fair value.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_shares">shares</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_priceLbl">Current Price (optional)</label>
-                  <input class="field num" id="price" placeholder="e.g., 12.30" />
-                  <div class="small" id="t_priceHelp">If provided, we show upside/downside vs fair value.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_price">/ share</div></div>
               </div>
             </div>
 
-            <div class="card soft" id="blockDDM" style="display:none">
-              <h4>
-                <span id="t_ddmTitle">Dividend Discount Inputs</span>
-                <span class="hint" data-hint="ddm">i</span>
-              </h4>
+            <div class="divider"></div>
+
+            <div class="card soft">
+              <h4 id="t_capH">Capital structure</h4>
 
               <div class="row">
                 <div>
-                  <label id="t_divLbl">Next Year Dividend (D1) per Share</label>
-                  <input class="field num" id="d1" placeholder="e.g., 1.20" />
-                  <div class="small" id="t_divHelp">Expected dividend paid over the next 12 months.</div>
+                  <label id="t_shL" for="in_shares">Shares (diluted)</label>
+                  <input class="field num" id="in_shares" placeholder="e.g., 15500000000" />
+                  <div class="help" id="t_shH">Used to convert total equity value into per-share fair value.</div>
                 </div>
-                <div class="suffix"><div class="unit" id="u_d1">/ share</div></div>
+                <div class="unit">shares</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_divGrowLbl">Dividend Growth</label>
-                  <input class="field num" id="dg" placeholder="e.g., 4" />
-                  <div class="small" id="t_divGrowHelp">Long-term dividend growth rate.</div>
+                  <label id="t_cashL" for="in_cash">Cash</label>
+                  <input class="field num" id="in_cash" placeholder="e.g., 50000000000" />
+                  <div class="help" id="t_cashH">Added to enterprise value.</div>
                 </div>
-                <div class="suffix"><div class="unit">%</div></div>
+                <div class="unit" id="u_cash">currency</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_reqLbl">Required Return</label>
-                  <input class="field num" id="rr" placeholder="e.g., 9" value="9" />
-                  <div class="small" id="t_reqHelp">Investor required return (must be > dividend growth).</div>
+                  <label id="t_debtL" for="in_debt">Debt</label>
+                  <input class="field num" id="in_debt" placeholder="e.g., 70000000000" />
+                  <div class="help" id="t_debtH">Subtracted to get equity value.</div>
                 </div>
-                <div class="suffix"><div class="unit">%</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_price2Lbl">Current Price (optional)</label>
-                  <input class="field num" id="price2" placeholder="e.g., 55.10" />
-                  <div class="small" id="t_price2Help">Used to compute upside/downside.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_price2">/ share</div></div>
+                <div class="unit" id="u_debt">currency</div>
               </div>
             </div>
 
-            <div class="card soft" id="blockMULT" style="display:none">
-              <h4>
-                <span id="t_multTitle">Multiples Inputs</span>
-                <span class="hint" data-hint="mult">i</span>
-              </h4>
+            <div class="divider"></div>
+
+            <div class="card soft">
+              <h4 id="t_assH">Assumptions (3 scenarios)</h4>
 
               <div class="row">
                 <div>
-                  <label id="t_epsLbl">Forward EPS (per share)</label>
-                  <input class="field num" id="eps" placeholder="e.g., 2.10" />
-                  <div class="small" id="t_epsHelp">Expected earnings per share (next 12 months).</div>
+                  <label id="t_drL" for="in_dr">Discount rate (base)</label>
+                  <input class="field num" id="in_dr" value="9" />
+                  <div class="help" id="t_drH">Higher risk → higher discount rate → lower fair value.</div>
                 </div>
-                <div class="suffix"><div class="unit" id="u_eps">/ share</div></div>
+                <div class="unit">%</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_peLbl">Target P/E Multiple</label>
-                  <input class="field num" id="pe" placeholder="e.g., 18" />
-                  <div class="small" id="t_peHelp">A reasonable multiple for this business/sector.</div>
+                  <label id="t_tgL" for="in_tg">Terminal growth</label>
+                  <input class="field num" id="in_tg" value="2.5" />
+                  <div class="help" id="t_tgH">Long-term growth after projection. Keep conservative.</div>
                 </div>
-                <div class="suffix"><div class="unit">x</div></div>
+                <div class="unit">%</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_eBitdaLbl">Forward EBITDA (optional)</label>
-                  <input class="field num" id="ebitda" placeholder="e.g., 3000000000" />
-                  <div class="small" id="t_eBitdaHelp">If you prefer EV/EBITDA, enter EBITDA and EV/EBITDA multiple.</div>
+                  <label id="t_gBaseL" for="in_g_base">Base growth</label>
+                  <input class="field num" id="in_g_base" placeholder="e.g., 8" />
+                  <div class="help" id="t_gBaseH">Annual FCF growth during projection.</div>
                 </div>
-                <div class="suffix"><div class="unit" id="u_ebitda">currency</div></div>
+                <div class="unit">%</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_evEbitdaLbl">Target EV/EBITDA (optional)</label>
-                  <input class="field num" id="evebitda" placeholder="e.g., 12" />
-                  <div class="small" id="t_evEbitdaHelp">If filled with EBITDA, we estimate enterprise value.</div>
+                  <label id="t_gBearL" for="in_g_bear">Bear growth</label>
+                  <input class="field num" id="in_g_bear" placeholder="auto" />
+                  <div class="help" id="t_gBearH">Quick mode: Base − 2pp (editable in Advanced).</div>
                 </div>
-                <div class="suffix"><div class="unit">x</div></div>
+                <div class="unit">%</div>
               </div>
 
               <div class="row">
                 <div>
-                  <label id="t_cash2Lbl">Cash (optional, for EV→Equity)</label>
-                  <input class="field num" id="cash2" placeholder="e.g., 2000000000" />
-                  <div class="small" id="t_cash2Help">Used only with EV/EBITDA path.</div>
+                  <label id="t_gBullL" for="in_g_bull">Bull growth</label>
+                  <input class="field num" id="in_g_bull" placeholder="auto" />
+                  <div class="help" id="t_gBullH">Quick mode: Base + 2pp (editable in Advanced).</div>
                 </div>
-                <div class="suffix"><div class="unit" id="u_cash2">currency</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_debt2Lbl">Debt (optional, for EV→Equity)</label>
-                  <input class="field num" id="debt2" placeholder="e.g., 1500000000" />
-                  <div class="small" id="t_debt2Help">Used only with EV/EBITDA path.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_debt2">currency</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_shares2Lbl">Shares Outstanding</label>
-                  <input class="field num" id="shares2" placeholder="e.g., 1000000000" />
-                  <div class="small" id="t_shares2Help">Needed to compute fair value per share.</div>
-                </div>
-                <div class="suffix"><div class="unit">shares</div></div>
-              </div>
-
-              <div class="row">
-                <div>
-                  <label id="t_price3Lbl">Current Price (optional)</label>
-                  <input class="field num" id="price3" placeholder="e.g., 12.30" />
-                  <div class="small" id="t_price3Help">Used to compute upside/downside.</div>
-                </div>
-                <div class="suffix"><div class="unit" id="u_price3">/ share</div></div>
+                <div class="unit">%</div>
               </div>
             </div>
 
-            <div class="split">
-              <div class="left">
-                <button class="btn" type="button" id="btnCalculate"><span id="t_calc">Calculate</span></button>
-                <button class="btn ghost" type="button" id="btnReset"><span id="t_reset">Reset</span></button>
+            <div class="btnRow">
+              <div class="L">
+                <button class="btn" type="button" id="btnCalc">Calculate</button>
+                <button class="btn" type="button" id="btnReset">Reset</button>
               </div>
-              <div class="right">
-                <button class="btn" type="button" id="btnSave"><span id="t_save">Save result</span></button>
+              <div class="R">
+                <button class="btn primary" type="button" id="btnSave">Save result</button>
               </div>
             </div>
 
-            <div class="footerNote" id="t_noteSmall">
-              Tip: For growth companies use DCF. For mature dividend payers use DDM. For quick sanity checks use Multiples.
+            <div class="footerNote" id="t_tip">
+              Tip: In Quick mode, you enter only Base growth. Bear/Bull are derived automatically.
             </div>
           </div>
 
-          <!-- RIGHT: OUTPUTS -->
+          <!-- RIGHT: Outputs -->
           <div class="card">
-            <h4>
-              <span id="t_resultsTitle">Results</span>
-              <span class="hint" data-hint="results">i</span>
-            </h4>
+            <h4 id="t_outH">Outputs</h4>
 
-            <div class="results">
+            <div class="kpi">
               <div class="card soft">
-                <div class="muted" id="t_fairValue">Fair Value</div>
-                <div class="big" id="outFair">—</div>
-                <div class="small" id="outFairSub">—</div>
+                <div class="mut" id="t_baseFV">Base fair value</div>
+                <div class="big" id="out_base">—</div>
+                <div class="help" id="out_base_sub">—</div>
               </div>
+
               <div class="card soft">
-                <div class="muted" id="t_margin">Margin of Safety</div>
-                <div class="big" id="outMOS">—</div>
-                <div class="small" id="outMOSSub">—</div>
+                <div class="mut" id="t_rangeFV">Range (Bear → Bull)</div>
+                <div class="big" id="out_range">—</div>
+                <div class="help" id="out_range_sub">—</div>
               </div>
             </div>
 
             <div style="height:10px"></div>
 
             <div class="card soft">
-              <div class="muted" id="t_detail">Details</div>
-              <div class="small" id="outDetail">
-                Enter inputs and press Calculate.
+              <div class="mut" id="t_upside">Upside vs price</div>
+              <div class="big" id="out_upside">—</div>
+              <div class="help" id="out_upside_sub">Enter current price to see upside & MOS target.</div>
+            </div>
+
+            <div style="height:10px"></div>
+
+            <div class="card soft">
+              <div class="mut" id="t_details">Details</div>
+              <div class="help" id="out_details">
+                Fill inputs → Calculate.
               </div>
             </div>
 
             <div style="height:10px"></div>
 
             <div class="card soft">
-              <div class="muted" id="t_sanity">Sanity Checks</div>
-              <div class="small" id="outSanity">—</div>
+              <div class="mut" id="t_warn">Warnings / checks</div>
+              <div class="help" id="out_warn">—</div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- PANEL 2: WATCHLIST -->
+        </div><!-- grid -->
+      </div><!-- body -->
+    </section><!-- panelModel --><!-- PANEL 2: WATCHLIST -->
     <section class="panel" id="panelWatch" style="display:none">
-      <div class="panelHead">
-        <div class="title">
-          <b id="t_watchTitle">Watchlist</b>
-          <span id="t_watchSub">Your saved calculations. Stored in localStorage (this device + this browser).</span>
+      <div class="pHead">
+        <div>
+          <b id="t_wH">Watchlist</b><br/>
+          <span id="t_wS">Saved calculations on this device (localStorage).</span>
         </div>
-        <div class="right">
-          <button class="btn danger" type="button" id="btnClearWatch"><span id="t_clearAll">Clear all</span></button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="btnExport" type="button">Export CSV</button>
+          <button class="btn danger" id="btnClear" type="button">Clear all</button>
         </div>
       </div>
-      <div class="panelBody">
+      <div class="pBody">
         <div class="card soft">
-          <h4>
-            <span id="t_watchTable">Saved items</span>
-            <span class="hint" data-hint="watch">i</span>
-          </h4>
-
-          <div style="overflow:auto">
-            <table class="table" id="watchTable">
+          <h4 id="t_wTableH">Saved items</h4>
+          <div class="tableWrap">
+            <table>
               <thead>
                 <tr>
-                  <th id="t_w_company">Company</th>
-                  <th id="t_w_model">Model</th>
-                  <th id="t_w_fv">Fair Value</th>
-                  <th id="t_w_price">Price</th>
-                  <th id="t_w_upside">Upside</th>
-                  <th id="t_w_date">Saved</th>
-                  <th id="t_w_actions">Actions</th>
+                  <th id="t_wDate">Date</th>
+                  <th id="t_wTicker">Ticker</th>
+                  <th id="t_wCur">Cur</th>
+                  <th id="t_wPrice">Price</th>
+                  <th id="t_wBear">Bear</th>
+                  <th id="t_wBase">Base</th>
+                  <th id="t_wBull">Bull</th>
+                  <th id="t_wMos">MOS</th>
+                  <th id="t_wAct">Actions</th>
                 </tr>
               </thead>
-              <tbody id="watchBody">
-                <tr>
-                  <td colspan="7" class="muted" id="t_emptyWatch">No saved items yet.</td>
-                </tr>
-              </tbody>
+              <tbody id="watchBody"></tbody>
             </table>
           </div>
-
-          <div class="footerNote" id="t_watchNote">
-            Watchlist is stored locally. If you clear browser data or switch devices, items disappear.
+          <div class="footerNote" id="t_wNote">
+            Watchlist is stored locally in your browser. If you clear browser data or switch devices, items disappear.
           </div>
         </div>
       </div>
@@ -862,1244 +673,1010 @@
 
     <!-- PANEL 3: ABOUT -->
     <section class="panel" id="panelAbout" style="display:none">
-      <div class="panelHead">
-        <div class="title">
-          <b id="t_aboutTitle">About & Disclaimer</b>
-          <span id="t_aboutSub">This tool is for learning. Always do your own research.</span>
+      <div class="pHead">
+        <div>
+          <b id="t_aH">About & Disclaimer</b><br/>
+          <span id="t_aS">Educational app • not financial advice.</span>
         </div>
       </div>
-      <div class="panelBody">
+      <div class="pBody">
         <div class="card">
-          <h4><span id="t_aboutH">What this app is</span></h4>
-          <div class="muted" id="t_aboutP">
-            Equity Analyzer helps you estimate a rough intrinsic value using common models (DCF, DDM, Multiples).
-            Inputs are intentionally explained so you understand what you are doing.
+          <h4 id="t_a1">What this app is</h4>
+          <div class="mut" id="t_a1p">
+            Equity Analyzer is a learning tool. It estimates fair value using DCF scenarios (Bear/Base/Bull).
           </div>
 
-          <div style="height:12px"></div>
+          <div class="divider"></div>
 
-          <h4><span id="t_disclaimerH">Disclaimer (Important)</span></h4>
-          <div class="muted" id="t_disclaimerP">
-            This is NOT financial advice. Outputs depend heavily on assumptions. Markets can be irrational. Use this as a learning aid only.
+          <h4 id="t_a2">For whom it is useful</h4>
+          <div class="mut" id="t_a2p">
+            For investors who want to practice valuation thinking, compare scenarios, and store notes in a watchlist.
           </div>
 
-          <div style="height:12px"></div>
+          <div class="divider"></div>
 
-          <h4><span id="t_forWhoH">For whom it is useful</span></h4>
-          <div class="muted" id="t_forWhoP">
-            Investors who want to practice valuation thinking, compare scenarios, and save their notes. Best with real company fundamentals.
+          <h4 id="t_a3">Disclaimer (important)</h4>
+          <div class="mut" id="t_a3p">
+            This is NOT financial advice. Outputs depend heavily on assumptions. Use at your own risk.
           </div>
 
-          <div style="height:12px"></div>
+          <div class="divider"></div>
 
-          <h4><span id="t_howToH">How to use</span></h4>
-          <div class="muted" id="t_howToP">
-            Choose a model, fill inputs, calculate, then save to Watchlist. Try conservative assumptions and compare outcomes.
+          <h4 id="t_a4">How to use</h4>
+          <div class="mut" id="t_a4p">
+            Choose company type → fill inputs → Calculate → Save to Watchlist. Try conservative assumptions.
           </div>
         </div>
       </div>
     </section>
 
-  </div>
+  </div><!-- wrap -->
 
   <div class="toast" id="toast"></div>
 
-  <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modalHead">
-        <b id="modalTitle">Info</b>
-        <button class="x" type="button" id="modalClose">×</button>
-      </div>
-      <div class="modalBody" id="modalBody"></div>
-    </div>
-  </div>
+  <!-- JS will be in Part 5 --><script>
+    // ========= State / Constants =========
+    const LS_KEY = "equity_analyzer_watchlist_v2";
+    const state = {
+      lang: "en",
+      last: null
+    };
 
-  <script>
-    // ========= i18n (EN/CZ) =========
-    const I18N = {
+    // ========= i18n =========
+    const T = {
       en: {
-        appTitle: "Equity Analyzer",
-        appSubtitle: "Fair value & portfolio helper (education-first)",
-        lang: "Language",
-        help: "How it works",
-        quickSave: "Save to Watchlist",
-
-        tab1:"Valuation Models",
-        tab1sub:"DCF + Dividend + Multiples. Pick the model that fits the company.",
+        title:"Equity Analyzer",
+        sub:"DCF fair value • Watchlist • Education",
+        tab1:"DCF Model",
+        tab1s:"Universal DCF for many company types (3 scenarios).",
         tab2:"Watchlist",
-        tab2sub:"Saved calculations. Stored locally in your browser.",
-        tab3:"About & Disclaimer",
-        tab3sub:"Educational app. Not financial advice.",
-
-        panel1title:"Valuation Models",
-        panel1subtitle:"Choose a model and enter assumptions. The app explains what each input means.",
-
-        company:"Company",
-        tickerLbl:"Ticker / Name",
-        currencyLbl:"Currency",
-        storage:"Saved locally",
-        edu:"Education-first",
-        modelLbl:"Model",
-
-        dcfTitle:"DCF Inputs",
-        fcfLbl:"Current Free Cash Flow (FCF)",
-        fcfHelp:"Cash the business generates after investments. Core for DCF.",
-        growthLbl:"FCF Growth (Years 1-5)",
-        growthHelp:"Your expected annual growth rate for the next 5 years.",
-        growth2Lbl:"FCF Growth (Years 6-10)",
-        growth2Help:"Slower growth phase (maturing business).",
-        discountLbl:"Discount Rate",
-        discountHelp:"Your required return (risk). Higher = lower valuation.",
-        terminalLbl:"Terminal Growth",
-        terminalHelp:"Long-term growth after year 10 (usually low).",
-        cashLbl:"Cash & Equivalents",
-        cashHelp:"Added to enterprise value to reach equity value.",
-        debtLbl:"Total Debt",
-        debtHelp:"Subtracted to get equity value.",
-        sharesLbl:"Shares Outstanding",
-        sharesHelp:"Used to convert total equity value into per-share fair value.",
-        priceLbl:"Current Price (optional)",
-        priceHelp:"If provided, we show upside/downside vs fair value.",
-
-        ddmTitle:"Dividend Discount Inputs",
-        divLbl:"Next Year Dividend (D1) per Share",
-        divHelp:"Expected dividend paid over the next 12 months.",
-        divGrowLbl:"Dividend Growth",
-        divGrowHelp:"Long-term dividend growth rate.",
-        reqLbl:"Required Return",
-        reqHelp:"Investor required return (must be > dividend growth).",
-        price2Lbl:"Current Price (optional)",
-        price2Help:"Used to compute upside/downside.",
-
-        multTitle:"Multiples Inputs",
-        epsLbl:"Forward EPS (per share)",
-        epsHelp:"Expected earnings per share (next 12 months).",
-        peLbl:"Target P/E Multiple",
-        peHelp:"A reasonable multiple for this business/sector.",
-        eBitdaLbl:"Forward EBITDA (optional)",
-        eBitdaHelp:"If you prefer EV/EBITDA, enter EBITDA and EV/EBITDA multiple.",
-        evEbitdaLbl:"Target EV/EBITDA (optional)",
-        evEbitdaHelp:"If filled with EBITDA, we estimate enterprise value.",
-        cash2Lbl:"Cash (optional, for EV→Equity)",
-        cash2Help:"Used only with EV/EBITDA path.",
-        debt2Lbl:"Debt (optional, for EV→Equity)",
-        debt2Help:"Used only with EV/EBITDA path.",
-        shares2Lbl:"Shares Outstanding",
-        shares2Help:"Needed to compute fair value per share.",
-        price3Lbl:"Current Price (optional)",
-        price3Help:"Used to compute upside/downside.",
-
+        tab2s:"Saved calculations on this device (localStorage).",
+        tab3:"About",
+        tab3s:"Educational app • Not financial advice.",
+        p1h:"DCF Model (3 scenarios)",
+        p1s:"Choose company type + input method, then calculate Bear/Base/Bull.",
+        inH:"Inputs",
+        tickerL:"Ticker / Name",
+        tickerH:"Just for your notes (watchlist).",
+        curL:"Currency",
+        typeL:"Company type",
+        typeH:"Sets sensible defaults + warnings (you can override).",
+        modeL:"Mode",
+        priceL:"Current price (optional)",
+        priceH:"Used for upside & margin of safety.",
+        mosL:"Margin of Safety",
+        methodH:"DCF input method",
+        methodL:"Method",
+        methodHelp:"If you do not know FCF, approximate using Revenue and a realistic FCF margin.",
+        yearsL:"Projection (years)",
+        fcfL:"FCF (TTM or avg 3–5y)",
+        fcfH:"Annual free cash flow in selected currency.",
+        revL:"Revenue (annual)",
+        revH:"Annual revenue in selected currency.",
+        margL:"FCF margin (base)",
+        margH:"FCF = Revenue × Margin. Margin is %.",
+        capH:"Capital structure",
+        shL:"Shares (diluted)",
+        shH:"Convert equity value into fair value per share.",
+        cashL:"Cash",
+        cashH:"Added to enterprise value.",
+        debtL:"Debt",
+        debtH:"Subtracted to get equity value.",
+        assH:"Assumptions (3 scenarios)",
+        drL:"Discount rate (base)",
+        drH:"Higher risk → higher discount rate → lower fair value.",
+        tgL:"Terminal growth",
+        tgH:"Long-term growth after projection. Keep conservative.",
+        gBaseL:"Base growth",
+        gBaseH:"Annual FCF growth during projection.",
+        gBearL:"Bear growth",
+        gBearH:"Quick mode: Base − 2pp (editable in Advanced).",
+        gBullL:"Bull growth",
+        gBullH:"Quick mode: Base + 2pp (editable in Advanced).",
+        tip:"Tip: In Quick mode, you enter only Base growth. Bear/Bull are derived automatically.",
         calc:"Calculate",
         reset:"Reset",
         save:"Save result",
-        noteSmall:"Tip: For growth companies use DCF. For mature dividend payers use DDM. For quick sanity checks use Multiples.",
-
-        resultsTitle:"Results",
-        fairValue:"Fair Value",
-        margin:"Margin of Safety",
-        detail:"Details",
-        sanity:"Sanity Checks",
-
-        watchTitle:"Watchlist",
-        watchSub:"Your saved calculations. Stored in localStorage (this device + this browser).",
+        demo:"Demo values",
+        saveTop:"Save to Watchlist",
+        outH:"Outputs",
+        baseFV:"Base fair value",
+        rangeFV:"Range (Bear → Bull)",
+        upside:"Upside vs price",
+        details:"Details",
+        warn:"Warnings / checks",
+        wH:"Watchlist",
+        wS:"Saved calculations on this device (localStorage).",
+        wTableH:"Saved items",
+        wNote:"Watchlist is stored locally in your browser. If you clear browser data or switch devices, items disappear.",
+        export:"Export CSV",
         clearAll:"Clear all",
-        watchTable:"Saved items",
-        w_company:"Company",
-        w_model:"Model",
-        w_fv:"Fair Value",
-        w_price:"Price",
-        w_upside:"Upside",
-        w_date:"Saved",
-        w_actions:"Actions",
-        emptyWatch:"No saved items yet.",
-        watchNote:"Watchlist is stored locally. If you clear browser data or switch devices, items disappear.",
-
-        aboutTitle:"About & Disclaimer",
-        aboutSub:"This tool is for learning. Always do your own research.",
-        aboutH:"What this app is",
-        aboutP:"Equity Analyzer helps you estimate a rough intrinsic value using common models (DCF, DDM, Multiples). Inputs are intentionally explained so you understand what you are doing.",
-        disclaimerH:"Disclaimer (Important)",
-        disclaimerP:"This is NOT financial advice. Outputs depend heavily on assumptions. Markets can be irrational. Use this as a learning aid only.",
-        forWhoH:"For whom it is useful",
-        forWhoP:"Investors who want to practice valuation thinking, compare scenarios, and save their notes. Best with real company fundamentals.",
-        howToH:"How to use",
-        howToP:"Choose a model, fill inputs, calculate, then save to Watchlist. Try conservative assumptions and compare outcomes.",
-
-        toastSaved:"Saved to Watchlist.",
+        wDate:"Date",
+        wTicker:"Ticker",
+        wCur:"Cur",
+        wPrice:"Price",
+        wBear:"Bear",
+        wBase:"Base",
+        wBull:"Bull",
+        wMos:"MOS",
+        wAct:"Actions",
+        aboutH:"About & Disclaimer",
+        aboutS:"Educational app • not financial advice.",
+        a1:"What this app is",
+        a1p:"Equity Analyzer is a learning tool. It estimates fair value using DCF scenarios (Bear/Base/Bull).",
+        a2:"For whom it is useful",
+        a2p:"For investors who want to practice valuation thinking, compare scenarios, and store notes in a watchlist.",
+        a3:"Disclaimer (important)",
+        a3p:"This is NOT financial advice. Outputs depend heavily on assumptions. Use at your own risk.",
+        a4:"How to use",
+        a4p:"Choose company type → fill inputs → Calculate → Save to Watchlist. Try conservative assumptions.",
+        toastNeedCalc:"First calculate a result.",
+        toastSaved:"Saved ✅",
         toastDeleted:"Deleted.",
-        toastCleared:"Watchlist cleared.",
-        toastNeedCalc:"First calculate a result to save.",
-        toastInvalid:"Some inputs are invalid. Check rates and required fields.",
-
-        modelBadge:"MODEL",
+        toastCleared:"Cleared.",
+        toastInvalid:"Some inputs are missing/invalid.",
+        modeQuick:"MODE: Quick",
+        modeAdv:"MODE: Advanced",
+        btnLoad:"Load",
+        btnDel:"Delete"
       },
 
       cs: {
-        appTitle: "Equity Analyzer",
-        appSubtitle: "Férová hodnota & portfolio pomocník (výukově)",
-        lang: "Jazyk",
-        help: "Jak to funguje",
-        quickSave: "Uložit do Watchlistu",
-
-        tab1:"Modely ocenění",
-        tab1sub:"DCF + Dividendy + Násobky. Vyber model podle typu firmy.",
+        title:"Equity Analyzer",
+        sub:"DCF férová cena • Watchlist • Výuka",
+        tab1:"DCF Model",
+        tab1s:"Univerzální DCF pro více typů firem (3 scénáře).",
         tab2:"Watchlist",
-        tab2sub:"Uložené výpočty. Ukládá se lokálně v prohlížeči.",
-        tab3:"O aplikaci & upozornění",
-        tab3sub:"Výuková aplikace. Nejde o finanční doporučení.",
-
-        panel1title:"Modely ocenění",
-        panel1subtitle:"Vyber model a zadej předpoklady. Aplikace vysvětluje, co který vstup znamená.",
-
-        company:"Firma",
-        tickerLbl:"Ticker / Název",
-        currencyLbl:"Měna",
-        storage:"Uloženo lokálně",
-        edu:"Výukově",
-        modelLbl:"Model",
-
-        dcfTitle:"DCF vstupy",
-        fcfLbl:"Aktuální Free Cash Flow (FCF)",
-        fcfHelp:"Hotovost, kterou firma generuje po investicích. Základ pro DCF.",
-        growthLbl:"Růst FCF (roky 1–5)",
-        growthHelp:"Odhad ročního růstu pro následujících 5 let.",
-        growth2Lbl:"Růst FCF (roky 6–10)",
-        growth2Help:"Pomalejší fáze růstu (zralá firma).",
-        discountLbl:"Diskontní sazba",
-        discountHelp:"Požadovaný výnos (riziko). Vyšší = nižší férová hodnota.",
-        terminalLbl:"Terminální růst",
-        terminalHelp:"Dlouhodobý růst po 10. roce (obvykle nízký).",
-        cashLbl:"Hotovost (Cash)",
-        cashHelp:"Přičítá se k enterprise value pro výpočet equity value.",
-        debtLbl:"Dluh (Debt)",
-        debtHelp:"Odečítá se pro výpočet equity value.",
-        sharesLbl:"Počet akcií (Shares)",
-        sharesHelp:"Přepočet celkové hodnoty na hodnotu na 1 akcii.",
-        priceLbl:"Aktuální cena (volitelné)",
-        priceHelp:"Pokud vyplníš, ukážeme potenciál vs férová hodnota.",
-
-        ddmTitle:"Model dividend (DDM) vstupy",
-        divLbl:"Dividenda příští rok (D1) na akcii",
-        divHelp:"Očekávaná dividenda v příštích 12 měsících.",
-        divGrowLbl:"Růst dividend",
-        divGrowHelp:"Dlouhodobé tempo růstu dividend.",
-        reqLbl:"Požadovaný výnos",
-        reqHelp:"Požadovaný výnos investora (musí být > růst dividend).",
-        price2Lbl:"Aktuální cena (volitelné)",
-        price2Help:"Pro výpočet potenciálu.",
-
-        multTitle:"Násobky (Multiples) vstupy",
-        epsLbl:"Forward EPS (na akcii)",
-        epsHelp:"Očekávaný zisk na akcii (příštích 12 měsíců).",
-        peLbl:"Cílové P/E",
-        peHelp:"Rozumný násobek pro firmu/odvětví.",
-        eBitdaLbl:"Forward EBITDA (volitelné)",
-        eBitdaHelp:"Pokud chceš EV/EBITDA, zadej EBITDA a násobek.",
-        evEbitdaLbl:"Cílové EV/EBITDA (volitelné)",
-        evEbitdaHelp:"Pokud vyplníš s EBITDA, dopočítáme enterprise value.",
-        cash2Lbl:"Hotovost (volitelně, pro EV→Equity)",
-        cash2Help:"Pouze pro EV/EBITDA větev.",
-        debt2Lbl:"Dluh (volitelně, pro EV→Equity)",
-        debt2Help:"Pouze pro EV/EBITDA větev.",
-        shares2Lbl:"Počet akcií",
-        shares2Help:"Nutné pro výpočet na 1 akcii.",
-        price3Lbl:"Aktuální cena (volitelné)",
-        price3Help:"Pro výpočet potenciálu.",
-
+        tab2s:"Uložené výpočty v zařízení (localStorage).",
+        tab3:"O aplikaci",
+        tab3s:"Výuková appka • Nejde o finanční doporučení.",
+        p1h:"DCF Model (3 scénáře)",
+        p1s:"Vyber typ firmy + způsob zadání, pak spočítej Bear/Base/Bull.",
+        inH:"Vstupy",
+        tickerL:"Ticker / Název",
+        tickerH:"Jen pro poznámky (watchlist).",
+        curL:"Měna",
+        typeL:"Typ firmy",
+        typeH:"Nastaví rozumné defaulty + upozornění (můžeš přepsat).",
+        modeL:"Režim",
+        priceL:"Aktuální cena (volitelné)",
+        priceH:"Pro potenciál a margin of safety.",
+        mosL:"Margin of Safety",
+        methodH:"Zadání pro DCF",
+        methodL:"Metoda",
+        methodHelp:"Když neznáš FCF, můžeš ho odhadnout přes Tržby a FCF marži.",
+        yearsL:"Projekce (roky)",
+        fcfL:"FCF (TTM nebo průměr 3–5 let)",
+        fcfH:"Roční FCF v zvolené měně.",
+        revL:"Tržby (ročně)",
+        revH:"Roční tržby v zvolené měně.",
+        margL:"FCF marže (base)",
+        margH:"FCF = Tržby × marže. Marže v %.",
+        capH:"Kapitálová struktura",
+        shL:"Počet akcií (diluted)",
+        shH:"Přepočet equity value na férovku na akcii.",
+        cashL:"Hotovost (Cash)",
+        cashH:"Přičítá se k EV.",
+        debtL:"Dluh (Debt)",
+        debtH:"Odečítá se pro equity value.",
+        assH:"Předpoklady (3 scénáře)",
+        drL:"Diskontní sazba (base)",
+        drH:"Vyšší riziko → vyšší diskont → nižší férovka.",
+        tgL:"Terminální růst",
+        tgH:"Dlouhodobý růst po projekci. Konzervativně.",
+        gBaseL:"Base růst",
+        gBaseH:"Roční růst FCF během projekce.",
+        gBearL:"Bear růst",
+        gBearH:"Quick: Base − 2 p.b. (v Advanced editovatelné).",
+        gBullL:"Bull růst",
+        gBullH:"Quick: Base + 2 p.b. (v Advanced editovatelné).",
+        tip:"Tip: V Quick režimu zadáš jen Base. Bear/Bull se dopočítá.",
         calc:"Spočítat",
         reset:"Reset",
         save:"Uložit výsledek",
-        noteSmall:"Tip: Růstové firmy → DCF. Dividendové firmy → DDM. Rychlá kontrola → Násobky.",
-
-        resultsTitle:"Výsledky",
-        fairValue:"Férová hodnota",
-        margin:"Margin of Safety",
-        detail:"Detaily",
-        sanity:"Kontroly",
-
-        watchTitle:"Watchlist",
-        watchSub:"Uložené výpočty. Ukládá se do localStorage (tento prohlížeč).",
+        demo:"Demo hodnoty",
+        saveTop:"Uložit do Watchlistu",
+        outH:"Výstupy",
+        baseFV:"Férovka (Base)",
+        rangeFV:"Rozsah (Bear → Bull)",
+        upside:"Potenciál vs cena",
+        details:"Detaily",
+        warn:"Upozornění / kontrola",
+        wH:"Watchlist",
+        wS:"Uložené výpočty v tomto zařízení (localStorage).",
+        wTableH:"Uložené položky",
+        wNote:"Watchlist je lokální v prohlížeči. Vymazání dat nebo jiné zařízení = položky zmizí.",
+        export:"Export CSV",
         clearAll:"Smazat vše",
-        watchTable:"Uložené položky",
-        w_company:"Firma",
-        w_model:"Model",
-        w_fv:"Férová hodnota",
-        w_price:"Cena",
-        w_upside:"Potenciál",
-        w_date:"Uloženo",
-        w_actions:"Akce",
-        emptyWatch:"Zatím nemáš nic uložené.",
-        watchNote:"Watchlist je lokální. Když vymažeš data prohlížeče nebo změníš zařízení, položky zmizí.",
-
-        aboutTitle:"O aplikaci & upozornění",
-        aboutSub:"Nástroj je výukový. Vždy dělej vlastní research.",
-        aboutH:"Co tahle appka je",
-        aboutP:"Equity Analyzer pomáhá odhadnout férovou hodnotu pomocí běžných modelů (DCF, DDM, Násobky). Vstupy jsou schválně vysvětlené, aby ses učil, co zadáváš.",
-        disclaimerH:"Upozornění (důležité)",
-        disclaimerP:"Tohle NENÍ finanční doporučení. Výsledky závisí na předpokladech. Trh může být iracionální. Ber to jako pomůcku na učení.",
-        forWhoH:"Pro koho je to vhodné",
-        forWhoP:"Pro investory, kteří chtějí trénovat uvažování o hodnotě, porovnávat scénáře a ukládat si poznámky. Nejlépe s reálnými fundamenty.",
-        howToH:"Jak to používat",
-        howToP:"Vyber model, vyplň vstupy, spočítej a ulož do Watchlistu. Zkoušej konzervativní předpoklady a porovnávej výsledky.",
-
-        toastSaved:"Uloženo do Watchlistu.",
+        wDate:"Datum",
+        wTicker:"Ticker",
+        wCur:"Měna",
+        wPrice:"Cena",
+        wBear:"Bear",
+        wBase:"Base",
+        wBull:"Bull",
+        wMos:"MOS",
+        wAct:"Akce",
+        aboutH:"O aplikaci & upozornění",
+        aboutS:"Výuková appka • ne finanční doporučení.",
+        a1:"Co to je",
+        a1p:"Equity Analyzer je výukový nástroj. Odhaduje férovou cenu přes DCF scénáře (Bear/Base/Bull).",
+        a2:"Pro koho je to",
+        a2p:"Pro investory, kteří chtějí trénovat ocenění, porovnávat scénáře a ukládat si poznámky.",
+        a3:"Upozornění (důležité)",
+        a3p:"Tohle NENÍ finanční doporučení. Výsledek je extrémně citlivý na předpoklady. Používej na vlastní riziko.",
+        a4:"Jak používat",
+        a4p:"Vyber typ firmy → vyplň vstupy → Spočítat → Uložit do Watchlistu. Zkoušej konzervativní předpoklady.",
+        toastNeedCalc:"Nejdřív něco spočítej.",
+        toastSaved:"Uloženo ✅",
         toastDeleted:"Smazáno.",
-        toastCleared:"Watchlist vymazán.",
-        toastNeedCalc:"Nejdřív něco spočítej, pak ukládej.",
-        toastInvalid:"Některé vstupy jsou špatně. Zkontroluj sazby a povinná pole.",
-
-        modelBadge:"MODEL",
+        toastCleared:"Vymazáno.",
+        toastInvalid:"Některé vstupy chybí / jsou špatně.",
+        modeQuick:"REŽIM: Quick",
+        modeAdv:"REŽIM: Advanced",
+        btnLoad:"Nahrát",
+        btnDel:"Smazat"
       }
     };
 
-    let LANG = "en";
-    const LS_KEY = "equity_analyzer_watchlist_v1";
-
-    // ========= Helpers =========
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-
-    function fmtNumber(n){
-      if(!isFinite(n)) return "—";
-      return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-    function fmtMoney(n, cur){
-      if(!isFinite(n)) return "—";
-      try{
-        return new Intl.NumberFormat(undefined,{style:"currency", currency:cur, maximumFractionDigits: 2}).format(n);
-      }catch{
-        return `${fmtNumber(n)} ${cur}`;
-      }
-    }
-    function toNum(v){
-      if(v === null || v === undefined) return NaN;
-      const s = String(v).trim().replace(/\s+/g,"").replace(",",".");
-      if(s === "") return NaN;
-      const x = Number(s);
-      return isFinite(x) ? x : NaN;
-    }
+    // ========= DOM helpers =========
+    const $ = (id)=>document.getElementById(id);
+    const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
 
     function toast(msg){
-      const el = $("#toast");
+      const el = $("toast");
       el.textContent = msg;
       el.style.display = "block";
       clearTimeout(toast._t);
-      toast._t = setTimeout(()=>{ el.style.display="none"; }, 2400);
+      toast._t = setTimeout(()=>{el.style.display="none";}, 2200);
     }
 
-    function setText(id, txt){ const el = document.getElementById(id); if(el) el.textContent = txt; }
-
-    function applyI18n(){
-      const t = I18N[LANG];
-
-      setText("t_appTitle", t.appTitle);
-      setText("t_appSubtitle", t.appSubtitle);
-      setText("t_lang", t.lang);
-      setText("t_help", t.help);
-      setText("t_quickSave", t.quickSave);
-
-      setText("t_tab1", t.tab1);
-      setText("t_tab1sub", t.tab1sub);
-      setText("t_tab2", t.tab2);
-      setText("t_tab2sub", t.tab2sub);
-      setText("t_tab3", t.tab3);
-      setText("t_tab3sub", t.tab3sub);
-
-      setText("t_panel1title", t.panel1title);
-      setText("t_panel1subtitle", t.panel1subtitle);
-
-      setText("t_company", t.company);
-      setText("t_tickerLbl", t.tickerLbl);
-      setText("t_currencyLbl", t.currencyLbl);
-      setText("t_storage", t.storage);
-      setText("t_edu", t.edu);
-      setText("t_modelLbl", t.modelLbl);
-
-      setText("t_dcfTitle", t.dcfTitle);
-      setText("t_fcfLbl", t.fcfLbl);
-      setText("t_fcfHelp", t.fcfHelp);
-      setText("t_growthLbl", t.growthLbl);
-      setText("t_growthHelp", t.growthHelp);
-      setText("t_growth2Lbl", t.growth2Lbl);
-      setText("t_growth2Help", t.growth2Help);
-      setText("t_discountLbl", t.discountLbl);
-      setText("t_discountHelp", t.discountHelp);
-      setText("t_terminalLbl", t.terminalLbl);
-      setText("t_terminalHelp", t.terminalHelp);
-      setText("t_cashLbl", t.cashLbl);
-      setText("t_cashHelp", t.cashHelp);
-      setText("t_debtLbl", t.debtLbl);
-      setText("t_debtHelp", t.debtHelp);
-      setText("t_sharesLbl", t.sharesLbl);
-      setText("t_sharesHelp", t.sharesHelp);
-      setText("t_priceLbl", t.priceLbl);
-      setText("t_priceHelp", t.priceHelp);
-
-      setText("t_ddmTitle", t.ddmTitle);
-      setText("t_divLbl", t.divLbl);
-      setText("t_divHelp", t.divHelp);
-      setText("t_divGrowLbl", t.divGrowLbl);
-      setText("t_divGrowHelp", t.divGrowHelp);
-      setText("t_reqLbl", t.reqLbl);
-      setText("t_reqHelp", t.reqHelp);
-      setText("t_price2Lbl", t.price2Lbl);
-      setText("t_price2Help", t.price2Help);
-
-      setText("t_multTitle", t.multTitle);
-      setText("t_epsLbl", t.epsLbl);
-      setText("t_epsHelp", t.epsHelp);
-      setText("t_peLbl", t.peLbl);
-      setText("t_peHelp", t.peHelp);
-      setText("t_eBitdaLbl", t.eBitdaLbl);
-      setText("t_eBitdaHelp", t.eBitdaHelp);
-      setText("t_evEbitdaLbl", t.evEbitdaLbl);
-      setText("t_evEbitdaHelp", t.evEbitdaHelp);
-      setText("t_cash2Lbl", t.cash2Lbl);
-      setText("t_cash2Help", t.cash2Help);
-      setText("t_debt2Lbl", t.debt2Lbl);
-      setText("t_debt2Help", t.debt2Help);
-      setText("t_shares2Lbl", t.shares2Lbl);
-      setText("t_shares2Help", t.shares2Help);
-      setText("t_price3Lbl", t.price3Lbl);
-      setText("t_price3Help", t.price3Help);
-
-      setText("t_calc", t.calc);
-      setText("t_reset", t.reset);
-      setText("t_save", t.save);
-      setText("t_noteSmall", t.noteSmall);
-
-      setText("t_resultsTitle", t.resultsTitle);
-      setText("t_fairValue", t.fairValue);
-      setText("t_margin", t.margin);
-      setText("t_detail", t.detail);
-      setText("t_sanity", t.sanity);
-
-      setText("t_watchTitle", t.watchTitle);
-      setText("t_watchSub", t.watchSub);
-      setText("t_clearAll", t.clearAll);
-      setText("t_watchTable", t.watchTable);
-      setText("t_w_company", t.w_company);
-      setText("t_w_model", t.w_model);
-      setText("t_w_fv", t.w_fv);
-      setText("t_w_price", t.w_price);
-      setText("t_w_upside", t.w_upside);
-      setText("t_w_date", t.w_date);
-      setText("t_w_actions", t.w_actions);
-      setText("t_emptyWatch", t.emptyWatch);
-      setText("t_watchNote", t.watchNote);
-
-      setText("t_aboutTitle", t.aboutTitle);
-      setText("t_aboutSub", t.aboutSub);
-      setText("t_aboutH", t.aboutH);
-      setText("t_aboutP", t.aboutP);
-      setText("t_disclaimerH", t.disclaimerH);
-      setText("t_disclaimerP", t.disclaimerP);
-      setText("t_forWhoH", t.forWhoH);
-      setText("t_forWhoP", t.forWhoP);
-      setText("t_howToH", t.howToH);
-      setText("t_howToP", t.howToP);
-
-      // Update badge label
-      updateModelBadge();
+    function nval(v){
+      const s = String(v ?? "").trim().replace(/\s+/g,"").replace(",",".");
+      if(!s) return NaN;
+      const x = Number(s);
+      return Number.isFinite(x) ? x : NaN;
     }
 
-    function updateCurrencyUnits(){
-      const cur = $("#currency").value;
-      $("#u_fcf").textContent = `${cur} / year`;
-      $("#u_cash").textContent = cur;
-      $("#u_debt").textContent = cur;
-      $("#u_price").textContent = `${cur} / share`;
-
-      $("#u_d1").textContent = `${cur} / share`;
-      $("#u_price2").textContent = `${cur} / share`;
-
-      $("#u_eps").textContent = `${cur} / share`;
-      $("#u_ebitda").textContent = cur;
-      $("#u_cash2").textContent = cur;
-      $("#u_debt2").textContent = cur;
-      $("#u_price3").textContent = `${cur} / share`;
+    function money(x, cur){
+      if(!Number.isFinite(x)) return "—";
+      try{ return new Intl.NumberFormat(undefined,{style:"currency",currency:cur,maximumFractionDigits:2}).format(x); }
+      catch{ return `${x.toFixed(2)} ${cur}`; }
+    }
+    function pct(x){
+      if(!Number.isFinite(x)) return "—";
+      const v = x*100;
+      return `${v>=0?"+":""}${v.toFixed(1)}%`;
+    }
+    function dateStr(iso){
+      const d = new Date(iso);
+      if(isNaN(d.getTime())) return "—";
+      return d.toLocaleString(undefined,{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
     }
 
-    function updateModelBadge(){
-      const t = I18N[LANG];
-      const m = $("#model").value;
-      $("#badgeModel").textContent = `${t.modelBadge}: ${m}`;
-    }
+    // ========= Apply language =========
+    function applyLang(){
+      const t = T[state.lang];
 
-    // We'll keep last calculation here to enable "Quick Save"
-    let LAST = null;
+      $("t_title").textContent = t.title;
+      $("t_sub").textContent = t.sub;
 
-    // ========= Modal / Help text =========
-    const HINTS = {
-      company: {
-        en: {
-          title:"Company fields",
-          body:`<ul>
-            <li><b>Ticker/Name</b> is just for your records.</li>
-            <li><b>Currency</b> is used only for formatting numbers.</li>
-            <li>All saved items live <b>only in your browser</b> (localStorage).</li>
-          </ul>`
-        },
-        cs: {
-          title:"Pole pro firmu",
-          body:`<ul>
-            <li><b>Ticker/Název</b> je jen pro tvoje poznámky.</li>
-            <li><b>Měna</b> je pouze pro formátování.</li>
-            <li>Ukládání je <b>jen v prohlížeči</b> (localStorage).</li>
-          </ul>`
-        }
-      },
-      dcf: {
-        en: {
-          title:"DCF (Free Cash Flow) explained",
-          body:`<ul>
-            <li>DCF discounts future cash flows back to today.</li>
-            <li><b>Discount rate</b> reflects risk (your required return).</li>
-            <li><b>Terminal growth</b> should be conservative (often ~2–3%).</li>
-            <li><b>Cash</b> adds value; <b>Debt</b> reduces value.</li>
-          </ul>`
-        },
-        cs: {
-          title:"DCF (Free Cash Flow) vysvětlení",
-          body:`<ul>
-            <li>DCF diskontuje budoucí cash flow na dnešní hodnotu.</li>
-            <li><b>Diskontní sazba</b> = riziko / požadovaný výnos.</li>
-            <li><b>Terminální růst</b> má být konzervativní (často ~2–3%).</li>
-            <li><b>Cash</b> přičítá hodnotu; <b>Debt</b> ji snižuje.</li>
-          </ul>`
-        }
-      },
-      ddm: {
-        en: {
-          title:"DDM explained",
-          body:`<ul>
-            <li>Works best for stable dividend payers.</li>
-            <li>Requires <b>required return</b> to be greater than <b>dividend growth</b>.</li>
-            <li>Very sensitive to small changes in rates.</li>
-          </ul>`
-        },
-        cs: {
-          title:"DDM vysvětlení",
-          body:`<ul>
-            <li>Nejlépe pro stabilní dividendové firmy.</li>
-            <li><b>Požadovaný výnos</b> musí být vyšší než <b>růst dividend</b>.</li>
-            <li>Hodně citlivé na malé změny sazeb.</li>
-          </ul>`
-        }
-      },
-      mult: {
-        en: {
-          title:"Multiples explained",
-          body:`<ul>
-            <li>Fast “sanity check” valuation approach.</li>
-            <li><b>P/E</b> uses EPS × target multiple.</li>
-            <li><b>EV/EBITDA</b> estimates enterprise value; then adjusts to equity using cash & debt.</li>
-          </ul>`
-        },
-        cs: {
-          title:"Násobky vysvětlení",
-          body:`<ul>
-            <li>Rychlá kontrola ocenění (“sanity check”).</li>
-            <li><b>P/E</b> = EPS × cílový násobek.</li>
-            <li><b>EV/EBITDA</b> dá enterprise value; pak přepočet na equity přes cash & debt.</li>
-          </ul>`
-        }
-      },
-      results: {
-        en: {
-          title:"How to read results",
-          body:`<ul>
-            <li><b>Fair Value</b> is the model's estimate per share.</li>
-            <li><b>Margin of Safety</b> compares fair value vs current price (if provided).</li>
-            <li>Try multiple scenarios: conservative, base, optimistic.</li>
-          </ul>`
-        },
-        cs: {
-          title:"Jak číst výsledky",
-          body:`<ul>
-            <li><b>Férová hodnota</b> je odhad na akcii podle modelu.</li>
-            <li><b>Margin of Safety</b> porovnává férovku s aktuální cenou (pokud je zadaná).</li>
-            <li>Zkoušej scénáře: konzervativní, základní, optimistický.</li>
-          </ul>`
-        }
-      },
-      watch: {
-        en: {
-          title:"Watchlist storage",
-          body:`<ul>
-            <li>Stored using <b>localStorage</b>.</li>
-            <li>Clearing browser data wipes it.</li>
-            <li>Use it as a notebook of your assumptions.</li>
-          </ul>`
-        },
-        cs: {
-          title:"Ukládání Watchlistu",
-          body:`<ul>
-            <li>Ukládá se do <b>localStorage</b>.</li>
-            <li>Vymazání dat prohlížeče to smaže.</li>
-            <li>Ber to jako poznámkový blok pro předpoklady.</li>
-          </ul>`
-        }
-      }
-    };
+      $("t_tab1").textContent = t.tab1; $("t_tab1s").textContent = t.tab1s;
+      $("t_tab2").textContent = t.tab2; $("t_tab2s").textContent = t.tab2s;
+      $("t_tab3").textContent = t.tab3; $("t_tab3s").textContent = t.tab3s;
 
-    function openModal(title, html){
-      $("#modalTitle").textContent = title;
-      $("#modalBody").innerHTML = html;
-      $("#modalOverlay").style.display = "flex";
-      $("#modalOverlay").setAttribute("aria-hidden","false");
-    }
-    function closeModal(){
-      $("#modalOverlay").style.display = "none";
-      $("#modalOverlay").setAttribute("aria-hidden","true");
+      $("t_p1h").textContent = t.p1h;
+      $("t_p1s").textContent = t.p1s;
+
+      $("t_inH").textContent = t.inH;
+      $("t_tickerL").textContent = t.tickerL;
+      $("t_tickerH").textContent = t.tickerH;
+      $("t_curL").textContent = t.curL;
+      $("t_typeL").textContent = t.typeL;
+      $("t_typeH").textContent = t.typeH;
+      $("t_modeL").textContent = t.modeL;
+      $("t_priceL").textContent = t.priceL;
+      $("t_priceH").textContent = t.priceH;
+      $("t_mosL").textContent = t.mosL;
+
+      $("t_methodH").textContent = t.methodH;
+      $("t_methodL").textContent = t.methodL;
+      $("t_methodHelp").textContent = t.methodHelp;
+      $("t_yearsL").textContent = t.yearsL;
+
+      $("t_fcfL").textContent = t.fcfL;
+      $("t_fcfH").textContent = t.fcfH;
+      $("t_revL").textContent = t.revL;
+      $("t_revH").textContent = t.revH;
+      $("t_margL").textContent = t.margL;
+      $("t_margH").textContent = t.margH;
+
+      $("t_capH").textContent = t.capH;
+      $("t_shL").textContent = t.shL;
+      $("t_shH").textContent = t.shH;
+      $("t_cashL").textContent = t.cashL;
+      $("t_cashH").textContent = t.cashH;
+      $("t_debtL").textContent = t.debtL;
+      $("t_debtH").textContent = t.debtH;
+
+      $("t_assH").textContent = t.assH;
+      $("t_drL").textContent = t.drL;
+      $("t_drH").textContent = t.drH;
+      $("t_tgL").textContent = t.tgL;
+      $("t_tgH").textContent = t.tgH;
+      $("t_gBaseL").textContent = t.gBaseL;
+      $("t_gBaseH").textContent = t.gBaseH;
+      $("t_gBearL").textContent = t.gBearL;
+      $("t_gBearH").textContent = t.gBearH;
+      $("t_gBullL").textContent = t.gBullL;
+      $("t_gBullH").textContent = t.gBullH;
+
+      $("t_tip").textContent = t.tip;
+
+      $("btnCalc").textContent = t.calc;
+      $("btnReset").textContent = t.reset;
+      $("btnSave").textContent = t.save;
+      $("btnDemo").textContent = t.demo;
+      $("btnSaveTop").textContent = t.saveTop;
+
+      $("t_outH").textContent = t.outH;
+      $("t_baseFV").textContent = t.baseFV;
+      $("t_rangeFV").textContent = t.rangeFV;
+      $("t_upside").textContent = t.upside;
+      $("t_details").textContent = t.details;
+      $("t_warn").textContent = t.warn;
+
+      $("t_wH").textContent = t.wH;
+      $("t_wS").textContent = t.wS;
+      $("t_wTableH").textContent = t.wTableH;
+      $("t_wNote").textContent = t.wNote;
+      $("btnExport").textContent = t.export;
+      $("btnClear").textContent = t.clearAll;
+
+      $("t_wDate").textContent = t.wDate;
+      $("t_wTicker").textContent = t.wTicker;
+      $("t_wCur").textContent = t.wCur;
+      $("t_wPrice").textContent = t.wPrice;
+      $("t_wBear").textContent = t.wBear;
+      $("t_wBase").textContent = t.wBase;
+      $("t_wBull").textContent = t.wBull;
+      $("t_wMos").textContent = t.wMos;
+      $("t_wAct").textContent = t.wAct;
+
+      $("t_aH").textContent = t.aboutH;
+      $("t_aS").textContent = t.aboutS;
+      $("t_a1").textContent = t.a1; $("t_a1p").textContent = t.a1p;
+      $("t_a2").textContent = t.a2; $("t_a2p").textContent = t.a2p;
+      $("t_a3").textContent = t.a3; $("t_a3p").textContent = t.a3p;
+      $("t_a4").textContent = t.a4; $("t_a4p").textContent = t.a4p;
+
+      // Badge mode
+      syncModeUI();
+      renderWatchlist();
     }
 
     // ========= Tabs =========
-    function showTab(name){
-      // tabs
-      $("#tabValuation").classList.toggle("active", name==="val");
-      $("#tabWatch").classList.toggle("active", name==="watch");
-      $("#tabAbout").classList.toggle("active", name==="about");
+    function showPanel(which){
+      $("tabModel").classList.toggle("active", which==="model");
+      $("tabWatch").classList.toggle("active", which==="watch");
+      $("tabAbout").classList.toggle("active", which==="about");
 
-      // panels
-      $("#panelValuation").style.display = (name==="val") ? "" : "none";
-      $("#panelWatch").style.display = (name==="watch") ? "" : "none";
-      $("#panelAbout").style.display = (name==="about") ? "" : "none";
+      $("panelModel").style.display = (which==="model") ? "" : "none";
+      $("panelWatch").style.display = (which==="watch") ? "" : "none";
+      $("panelAbout").style.display = (which==="about") ? "" : "none";
 
-      if(name==="watch") renderWatch();
-    }// ========= Calculations =========
-    function calcDCF(){
-      const cur = $("#currency").value;
-
-      const fcf = toNum($("#fcf").value);
-      const g1 = toNum($("#g1").value) / 100;
-      const g2 = toNum($("#g2").value) / 100;
-      const dr = toNum($("#dr").value) / 100;
-      const tg = toNum($("#tg").value) / 100;
-      const cash = toNum($("#cash").value) || 0;
-      const debt = toNum($("#debt").value) || 0;
-      const shares = toNum($("#shares").value);
-      const price = toNum($("#price").value);
-
-      // Validation
-      if(!(isFinite(fcf) && fcf>0 && isFinite(g1) && isFinite(g2) && isFinite(dr) && dr>0 && isFinite(tg) && isFinite(shares) && shares>0)) return { ok:false };
-      if(tg >= dr) return { ok:false, reason:"tg>=dr" };
-
-      // Project years 1-10
-      const years = [];
-      let f = fcf;
-      for(let y=1;y<=10;y++){
-        const gr = (y<=5) ? g1 : g2;
-        f = f * (1 + gr);
-        const pv = f / Math.pow(1+dr, y);
-        years.push({ y, fcf:f, pv });
-      }
-
-      const fcf10 = years[9].fcf;
-      const terminalValue = (fcf10 * (1 + tg)) / (dr - tg);
-      const pvTerminal = terminalValue / Math.pow(1+dr, 10);
-
-      const pvSum = years.reduce((a,b)=>a+b.pv,0);
-      const enterprise = pvSum + pvTerminal;
-      const equity = enterprise + cash - debt;
-      const fv = equity / shares;
-
-      let upside = NaN;
-      if(isFinite(price) && price>0) upside = (fv/price - 1);
-
-      // sanity notes
-      const sanity = [];
-      sanity.push(`PV(Years 1–10): ${fmtMoney(pvSum, cur)}`);
-      sanity.push(`PV(Terminal): ${fmtMoney(pvTerminal, cur)}`);
-      sanity.push(`Terminal share of EV: ${isFinite(enterprise) && enterprise>0 ? fmtNumber(pvTerminal/enterprise*100) : "—"}%`);
-      sanity.push(`Equity = EV + Cash − Debt`);
-
-      return {
-        ok:true,
-        model:"DCF",
-        currency:cur,
-        fairValue:fv,
-        price: isFinite(price) ? price : null,
-        upside,
-        detail:{
-          pv10: pvSum,
-          pvTerminal,
-          enterprise,
-          equity,
-          terminalValue
-        },
-        sanity
-      };
+      if(which==="watch") renderWatchlist();
     }
 
-    function calcDDM(){
-      const cur = $("#currency").value;
-
-      const d1 = toNum($("#d1").value);
-      const dg = toNum($("#dg").value) / 100;
-      const rr = toNum($("#rr").value) / 100;
-      const price = toNum($("#price2").value);
-
-      if(!(isFinite(d1) && d1>0 && isFinite(dg) && isFinite(rr) && rr>0)) return { ok:false };
-      if(dg >= rr) return { ok:false, reason:"dg>=rr" };
-
-      const fv = d1 / (rr - dg);
-
-      let upside = NaN;
-      if(isFinite(price) && price>0) upside = (fv/price - 1);
-
-      const sanity = [];
-      sanity.push(`Fair Value = D1 / (r − g)`);
-      sanity.push(`Small changes in r or g can shift the result a lot.`);
-      sanity.push(`Rule: r must be > g.`);
-
-      return {
-        ok:true,
-        model:"DDM",
-        currency:cur,
-        fairValue:fv,
-        price: isFinite(price) ? price : null,
-        upside,
-        detail:{ d1, dg, rr },
-        sanity
+    // ========= Defaults by type =========
+    function applyDefaultsByType(){
+      const type = $("in_type").value;
+      // only set defaults if fields are empty (so you can override)
+      const setIfEmpty = (id,val)=>{
+        const el = $(id);
+        if(!String(el.value||"").trim()) el.value = String(val);
       };
+
+      if(type==="growth"){
+        setIfEmpty("in_dr", 10);
+        setIfEmpty("in_tg", 2.5);
+        setIfEmpty("in_g_base", 12);
+      }else if(type==="mature"){
+        setIfEmpty("in_dr", 8.5);
+        setIfEmpty("in_tg", 2.0);
+        setIfEmpty("in_g_base", 5);
+      }else if(type==="cyclical"){
+        setIfEmpty("in_dr", 10);
+        setIfEmpty("in_tg", 1.8);
+        setIfEmpty("in_g_base", 4);
+      }else if(type==="reits"){
+        setIfEmpty("in_dr", 8.5);
+        setIfEmpty("in_tg", 2.0);
+        setIfEmpty("in_g_base", 3.5);
+      }else{ // financial
+        setIfEmpty("in_dr", 10.5);
+        setIfEmpty("in_tg", 1.8);
+        setIfEmpty("in_g_base", 3.5);
+      }
+
+      syncModeUI();
     }
 
-    function calcMULT(){
-      const cur = $("#currency").value;
+    // ========= Method switch =========
+    function syncMethodUI(){
+      const m = $("in_method").value;
+      $("blk_fcf").style.display = (m==="fcf") ? "" : "none";
+      $("blk_rev").style.display = (m==="rev") ? "" : "none";
+    }
 
-      const eps = toNum($("#eps").value);
-      const pe = toNum($("#pe").value);
-      const ebitda = toNum($("#ebitda").value);
-      const evebitda = toNum($("#evebitda").value);
-      const cash = toNum($("#cash2").value) || 0;
-      const debt = toNum($("#debt2").value) || 0;
-      const shares = toNum($("#shares2").value);
-      const price = toNum($("#price3").value);
+    function syncUnits(){
+      const cur = $("in_cur").value;
+      $("u_fcf").textContent = `${cur} / year`;
+      $("u_rev").textContent = `${cur} / year`;
+      $("u_cash").textContent = cur;
+      $("u_debt").textContent = cur;
+    }
 
-      if(!(isFinite(shares) && shares>0)) return { ok:false };
+    // ========= Mode (Quick / Advanced) =========
+    function syncModeUI(){
+      const t = T[state.lang];
+      const mode = $("in_mode").value;
+      $("badgeMode").textContent = (mode==="quick") ? t.modeQuick : t.modeAdv;
 
-      // Path A: EPS * PE
-      let fvPE = NaN;
-      if(isFinite(eps) && eps>0 && isFinite(pe) && pe>0){
-        fvPE = eps * pe;
+      const bear = $("in_g_bear");
+      const bull = $("in_g_bull");
+
+      if(mode==="quick"){
+        bear.setAttribute("disabled","disabled");
+        bull.setAttribute("disabled","disabled");
+        // derive from base
+        const base = nval($("in_g_base").value);
+        if(Number.isFinite(base)){
+          bear.value = String(Math.max(base - 2, -50));
+          bull.value = String(Math.min(base + 2, 80));
+        }else{
+          bear.value = "";
+          bull.value = "";
+        }
+      }else{
+        bear.removeAttribute("disabled");
+        bull.removeAttribute("disabled");
+        // if empty, prefill from base ±2
+        const base = nval($("in_g_base").value);
+        if(Number.isFinite(base)){
+          if(!String(bear.value||"").trim()) bear.value = String(Math.max(base - 2, -50));
+          if(!String(bull.value||"").trim()) bull.value = String(Math.min(base + 2, 80));
+        }
+      }
+    }
+
+    // ========= Core DCF =========
+    function impliedFCFBase(){
+      const method = $("in_method").value;
+      if(method==="fcf"){
+        return nval($("in_fcf").value);
+      }
+      // revenue × margin
+      const rev = nval($("in_rev").value);
+      const marg = nval($("in_marg").value) / 100;
+      if(!Number.isFinite(rev) || !Number.isFinite(marg)) return NaN;
+      return rev * marg;
+    }
+
+    function dcfPerShare(fcf0, g, years, dr, tg, cash, debt, shares){
+      // fcf0 is current annual FCF (base year)
+      // We grow for N years, discount each year.
+      let f = fcf0;
+      let pv = 0;
+
+      for(let y=1; y<=years; y++){
+        f = f * (1 + g);
+        pv += f / Math.pow(1 + dr, y);
       }
 
-      // Path B: EV/EBITDA -> equity -> per share
-      let fvEV = NaN;
-      if(isFinite(ebitda) && ebitda>0 && isFinite(evebitda) && evebitda>0){
-        const ev = ebitda * evebitda;
-        const equity = ev + cash - debt;
-        fvEV = equity / shares;
-      }
+      const fN = f; // last projected year FCF
+      // Terminal value (Gordon growth)
+      const tv = (fN * (1 + tg)) / (dr - tg);
+      const pvTV = tv / Math.pow(1 + dr, years);
 
-      if(!isFinite(fvPE) && !isFinite(fvEV)) return { ok:false };
+      const ev = pv + pvTV;
+      const eq = ev + cash - debt;
+      const perShare = eq / shares;
 
-      // Combine if both exist (simple average)
-      let fv = isFinite(fvPE) && isFinite(fvEV) ? (fvPE + fvEV)/2 : (isFinite(fvPE) ? fvPE : fvEV);
-
-      let upside = NaN;
-      if(isFinite(price) && price>0) upside = (fv/price - 1);
-
-      const sanity = [];
-      if(isFinite(fvPE)) sanity.push(`P/E path: FV = EPS × P/E = ${fmtMoney(fvPE, cur)}`);
-      if(isFinite(fvEV)) sanity.push(`EV/EBITDA path: EV = EBITDA × multiple → Equity → / Shares = ${fmtMoney(fvEV, cur)}`);
-      if(isFinite(fvPE) && isFinite(fvEV)) sanity.push(`Combined FV = average of both paths.`);
-
-      return {
-        ok:true,
-        model:"MULT",
-        currency:cur,
-        fairValue:fv,
-        price: isFinite(price) ? price : null,
-        upside,
-        detail:{ fvPE, fvEV },
-        sanity
-      };
+      return { perShare, pv, pvTV, ev, eq, tv };
     }
 
     function calcAll(){
-      const m = $("#model").value;
-      if(m==="DCF") return calcDCF();
-      if(m==="DDM") return calcDDM();
-      return calcMULT();
+      const cur = $("in_cur").value;
+
+      const ticker = ($("in_ticker").value || "").trim() || "—";
+      const price = nval($("in_price").value);
+      const mosPct = nval($("in_mos").value) / 100;
+
+      const years = Math.max(1, Math.min(50, Math.floor(nval($("in_years").value) || 10)));
+      const dr = nval($("in_dr").value) / 100;
+      const tg = nval($("in_tg").value) / 100;
+
+      const shares = nval($("in_shares").value);
+      const cash = nval($("in_cash").value) || 0;
+      const debt = nval($("in_debt").value) || 0;
+
+      const gBase = nval($("in_g_base").value) / 100;
+      const gBear = nval($("in_g_bear").value) / 100;
+      const gBull = nval($("in_g_bull").value) / 100;
+
+      const fcf0 = impliedFCFBase();
+
+      // Validation
+      const invalid =
+        !Number.isFinite(fcf0) || fcf0<=0 ||
+        !Number.isFinite(shares) || shares<=0 ||
+        !Number.isFinite(dr) || dr<=0 ||
+        !Number.isFinite(tg) ||
+        tg >= dr ||
+        !Number.isFinite(gBase) || !Number.isFinite(gBear) || !Number.isFinite(gBull);
+
+      if(invalid){
+        return { ok:false };
+      }
+
+      // Run 3 scenarios
+      const bear = dcfPerShare(fcf0, gBear, years, dr, tg, cash, debt, shares);
+      const base = dcfPerShare(fcf0, gBase, years, dr, tg, cash, debt, shares);
+      const bull = dcfPerShare(fcf0, gBull, years, dr, tg, cash, debt, shares);
+
+      // Upside & MOS
+      let upside = NaN, mosTarget = NaN;
+      if(Number.isFinite(price) && price>0){
+        upside = (base.perShare / price) - 1;
+        mosTarget = base.perShare * (1 - mosPct);
+      }
+
+      // Warnings / checks
+      const warns = [];
+      if(tg > 0.03) warns.push("Terminal growth is high (consider 1–3%).");
+      if(dr < 0.07) warns.push("Discount rate is low. Risk may be understated.");
+      if(base.pvTV/base.ev > 0.75) warns.push("Terminal value dominates (>75%). Consider more conservative growth/discount.");
+      if(gBull - gBear > 0.15) warns.push("Scenario spread is very wide. Double-check growth assumptions.");
+
+      return {
+        ok:true,
+        cur, ticker, price: Number.isFinite(price)?price:null, mosPct,
+        inputs: snapshotInputs(),
+        values: {
+          bear: bear.perShare,
+          base: base.perShare,
+          bull: bull.perShare
+        },
+        debug: { fcf0, years, dr, tg, cash, debt, shares, gBear, gBase, gBull,
+          pvBase: base.pv, pvTVBase: base.pvTV, evBase: base.ev, eqBase: base.eq },
+        upside, mosTarget,
+        warns
+      };
     }
 
-    function renderResult(res){
-      const t = I18N[LANG];
+    function render(res){
+      const t = T[state.lang];
+      const cur = $("in_cur").value;
+
       if(!res.ok){
-        $("#outFair").textContent = "—";
-        $("#outFairSub").textContent = "—";
-        $("#outMOS").textContent = "—";
-        $("#outMOSSub").textContent = "—";
-        $("#outDetail").textContent = t.toastInvalid;
-        $("#outSanity").textContent = "—";
+        $("out_base").textContent = "—";
+        $("out_base_sub").textContent = "—";
+        $("out_range").textContent = "—";
+        $("out_range_sub").textContent = "—";
+        $("out_upside").textContent = "—";
+        $("out_upside_sub").textContent = t.toastInvalid;
+        $("out_details").textContent = "—";
+        $("out_warn").textContent = "—";
         return;
       }
 
-      const cur = res.currency;
-      $("#outFair").textContent = fmtMoney(res.fairValue, cur);
+      const bear = res.values.bear;
+      const base = res.values.base;
+      const bull = res.values.bull;
 
-      const modelName = res.model === "MULT" ? "Multiples" : res.model;
-      $("#outFairSub").textContent = `Model: ${modelName}`;
+      $("out_base").textContent = money(base, cur);
+      $("out_base_sub").textContent = `Bear ${money(bear, cur)} • Bull ${money(bull, cur)}`;
 
-      if(res.price && isFinite(res.upside)){
-        const pct = res.upside * 100;
-        const mos = (res.price / res.fairValue - 1) * 100; // negative if undervalued
-        const upsideText = `${pct>=0?"+":""}${fmtNumber(pct)}%`;
-        const mosText = `${mos<=0?"+":""}${fmtNumber(-mos)}%`;
+      $("out_range").textContent = `${money(bear, cur)} → ${money(bull, cur)}`;
+      $("out_range_sub").textContent = `Base: ${money(base, cur)} (${res.ticker})`;
 
-        $("#outMOS").textContent = mosText;
-        $("#outMOSSub").textContent = (LANG==="en")
-          ? `vs price ${fmtMoney(res.price, cur)} (higher is better)`
-          : `vs cena ${fmtMoney(res.price, cur)} (vyšší = lepší)`;
-
-        // Details
-        $("#outDetail").innerHTML =
-          (LANG==="en")
-          ? `Fair value ${fmtMoney(res.fairValue, cur)} vs price ${fmtMoney(res.price, cur)} → upside: <b>${upsideText}</b>`
-          : `Férovka ${fmtMoney(res.fairValue, cur)} vs cena ${fmtMoney(res.price, cur)} → potenciál: <b>${upsideText}</b>`;
-
-        // Badge style MOS
-        const mosBadge = $("#outMOS").closest(".card");
-        // do nothing, but we can style by changing MOS badge class via outMOS content:
+      if(res.price){
+        $("out_upside").textContent = pct(res.upside);
+        const mosLabel = (res.mosPct>0) ? `MOS target: ${money(res.mosTarget, cur)}` : "MOS: OFF";
+        $("out_upside_sub").textContent = `Price: ${money(res.price, cur)} • ${mosLabel}`;
       }else{
-        $("#outMOS").textContent = "—";
-        $("#outMOSSub").textContent = (LANG==="en")
-          ? "Enter current price to compute margin of safety."
-          : "Zadej aktuální cenu pro výpočet margin of safety.";
-        $("#outDetail").textContent = (LANG==="en")
-          ? "Fair value computed. Add current price to show upside / margin of safety."
-          : "Férová hodnota spočítaná. Přidej aktuální cenu pro potenciál / MOS.";
+        $("out_upside").textContent = "—";
+        $("out_upside_sub").textContent = (state.lang==="cs")
+          ? "Zadej cenu pro potenciál a MOS."
+          : "Enter price to see upside & MOS.";
       }
 
-      $("#outSanity").innerHTML = res.sanity.map(x=>`• ${x}`).join("<br/>");
+      // details
+      const d = res.debug;
+      $("out_details").innerHTML =
+        `<div class="mono">
+          FCF0: ${money(d.fcf0, cur)}<br/>
+          Years: ${d.years} • DR: ${(d.dr*100).toFixed(2)}% • TG: ${(d.tg*100).toFixed(2)}%<br/>
+          PV(Proj): ${money(d.pvBase, cur)} • PV(Terminal): ${money(d.pvTVBase, cur)}<br/>
+          EV: ${money(d.evBase, cur)} • Equity: ${money(d.eqBase, cur)}
+        </div>`;
+
+      // warnings
+      if(res.warns.length){
+        $("out_warn").innerHTML = res.warns.map(x=>`• ${escapeHtml(x)}`).join("<br/>");
+      }else{
+        $("out_warn").textContent = (state.lang==="cs")
+          ? "Vypadá OK. Stejně si zkontroluj předpoklady."
+          : "Looks OK. Still double-check assumptions.";
+      }
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
     }
 
     // ========= Watchlist =========
-    function loadWatch(){
+    function loadWatchlist(){
       try{
         const raw = localStorage.getItem(LS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
         return Array.isArray(arr) ? arr : [];
-      }catch{
-        return [];
-      }
+      }catch{ return []; }
     }
-    function saveWatch(arr){
+    function saveWatchlist(arr){
       localStorage.setItem(LS_KEY, JSON.stringify(arr));
     }
 
-    function makeItemFromLast(){
-      if(!LAST || !LAST.ok) return null;
-      const cur = $("#currency").value;
-      const name = ($("#ticker").value || "").trim() || "—";
-      const now = new Date();
-      const price = LAST.price ?? null;
-
-      return {
-        id: crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2),
-        name,
-        model: LAST.model,
-        currency: LAST.currency || cur,
-        fairValue: LAST.fairValue,
-        price,
-        upside: (price && isFinite(price) && isFinite(LAST.fairValue) && LAST.fairValue>0) ? (LAST.fairValue/price - 1) : null,
-        createdAt: now.toISOString(),
-        inputs: snapshotInputs()
-      };
-    }
-
     function snapshotInputs(){
-      // Save relevant fields by model to help "load back"
-      const m = $("#model").value;
-      const common = {
-        ticker: $("#ticker").value,
-        currency: $("#currency").value,
-        model: m
-      };
-      if(m==="DCF"){
-        return {
-          ...common,
-          fcf: $("#fcf").value, g1: $("#g1").value, g2: $("#g2").value, dr: $("#dr").value, tg: $("#tg").value,
-          cash: $("#cash").value, debt: $("#debt").value, shares: $("#shares").value, price: $("#price").value
-        };
-      }
-      if(m==="DDM"){
-        return {
-          ...common,
-          d1: $("#d1").value, dg: $("#dg").value, rr: $("#rr").value, price2: $("#price2").value
-        };
-      }
       return {
-        ...common,
-        eps: $("#eps").value, pe: $("#pe").value, ebitda: $("#ebitda").value, evebitda: $("#evebitda").value,
-        cash2: $("#cash2").value, debt2: $("#debt2").value, shares2: $("#shares2").value, price3: $("#price3").value
+        ticker: $("in_ticker").value,
+        cur: $("in_cur").value,
+        type: $("in_type").value,
+        mode: $("in_mode").value,
+        mos: $("in_mos").value,
+        method: $("in_method").value,
+        years: $("in_years").value,
+        price: $("in_price").value,
+
+        fcf: $("in_fcf").value,
+        rev: $("in_rev").value,
+        marg: $("in_marg").value,
+
+        shares: $("in_shares").value,
+        cash: $("in_cash").value,
+        debt: $("in_debt").value,
+
+        dr: $("in_dr").value,
+        tg: $("in_tg").value,
+        g_base: $("in_g_base").value,
+        g_bear: $("in_g_bear").value,
+        g_bull: $("in_g_bull").value
       };
     }
 
     function loadInputs(inputs){
       if(!inputs) return;
-      $("#ticker").value = inputs.ticker ?? "";
-      $("#currency").value = inputs.currency ?? "USD";
-      $("#model").value = inputs.model ?? "DCF";
-      updateCurrencyUnits();
-      updateModelBadge();
-      toggleModelBlocks();
 
-      if(inputs.model==="DCF"){
-        $("#fcf").value = inputs.fcf ?? "";
-        $("#g1").value = inputs.g1 ?? "";
-        $("#g2").value = inputs.g2 ?? "";
-        $("#dr").value = inputs.dr ?? "9";
-        $("#tg").value = inputs.tg ?? "2.5";
-        $("#cash").value = inputs.cash ?? "";
-        $("#debt").value = inputs.debt ?? "";
-        $("#shares").value = inputs.shares ?? "";
-        $("#price").value = inputs.price ?? "";
-      }else if(inputs.model==="DDM"){
-        $("#d1").value = inputs.d1 ?? "";
-        $("#dg").value = inputs.dg ?? "";
-        $("#rr").value = inputs.rr ?? "9";
-        $("#price2").value = inputs.price2 ?? "";
-      }else{
-        $("#eps").value = inputs.eps ?? "";
-        $("#pe").value = inputs.pe ?? "";
-        $("#ebitda").value = inputs.ebitda ?? "";
-        $("#evebitda").value = inputs.evebitda ?? "";
-        $("#cash2").value = inputs.cash2 ?? "";
-        $("#debt2").value = inputs.debt2 ?? "";
-        $("#shares2").value = inputs.shares2 ?? "";
-        $("#price3").value = inputs.price3 ?? "";
-      }
-      // Recalculate after load
+      $("in_ticker").value = inputs.ticker ?? "";
+      $("in_cur").value = inputs.cur ?? "USD";
+      $("in_type").value = inputs.type ?? "growth";
+      $("in_mode").value = inputs.mode ?? "quick";
+      $("in_mos").value = inputs.mos ?? "0";
+      $("in_method").value = inputs.method ?? "fcf";
+      $("in_years").value = inputs.years ?? "10";
+      $("in_price").value = inputs.price ?? "";
+
+      $("in_fcf").value = inputs.fcf ?? "";
+      $("in_rev").value = inputs.rev ?? "";
+      $("in_marg").value = inputs.marg ?? "";
+
+      $("in_shares").value = inputs.shares ?? "";
+      $("in_cash").value = inputs.cash ?? "";
+      $("in_debt").value = inputs.debt ?? "";
+
+      $("in_dr").value = inputs.dr ?? "9";
+      $("in_tg").value = inputs.tg ?? "2.5";
+      $("in_g_base").value = inputs.g_base ?? "";
+      $("in_g_bear").value = inputs.g_bear ?? "";
+      $("in_g_bull").value = inputs.g_bull ?? "";
+
+      syncUnits();
+      syncMethodUI();
+      syncModeUI();
+
       const res = calcAll();
-      LAST = res.ok ? res : null;
-      renderResult(res);
-      showTab("val");
-      toast("Loaded inputs.");
+      state.last = res.ok ? res : null;
+      render(res);
+      showPanel("model");
+      toast("Loaded ✅");
     }
 
-    function renderWatch(){
-      const t = I18N[LANG];
-      const arr = loadWatch();
-      const body = $("#watchBody");
+    function addToWatchlist(){
+      const t = T[state.lang];
+      if(!state.last || !state.last.ok){
+        toast(t.toastNeedCalc);
+        return;
+      }
+      const now = new Date().toISOString();
+      const item = {
+        id: (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
+        dt: now,
+        ticker: state.last.ticker,
+        cur: state.last.cur,
+        price: state.last.price,
+        mosPct: state.last.mosPct,
+        values: state.last.values,
+        inputs: state.last.inputs
+      };
+      const arr = loadWatchlist();
+      arr.unshift(item);
+      saveWatchlist(arr);
+      renderWatchlist();
+      toast(t.toastSaved);
+    }
+
+    function delItem(id){
+      const t = T[state.lang];
+      const arr = loadWatchlist().filter(x=>x.id!==id);
+      saveWatchlist(arr);
+      renderWatchlist();
+      toast(t.toastDeleted);
+    }
+
+    function clearAll(){
+      const t = T[state.lang];
+      saveWatchlist([]);
+      renderWatchlist();
+      toast(t.toastCleared);
+    }
+
+    function exportCSV(){
+      const arr = loadWatchlist();
+      if(!arr.length){ toast(state.lang==="cs" ? "Watchlist je prázdný." : "Watchlist is empty."); return; }
+
+      const rows = [];
+      rows.push(["date","ticker","cur","price","bear","base","bull","mosPct"].join(","));
+      for(const it of arr){
+        rows.push([
+          it.dt,
+          safeCSV(it.ticker),
+          it.cur,
+          it.price ?? "",
+          it.values?.bear ?? "",
+          it.values?.base ?? "",
+          it.values?.bull ?? "",
+          it.mosPct ?? ""
+        ].join(","));
+      }
+      const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "equity-analyzer-watchlist.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast(state.lang==="cs" ? "CSV staženo ✅" : "CSV downloaded ✅");
+    }
+
+    function safeCSV(s){
+      const v = String(s ?? "");
+      if(v.includes(",") || v.includes('"') || v.includes("\n")){
+        return `"${v.replaceAll('"','""')}"`;
+      }
+      return v;
+    }
+
+    function renderWatchlist(){
+      const t = T[state.lang];
+      const body = $("watchBody");
       body.innerHTML = "";
 
-      if(arr.length === 0){
+      const arr = loadWatchlist();
+      if(!arr.length){
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.colSpan = 7;
-        td.className = "muted";
-        td.id = "t_emptyWatch";
-        td.textContent = t.emptyWatch;
+        td.colSpan = 9;
+        td.className = "mut";
+        td.textContent = (state.lang==="cs") ? "Zatím nic uloženého." : "Nothing saved yet.";
         tr.appendChild(td);
         body.appendChild(tr);
         return;
       }
 
-      // newest first
-      const sorted = [...arr].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
-      for(const it of sorted){
+      for(const it of arr){
         const tr = document.createElement("tr");
 
-        const tdName = document.createElement("td");
-        tdName.innerHTML = `<b>${escapeHtml(it.name || "—")}</b><div class="muted2 mono" style="margin-top:3px">${escapeHtml(it.id.slice(0,8))}</div>`;
-        tr.appendChild(tdName);
-
-        const tdModel = document.createElement("td");
-        tdModel.innerHTML = `<span class="tag">${escapeHtml(it.model)}</span>`;
-        tr.appendChild(tdModel);
-
-        const tdFV = document.createElement("td");
-        tdFV.className = "mono";
-        tdFV.textContent = fmtMoney(it.fairValue, it.currency || "USD");
-        tr.appendChild(tdFV);
-
-        const tdPrice = document.createElement("td");
-        tdPrice.className = "mono";
-        tdPrice.textContent = (it.price && isFinite(it.price)) ? fmtMoney(it.price, it.currency || "USD") : "—";
-        tr.appendChild(tdPrice);
-
-        const tdUp = document.createElement("td");
-        tdUp.className = "mono";
-        if(it.price && isFinite(it.price) && isFinite(it.fairValue) && it.fairValue>0){
-          const up = (it.fairValue/it.price - 1) * 100;
-          tdUp.textContent = `${up>=0?"+":""}${fmtNumber(up)}%`;
-        }else tdUp.textContent = "—";
-        tr.appendChild(tdUp);
-
         const tdDate = document.createElement("td");
-        tdDate.textContent = formatDate(it.createdAt);
+        tdDate.textContent = dateStr(it.dt);
         tr.appendChild(tdDate);
 
-        const tdAct = document.createElement("td");
-        tdAct.innerHTML = `
-          <button class="btn" type="button" data-act="load" data-id="${escapeAttr(it.id)}" style="padding:8px 10px;border-radius:12px">Load</button>
-          <button class="btn danger" type="button" data-act="del" data-id="${escapeAttr(it.id)}" style="padding:8px 10px;border-radius:12px;margin-left:6px">Delete</button>
-        `;
-        tr.appendChild(tdAct);
+        const tdT = document.createElement("td");
+        tdT.innerHTML = `<b>${escapeHtml(it.ticker || "—")}</b>`;
+        tr.appendChild(tdT);
+
+        const tdC = document.createElement("td");
+        tdC.textContent = it.cur || "—";
+        tr.appendChild(tdC);
+
+        const tdP = document.createElement("td");
+        tdP.textContent = (it.price!=null && Number.isFinite(it.price)) ? money(it.price, it.cur) : "—";
+        tr.appendChild(tdP);
+
+        const tdB1 = document.createElement("td");
+        tdB1.textContent = money(it.values?.bear, it.cur);
+        tr.appendChild(tdB1);
+
+        const tdB2 = document.createElement("td");
+        tdB2.textContent = money(it.values?.base, it.cur);
+        tr.appendChild(tdB2);
+
+        const tdB3 = document.createElement("td");
+        tdB3.textContent = money(it.values?.bull, it.cur);
+        tr.appendChild(tdB3);
+
+        const tdMos = document.createElement("td");
+        tdMos.textContent = it.mosPct ? `${(it.mosPct*100).toFixed(0)}%` : "OFF";
+        tr.appendChild(tdMos);
+
+        const tdA = document.createElement("td");
+        const btnLoad = document.createElement("button");
+        btnLoad.className = "btn";
+        btnLoad.textContent = t.btnLoad;
+        btnLoad.style.padding = "8px 10px";
+        btnLoad.style.borderRadius = "12px";
+        btnLoad.addEventListener("click", ()=> loadInputs(it.inputs));
+
+        const btnDel = document.createElement("button");
+        btnDel.className = "btn danger";
+        btnDel.textContent = t.btnDel;
+        btnDel.style.padding = "8px 10px";
+        btnDel.style.borderRadius = "12px";
+        btnDel.style.marginLeft = "8px";
+        btnDel.addEventListener("click", ()=> delItem(it.id));
+
+        tdA.appendChild(btnLoad);
+        tdA.appendChild(btnDel);
+        tr.appendChild(tdA);
 
         body.appendChild(tr);
       }
-
-      // bind actions
-      $$("#watchBody button").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.getAttribute("data-id");
-          const act = btn.getAttribute("data-act");
-          if(act==="del") deleteWatch(id);
-          if(act==="load") loadWatchItem(id);
-        });
-      });
     }
 
-    function deleteWatch(id){
-      const t = I18N[LANG];
-      const arr = loadWatch().filter(x=>x.id!==id);
-      saveWatch(arr);
-      renderWatch();
-      toast(t.toastDeleted);
-    }
-
-    function loadWatchItem(id){
-      const arr = loadWatch();
-      const it = arr.find(x=>x.id===id);
-      if(!it) return;
-      loadInputs(it.inputs);
-    }
-
-    function clearWatch(){
-      const t = I18N[LANG];
-      saveWatch([]);
-      renderWatch();
-      toast(t.toastCleared);
-    }
-
-    function addToWatch(){
-      const t = I18N[LANG];
-      if(!LAST || !LAST.ok){
-        toast(t.toastNeedCalc);
-        return;
-      }
-      const item = makeItemFromLast();
-      if(!item){
-        toast(t.toastNeedCalc);
-        return;
-      }
-      const arr = loadWatch();
-      arr.push(item);
-      saveWatch(arr);
-      renderWatch();
-      toast(t.toastSaved);
-    }
-
-    // ========= UI: Model blocks =========
-    function toggleModelBlocks(){
-      const m = $("#model").value;
-      $("#blockDCF").style.display = (m==="DCF") ? "" : "none";
-      $("#blockDDM").style.display = (m==="DDM") ? "" : "none";
-      $("#blockMULT").style.display = (m==="MULT") ? "" : "none";
-      updateModelBadge();
-    }
-
-    // ========= Reset =========
+    // ========= Buttons / Events =========
     function resetAll(){
-      // common
-      $("#ticker").value = "";
-      $("#currency").value = "USD";
-      $("#model").value = "DCF";
+      $("in_ticker").value = "";
+      $("in_cur").value = "USD";
+      $("in_type").value = "growth";
+      $("in_mode").value = "quick";
+      $("in_mos").value = "0";
+      $("in_method").value = "fcf";
+      $("in_years").value = "10";
+      $("in_price").value = "";
 
-      // DCF
-      $("#fcf").value = "";
-      $("#g1").value = "";
-      $("#g2").value = "";
-      $("#dr").value = "9";
-      $("#tg").value = "2.5";
-      $("#cash").value = "";
-      $("#debt").value = "";
-      $("#shares").value = "";
-      $("#price").value = "";
+      $("in_fcf").value = "";
+      $("in_rev").value = "";
+      $("in_marg").value = "";
 
-      // DDM
-      $("#d1").value = "";
-      $("#dg").value = "";
-      $("#rr").value = "9";
-      $("#price2").value = "";
+      $("in_shares").value = "";
+      $("in_cash").value = "";
+      $("in_debt").value = "";
 
-      // MULT
-      $("#eps").value = "";
-      $("#pe").value = "";
-      $("#ebitda").value = "";
-      $("#evebitda").value = "";
-      $("#cash2").value = "";
-      $("#debt2").value = "";
-      $("#shares2").value = "";
-      $("#price3").value = "";
+      $("in_dr").value = "9";
+      $("in_tg").value = "2.5";
+      $("in_g_base").value = "";
+      $("in_g_bear").value = "";
+      $("in_g_bull").value = "";
 
-      LAST = null;
-      toggleModelBlocks();
-      updateCurrencyUnits();
-      renderResult({ok:false});
+      syncUnits();
+      syncMethodUI();
+      applyDefaultsByType();
+      syncModeUI();
+      state.last = null;
+      render({ok:false});
     }
 
-    // ========= Formatting / safety helpers =========
-    function formatDate(iso){
-      if(!iso) return "—";
-      const d = new Date(iso);
-      if(isNaN(d.getTime())) return "—";
-      return d.toLocaleString(undefined, { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
-    }
-    function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
-    }
-    function escapeAttr(s){
-      return escapeHtml(s).replace(/"/g,"&quot;");
-    }
+    function demoValues(){
+      // demo tuned for mobile testing
+      $("in_ticker").value = "AAPL";
+      $("in_cur").value = "USD";
+      $("in_type").value = "mature";
+      $("in_mode").value = "quick";
+      $("in_method").value = "fcf";
+      $("in_years").value = "10";
+      $("in_price").value = "190";
 
-    // ========= Bind events =========
-    function bind(){
-      // language
-      $("#langEN").addEventListener("click", ()=>{
-        LANG="en";
-        $("#langEN").classList.add("active");
-        $("#langCS").classList.remove("active");
-        applyI18n();
-        renderWatch();
-      });
-      $("#langCS").addEventListener("click", ()=>{
-        LANG="cs";
-        $("#langCS").classList.add("active");
-        $("#langEN").classList.remove("active");
-        applyI18n();
-        renderWatch();
-      });
+      $("in_fcf").value = "100000000000";
+      $("in_shares").value = "15500000000";
+      $("in_cash").value = "60000000000";
+      $("in_debt").value = "90000000000";
 
-      // tabs
-      $("#tabValuation").addEventListener("click", ()=>showTab("val"));
-      $("#tabWatch").addEventListener("click", ()=>showTab("watch"));
-      $("#tabAbout").addEventListener("click", ()=>showTab("about"));
+      $("in_dr").value = "9";
+      $("in_tg").value = "2.5";
+      $("in_g_base").value = "6";
 
-      // model / currency
-      $("#model").addEventListener("change", ()=>{
-        toggleModelBlocks();
-      });
-      $("#currency").addEventListener("change", updateCurrencyUnits);
+      syncUnits();
+      syncMethodUI();
+      applyDefaultsByType();
+      syncModeUI();
 
-      // calculate
-      $("#btnCalculate").addEventListener("click", ()=>{
-        const res = calcAll();
-        if(!res.ok){
-          toast(I18N[LANG].toastInvalid);
-          renderResult(res);
-          LAST = null;
-          return;
-        }
-        LAST = res;
-        renderResult(res);
-      });
-
-      // reset
-      $("#btnReset").addEventListener("click", resetAll);
-
-      // save
-      $("#btnSave").addEventListener("click", addToWatch);
-      $("#btnQuickSave").addEventListener("click", addToWatch);
-
-      // clear watchlist
-      $("#btnClearWatch").addEventListener("click", clearWatch);
-
-      // modal
-      $("#modalClose").addEventListener("click", closeModal);
-      $("#modalOverlay").addEventListener("click", (e)=>{
-        if(e.target === $("#modalOverlay")) closeModal();
-      });
-
-      // hint icons
-      $$(".hint").forEach(h=>{
-        h.addEventListener("click", ()=>{
-          const key = h.getAttribute("data-hint");
-          const pack = HINTS[key]?.[LANG];
-          if(!pack) return;
-          openModal(pack.title, pack.body);
-        });
-      });
-
-      // help button
-      $("#btnHelp").addEventListener("click", ()=>{
-        const t = I18N[LANG];
-        const title = (LANG==="en") ? "How Equity Analyzer works" : "Jak funguje Equity Analyzer";
-        const body = (LANG==="en")
-          ? `<ul>
-              <li><b>Choose a model</b> that fits the business type.</li>
-              <li><b>Enter assumptions</b> (growth, discount rate, etc.). The tool explains each input.</li>
-              <li><b>Calculate</b> → you get an estimated fair value per share.</li>
-              <li><b>Save</b> results to Watchlist to track your thesis.</li>
-              <li><b>Disclaimer:</b> Education only, not financial advice.</li>
-            </ul>`
-          : `<ul>
-              <li><b>Vyber model</b> podle typu firmy.</li>
-              <li><b>Zadej předpoklady</b> (růst, diskont, atd.). Nástroj vysvětluje, co zadáváš.</li>
-              <li><b>Spočítej</b> → dostaneš odhad férové ceny na akcii.</li>
-              <li><b>Ulož</b> do Watchlistu a sleduj svoje scénáře.</li>
-              <li><b>Upozornění:</b> Výukový nástroj, ne finanční doporučení.</li>
-            </ul>`;
-        openModal(title, body);
-      });
-
-      // nice: compute on Enter in any numeric field
-      $$(".num").forEach(inp=>{
-        inp.addEventListener("keydown", (e)=>{
-          if(e.key === "Enter"){
-            $("#btnCalculate").click();
-          }
-        });
-      });
+      const res = calcAll();
+      state.last = res.ok ? res : null;
+      render(res);
+      toast(state.lang==="cs" ? "Demo nastaveno ✅" : "Demo set ✅");
     }
 
     // ========= Init =========
     function init(){
-      applyI18n();
-      updateCurrencyUnits();
-      toggleModelBlocks();
-      renderResult({ok:false});
-      renderWatch();
-      bind();
+      // tabs
+      $("tabModel").addEventListener("click", ()=>showPanel("model"));
+      $("tabWatch").addEventListener("click", ()=>showPanel("watch"));
+      $("tabAbout").addEventListener("click", ()=>showPanel("about"));
+
+      // language
+      $("btnEN").addEventListener("click", ()=>{
+        state.lang = "en";
+        $("btnEN").classList.add("active");
+        $("btnCZ").classList.remove("active");
+        applyLang();
+      });
+      $("btnCZ").addEventListener("click", ()=>{
+        state.lang = "cs";
+        $("btnCZ").classList.add("active");
+        $("btnEN").classList.remove("active");
+        applyLang();
+      });
+
+      // controls
+      $("in_cur").addEventListener("change", syncUnits);
+      $("in_method").addEventListener("change", ()=>{ syncMethodUI(); });
+      $("in_mode").addEventListener("change", ()=>{ syncModeUI(); });
+      $("in_type").addEventListener("change", ()=>{ applyDefaultsByType(); });
+
+      $("in_g_base").addEventListener("input", ()=>{ syncModeUI(); });
+
+      // buttons
+      $("btnCalc").addEventListener("click", ()=>{
+        const res = calcAll();
+        if(!res.ok){
+          toast(T[state.lang].toastInvalid);
+          render({ok:false});
+          state.last = null;
+          return;
+        }
+        state.last = res;
+        render(res);
+      });
+
+      $("btnSave").addEventListener("click", addToWatchlist);
+      $("btnSaveTop").addEventListener("click", addToWatchlist);
+      $("btnReset").addEventListener("click", resetAll);
+      $("btnDemo").addEventListener("click", demoValues);
+
+      $("btnExport").addEventListener("click", exportCSV);
+      $("btnClear").addEventListener("click", clearAll);
+
+      // enter = calculate
+      $$(".num").forEach(inp=>{
+        inp.addEventListener("keydown",(e)=>{ if(e.key==="Enter") $("btnCalc").click(); });
+      });
+
+      // initial
+      syncUnits();
+      syncMethodUI();
+      applyDefaultsByType();
+      syncModeUI();
+      applyLang();
+      renderWatchlist();
+      render({ok:false});
     }
 
     init();
   </script>
 </body>
 </html>
-  
-
-  
-
-
-  
-
-
-    
-
-
-      
-
-   
-
-  
-
-    
-
-          
-    
-
-    
-
-    
-    
-
-
-    
 
 
 
