@@ -2,678 +2,1018 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0b18" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#29134a" />
   <title>Equity Analyzer</title>
 
-  <!-- PWA (optional, pokud máš manifest + ikony) -->
+  <!-- PWA (pokud používáš) -->
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" sizes="192x192" href="icon-192.png" />
-  <link rel="icon" sizes="512x512" href="icon-512.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
 
   <style>
     :root{
-      --bg0:#070714;
-      --bg1:#0b0b18;
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.075);
-      --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(140,120,255,.35);
-      --text:#eef0ff;
-      --muted:rgba(238,240,255,.75);
-      --muted2:rgba(238,240,255,.55);
+      --bg0:#0b0614;
+      --bg1:#140a24;
+      --card:#1b0f2f;
+      --card2:#22103a;
+      --stroke:rgba(190,155,255,.22);
+      --stroke2:rgba(130,210,255,.18);
+      --glow:rgba(170,95,255,.25);
+      --text:#f3efff;
+      --muted:rgba(243,239,255,.72);
+      --muted2:rgba(243,239,255,.58);
 
-      --vio:#8b5cf6;
-      --vio2:#6d28d9;
-      --blue:#3b82f6;
-      --cyan:#22d3ee;
-
-      --good:#22c55e;
-      --warn:#f59e0b;
-      --bad:#ef4444;
+      --p1:#7d3cff; /* purple */
+      --p2:#3aa7ff; /* blue */
+      --p3:#b06cff; /* pink-ish */
+      --good:#2ee59d;
+      --warn:#ffcd4d;
+      --bad:#ff5b7a;
 
       --r:18px;
-      --r2:26px;
-      --shadow: 0 22px 60px rgba(0,0,0,.55);
-      --shadow2: 0 18px 40px rgba(0,0,0,.45);
-      --ring: 0 0 0 3px rgba(139,92,246,.35);
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --r2:24px;
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family:var(--font);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1100px 650px at 18% 10%, rgba(139,92,246,.35), transparent 55%),
-        radial-gradient(900px 520px at 88% 18%, rgba(59,130,246,.22), transparent 55%),
-        radial-gradient(900px 520px at 70% 92%, rgba(109,40,217,.25), transparent 55%),
+        radial-gradient(1200px 800px at 15% 10%, rgba(125,60,255,.22), transparent 55%),
+        radial-gradient(900px 700px at 85% 15%, rgba(58,167,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 65% 75%, rgba(176,108,255,.14), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
-      padding:24px 14px 36px;
+      overflow-x:hidden;
     }
 
-    .wrap{max-width:1100px;margin:0 auto}
-    .top{
-      display:flex; gap:14px; align-items:stretch; justify-content:space-between;
-      padding:16px; border:1px solid var(--stroke); border-radius:var(--r2);
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.045));
-      box-shadow:var(--shadow2);
-      backdrop-filter: blur(10px);
+    a{color:inherit}
+    .wrap{
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 18px 14px 64px;
     }
 
-    .brand{display:flex; gap:14px; align-items:center}
-    .logo{
-      width:46px;height:46px;border-radius:16px;
+    .topBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 14px;
+      border-radius: var(--r2);
       background:
-        radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
-        linear-gradient(135deg, rgba(139,92,246,.95), rgba(59,130,246,.85));
-      box-shadow: 0 18px 35px rgba(139,92,246,.25);
-      border:1px solid rgba(255,255,255,.12);
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 10px;
+      z-index: 10;
+      backdrop-filter: blur(12px);
     }
 
-    .titles h1{
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width: 220px;
+    }
+    .logo{
+      width:46px; height:46px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 45%),
+        linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 14px 35px rgba(125,60,255,.25), 0 10px 30px rgba(58,167,255,.18);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .brandText h1{
       margin:0;
-      font-size:34px;
-      line-height:1.05;
+      font-size: 22px;
       letter-spacing:.2px;
-      font-weight:800;
-      text-shadow: 0 10px 30px rgba(0,0,0,.25);
+      line-height:1.05;
+      font-weight: 900;
     }
-    .titles p{margin:4px 0 0;color:var(--muted);font-weight:600}
+    .brandText .sub{
+      margin-top:3px;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing:.2px;
+    }
 
-    .actions{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end;
+    .topActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
-    .seg{
-      display:inline-flex;
-      border:1px solid var(--stroke);
-      border-radius:999px;
-      background: rgba(255,255,255,.05);
-      overflow:hidden;
-    }
-    .seg button{
-      border:0; background:transparent; color:var(--muted);
-      padding:10px 14px; font-weight:800; cursor:pointer;
-      min-width:56px;
-    }
-    .seg button.active{
-      color:var(--text);
-      background: linear-gradient(180deg, rgba(139,92,246,.55), rgba(109,40,217,.35));
-      border-right:1px solid rgba(255,255,255,.08);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+    .pillRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
     }
 
     .btn{
-      border:1px solid rgba(255,255,255,.14);
-      color:var(--text);
+      border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
-      padding:10px 14px;
-      border-radius:14px;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
       cursor:pointer;
-      font-weight:800;
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      transition: transform .05s ease, border-color .15s ease, background .15s ease;
-      user-select:none;
-      white-space:nowrap;
+      font-weight: 750;
+      letter-spacing: .2px;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      box-shadow: 0 10px 28px rgba(0,0,0,.25);
     }
-    .btn:hover{border-color:rgba(139,92,246,.45); background: rgba(139,92,246,.12)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      border-color: rgba(139,92,246,.50);
-      background: linear-gradient(180deg, rgba(139,92,246,.65), rgba(109,40,217,.35));
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
     }
-    .btn.primary:hover{border-color: rgba(34,211,238,.35); background: linear-gradient(180deg, rgba(139,92,246,.75), rgba(109,40,217,.40));}
-    .btn.danger{
-      border-color: rgba(239,68,68,.55);
-      background: rgba(239,68,68,.10);
+    .btn:active{transform: translateY(0px) scale(.99);}
+
+    .btnPrimary{
+      background: linear-gradient(135deg, rgba(125,60,255,.95), rgba(58,167,255,.85));
+      border-color: rgba(255,255,255,.18);
+      box-shadow: 0 16px 40px rgba(125,60,255,.22), 0 14px 36px rgba(58,167,255,.16);
+    }
+
+    .seg{
+      display:flex;
+      border-radius:999px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+    .seg button{
+      padding:10px 14px;
+      border:0;
+      background: transparent;
+      color: var(--muted);
+      cursor:pointer;
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .seg button.active{
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(125,60,255,.45), rgba(58,167,255,.28));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
     }
 
     .tabs{
-      margin-top:14px;
-      display:flex; gap:10px; flex-wrap:wrap;
+      display:flex;
+      gap:10px;
+      margin: 16px 2px 12px;
+      flex-wrap:wrap;
     }
     .tab{
-      border:1px solid var(--stroke);
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.05);
-      color:var(--muted);
-      border-radius:999px;
-      padding:10px 14px;
-      font-weight:900;
+      color: var(--muted);
       cursor:pointer;
-      user-select:none;
+      font-weight: 900;
+      letter-spacing:.2px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
     }
     .tab.active{
-      color:var(--text);
-      border-color: rgba(139,92,246,.50);
-      background: linear-gradient(180deg, rgba(139,92,246,.35), rgba(109,40,217,.18));
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      background: linear-gradient(135deg, rgba(125,60,255,.55), rgba(58,167,255,.25));
+      color: var(--text);
+      border-color: rgba(255,255,255,.18);
+      box-shadow: 0 16px 42px rgba(125,60,255,.18), 0 14px 36px rgba(58,167,255,.12);
     }
 
     .grid{
-      margin-top:14px;
       display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap:14px;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 14px;
+    }
+    @media (max-width: 920px){
+      .grid{grid-template-columns:1fr;}
+      .brand{min-width:unset;}
     }
 
     .card{
-      border:1px solid var(--stroke);
-      border-radius:var(--r2);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(10px);
+      background:
+        radial-gradient(700px 380px at 15% 0%, rgba(125,60,255,.15), transparent 55%),
+        radial-gradient(700px 380px at 85% 10%, rgba(58,167,255,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--r2);
+      box-shadow: var(--shadow);
+      padding: 16px 14px;
+      position: relative;
       overflow:hidden;
     }
-    .card .hd{
-      padding:16px 16px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: var(--r2);
+      pointer-events:none;
+      background: radial-gradient(500px 220px at 10% 10%, rgba(125,60,255,.14), transparent 65%);
+      opacity:.9;
     }
-    .card .hd h2{margin:0; font-size:18px; letter-spacing:.2px}
-    .card .hd p{margin:4px 0 0; color:var(--muted2); font-weight:600; font-size:13px}
-    .card .bd{padding:16px}
+    .card > *{position:relative; z-index:1;}
 
-    .two{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
+    .cardTitle{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
       gap:12px;
+      margin-bottom: 8px;
     }
-    @media (max-width: 980px){
-      .grid{grid-template-columns:1fr}
+    .cardTitle h2{
+      margin:0;
+      font-size: 22px;
+      letter-spacing:.2px;
+      font-weight: 950;
     }
-    @media (max-width: 560px){
-      .two{grid-template-columns:1fr}
-      .titles h1{font-size:30px}
-      .btn{padding:10px 12px}
+    .cardTitle .hint{
+      margin-top:6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.25;
+      max-width: 520px;
     }
-
-    label{display:block; font-weight:900; font-size:13px; margin:0 0 6px}
-    .hint{color:var(--muted2); font-size:12px; margin-top:6px; line-height:1.35}
-    .row{margin-bottom:12px}
-    .in, select{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(8,8,22,.65);
-      color:var(--text);
-      outline:none;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
-    }
-    .in:focus, select:focus{box-shadow: var(--ring), inset 0 0 0 1px rgba(0,0,0,.25); border-color: rgba(139,92,246,.55)}
-    .in[readonly]{opacity:.85}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color:var(--muted);
-      font-weight:800;
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .mini{
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color:var(--muted);
-      cursor:pointer;
-      font-weight:900;
-    }
-
-    .actions2{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
-    .hr{height:1px;background:rgba(255,255,255,.08); margin:14px 0}
-    .kpi{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    .kpi .box{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-      border-radius:18px;
-      padding:14px;
-      min-height:96px;
-    }
-    .kpi .t{color:var(--muted2); font-weight:900; font-size:12px}
-    .kpi .v{font-size:22px; font-weight:1000; margin-top:6px}
-    .kpi .s{color:var(--muted2); font-weight:700; font-size:12px; margin-top:6px; line-height:1.35}
 
     .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      font-weight:900;
-      font-size:12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      letter-spacing:.2px;
+      white-space:nowrap;
     }
-    .badge.good{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10); color:#d9ffe8}
-    .badge.warn{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.10); color:#fff2d5}
-    .badge.bad{border-color:rgba(239,68,68,.35); background:rgba(239,68,68,.10); color:#ffe0e0}
+    .badge.on{
+      background: linear-gradient(135deg, rgba(125,60,255,.40), rgba(58,167,255,.22));
+      color: var(--text);
+      border-color: rgba(255,255,255,.18);
+    }
 
-    .tableWrap{overflow:auto;border-radius:18px;border:1px solid rgba(255,255,255,.10)}
-    table{width:100%;border-collapse:collapse;min-width:760px;background:rgba(0,0,0,.12)}
-    th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;font-size:13px}
-    th{position:sticky; top:0; background:rgba(10,10,26,.92); z-index:1}
-    td{color:rgba(238,240,255,.88)}
-    td.muted{color:rgba(238,240,255,.60)}
-    td.nowrap{white-space:nowrap}
-    .right{text-align:right}
-    .rowBtns{display:flex; gap:8px; justify-content:flex-end}
-    .toast{
-      position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
-      padding:12px 14px; border-radius:14px;
-      background: rgba(10,10,26,.92);
-      border:1px solid rgba(255,255,255,.12);
-      color:var(--text);
-      box-shadow: var(--shadow2);
-      max-width:min(680px,92vw);
+    .sectionTitle{
+      margin: 14px 0 10px;
+      font-size: 16px;
+      font-weight: 950;
+      color: var(--text);
+      letter-spacing:.2px;
+      opacity:.95;
+    }
+
+    .field{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin: 10px 0 12px;
+    }
+    .labelRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    label{
+      font-weight: 900;
+      letter-spacing:.2px;
+      color: var(--text);
+      opacity:.96;
+    }
+    .subLabel{
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height:1.25;
+    }
+
+    input, select, textarea{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+    }
+    input::placeholder, textarea::placeholder{color: rgba(243,239,255,.40)}
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(125,60,255,.42);
+      box-shadow: 0 0 0 4px rgba(125,60,255,.15), 0 0 0 1px rgba(58,167,255,.12) inset;
+    }
+
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 620px){
+      .row2{grid-template-columns:1fr;}
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .mini{
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height:1.25;
+    }
+
+    /* info icon + collapsible help */
+    .infoBtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      flex: 0 0 auto;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .infoBtn:hover{background: rgba(255,255,255,.08);}
+    .infoBtn svg{opacity:.92}
+
+    .infoBody{
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(190,155,255,.26);
+      background: rgba(125,60,255,.08);
+      color: var(--muted);
+      font-size: 12.8px;
+      line-height: 1.35;
       display:none;
-      font-weight:800;
+    }
+    .infoBody.open{display:block;}
+
+    .outGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 620px){
+      .outGrid{grid-template-columns:1fr;}
+    }
+    .outBox{
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      padding: 12px 12px;
+      min-height: 92px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.18);
+    }
+    .outBox h3{
+      margin:0 0 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .outVal{
+      font-size: 22px;
+      font-weight: 1000;
+      letter-spacing:.2px;
+    }
+    .outNote{
+      margin-top: 6px;
+      color: var(--muted2);
+      font-size: 12.5px;
+      line-height: 1.25;
     }
 
     .hidden{display:none !important;}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-    .small{font-size:12px;color:var(--muted2);line-height:1.45}
-    a{color:#c7b5ff}
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.65);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--text);
+      display:none;
+      box-shadow: 0 16px 55px rgba(0,0,0,.55);
+      backdrop-filter: blur(12px);
+      z-index: 999;
+      max-width: 92vw;
+      text-align:center;
+      font-weight: 850;
+      letter-spacing:.2px;
+    }
+
+    .wlTable{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: var(--r2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+    }
+    .wlTable th, .wlTable td{
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: var(--muted);
+      font-size: 13px;
+      text-align:left;
+      vertical-align: top;
+    }
+    .wlTable th{
+      color: var(--text);
+      font-weight: 950;
+      letter-spacing:.2px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .smallBtn{
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 999px;
+    }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <div class="top">
+
+    <!-- TOP BAR -->
+    <header class="topBar">
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
-        <div class="titles">
-          <h1 id="titleMain">Equity Analyzer</h1>
-          <p id="titleSub">DCF fair value • Watchlist • Education</p>
+        <div class="brandText">
+          <h1 id="heroTitle">Equity Analyzer</h1>
+          <div class="sub" id="heroSub">DCF fair value • Watchlist • Education</div>
         </div>
       </div>
 
-      <div class="actions">
+      <div class="topActions">
         <div class="seg" aria-label="Language">
-          <button id="btnEN" type="button" class="active">EN</button>
-          <button id="btnCZ" type="button">CZ</button>
+          <button id="btnLangEN" class="active" type="button">EN</button>
+          <button id="btnLangCZ" type="button">CZ</button>
         </div>
+
         <button id="btnDemo" class="btn" type="button">Demo values</button>
-        <button id="btnSaveTop" class="btn primary" type="button">Save to Watchlist</button>
+        <button id="btnSaveTop" class="btn btnPrimary" type="button">Save to Watchlist</button>
       </div>
-    </div>
+    </header>
 
-    <div class="tabs" role="tablist" aria-label="Sections">
-      <button class="tab active" id="tabDCF" type="button" role="tab" aria-selected="true">DCF Model</button>
-      <button class="tab" id="tabWL" type="button" role="tab" aria-selected="false">Watchlist</button>
-      <button class="tab" id="tabAbout" type="button" role="tab" aria-selected="false">About</button>
-    </div>
+    <!-- TABS -->
+    <nav class="tabs" aria-label="Sections">
+      <button id="tabModel" class="tab active" type="button" data-view="model">DCF Model</button>
+      <button id="tabWatch" class="tab" type="button" data-view="watch">Watchlist</button>
+      <button id="tabAbout" class="tab" type="button" data-view="about">About</button>
+    </nav>
 
-    <!-- DCF -->
-    <section id="viewDCF">
+    <!-- VIEW: MODEL -->
+    <section id="viewModel">
       <div class="grid">
+
+        <!-- INPUTS -->
         <div class="card">
-          <div class="hd">
+          <div class="cardTitle">
             <div>
               <h2 id="hInputs">Inputs</h2>
-              <p id="pInputs">Multi-scenario DCF with guardrails. Use ranges (Bear/Base/Bull) and stay conservative.</p>
+              <div class="hint" id="hInputsHint">
+                Multi-scenario DCF with guardrails. Use ranges (Bear/Base/Bull) and stay conservative.
+              </div>
             </div>
-            <span class="pill" id="pillMode">MODE: Quick</span>
+            <div class="badge on" id="modeBadge">MODE: Quick</div>
           </div>
-          <div class="bd">
 
-            <div class="two">
-              <div class="row">
-                <label id="lTicker" for="in_ticker">Ticker / Name</label>
-                <input class="in" id="in_ticker" placeholder="e.g., AAPL / SOFI / PLTR" />
-                <div class="hint" id="hTicker">Used for watchlist label.</div>
+          <div class="sectionTitle" id="secBasics">Basics</div>
+
+          <div class="field">
+            <div class="labelRow">
+              <label for="in_ticker" id="lbTicker">Ticker / Name</label>
+              <button class="infoBtn" type="button" data-info="info_ticker" aria-label="Info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            <input id="in_ticker" type="text" placeholder="e.g., AAPL / SOFI / PLTR" />
+            <div class="subLabel" id="sbTicker">Used for watchlist label.</div>
+            <div id="info_ticker" class="infoBody">
+              <b>Co sem dát:</b> ticker nebo název firmy (kvůli uložení do Watchlistu).<br>
+              <b>Kde to najdeš:</b> Yahoo Finance / TradingView / broker app.
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_currency" id="lbCurrency">Currency</label>
+                <button class="infoBtn" type="button" data-info="info_currency" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
               </div>
-              <div class="row">
-                <label id="lCur" for="in_currency">Currency</label>
-                <select id="in_currency">
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="CZK">CZK</option>
-                </select>
-                <div class="hint" id="hCur">All inputs should be in the selected currency.</div>
+              <select id="in_currency">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CZK">CZK</option>
+                <option value="GBP">GBP</option>
+              </select>
+              <div class="subLabel" id="sbCurrency">All inputs should be in the selected currency.</div>
+              <div id="info_currency" class="infoBody">
+                Drž všechny vstupy v jedné měně (FCF, cash, debt).<br>
+                <b>Tip:</b> u amerických akcií typicky USD.
               </div>
             </div>
 
-            <div class="two">
-              <div class="row">
-                <label id="lType" for="in_type">Company type</label>
-                <select id="in_type">
-                  <option value="growth">Growth / Tech</option>
-                  <option value="mature">Mature / Blue-chip</option>
-                  <option value="financial">Financial (use cautiously)</option>
-                  <option value="cyclical">Cyclical / Commodities</option>
-                  <option value="reits">REITs (use cautiously)</option>
-                </select>
-                <div class="hint" id="hType">Sets reasonable defaults + warnings (you can override).</div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_type" id="lbType">Company type</label>
+                <button class="infoBtn" type="button" data-info="info_type" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
               </div>
+              <select id="in_type">
+                <option value="growth">Growth / Tech</option>
+                <option value="mature">Mature / Blue-chip</option>
+                <option value="financial">Financial (bank/ins.)</option>
+                <option value="cyclical">Cyclical</option>
+              </select>
+              <div class="subLabel" id="sbType">Sets reasonable defaults + warnings (you can override).</div>
+              <div id="info_type" class="infoBody">
+                Volba typu firmy nastaví rozumné defaulty (disc. rate, růst, varování).<br>
+                <b>Tip:</b> banky/pojišťovny se často valuují jinak (P/B, ROE) → tady jen orientačně.
+              </div>
+            </div>
+          </div>
 
-              <div class="row">
-                <label id="lMode" for="in_mode">Mode</label>
-                <select id="in_mode">
-                  <option value="quick">Quick (Bear/Bull auto)</option>
-                  <option value="advanced">Advanced (manual)</option>
-                </select>
-                <div class="hint" id="hMode">Quick: enter Base; Bear/Bull derived (±2pp default).</div>
+          <div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_mode" id="lbMode">Mode</label>
+                <button class="infoBtn" type="button" data-info="info_mode" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <select id="in_mode">
+                <option value="quick">Quick (Bear/Bull auto)</option>
+                <option value="advanced">Advanced (edit all 3)</option>
+              </select>
+              <div class="subLabel" id="sbMode">Quick: enter Base; Bear/Bull are derived (± spread).</div>
+              <div id="info_mode" class="infoBody">
+                <b>Quick:</b> zadáš jen Base růst, Bear/Bull se dopočítají podle spreadu.<br>
+                <b>Advanced:</b> nastavíš Bear/Base/Bull ručně (pro detailní práci).
               </div>
             </div>
 
-            <div class="two">
-              <div class="row">
-                <label id="lPrice" for="in_price">Current price (optional)</label>
-                <input class="in" id="in_price" placeholder="e.g., 180.50" inputmode="decimal" />
-                <div class="hint" id="hPrice">Used only for upside / margin-of-safety view.</div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_price" id="lbPrice">Current price (optional)</label>
+                <button class="infoBtn" type="button" data-info="info_price" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
               </div>
-              <div class="row">
-                <label id="lMOS" for="in_mos">Margin of Safety</label>
-                <select id="in_mos">
-                  <option value="off">OFF</option>
-                  <option value="10">10%</option>
-                  <option value="15">15%</option>
-                  <option value="20">20%</option>
-                  <option value="25">25%</option>
-                  <option value="30">30%</option>
-                </select>
-                <div class="hint" id="hMOS">Applied after valuation (to Base) for a conservative target.</div>
+              <input id="in_price" type="text" placeholder="e.g., 180.50" />
+              <div class="subLabel" id="sbPrice">Used only for upside / margin-of-safety view.</div>
+              <div id="info_price" class="infoBody">
+                Aktuální cena pro výpočet “upside vs price”.<br>
+                <b>Kde:</b> TradingView / Yahoo Finance / broker.
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="labelRow">
+              <label for="in_mos" id="lbMos">Margin of Safety</label>
+              <button class="infoBtn" type="button" data-info="info_mos" aria-label="Info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            <select id="in_mos">
+              <option value="0">OFF</option>
+              <option value="10">10 %</option>
+              <option value="15">15 %</option>
+              <option value="20">20 %</option>
+              <option value="25">25 %</option>
+              <option value="30">30 %</option>
+            </select>
+            <div class="subLabel" id="sbMos">Applied after valuation (to Base) for a conservative target.</div>
+            <div id="info_mos" class="infoBody">
+              Margin of Safety sníží cílovou “férovku” (Base) o zvolené %. <br>
+              <b>Tip:</b> konzervativně 15–25 % u rizikovějších firem.
+            </div>
+          </div>
+
+          <div class="sectionTitle" id="secDCF">DCF method</div>
+
+          <div class="field">
+            <div class="labelRow">
+              <label for="in_method" id="lbMethod">Method</label>
+              <button class="infoBtn" type="button" data-info="info_method" aria-label="Info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            <select id="in_method">
+              <option value="fcf">Direct FCF (recommended)</option>
+              <option value="revenue">Revenue × FCF margin (estimate)</option>
+            </select>
+            <div class="subLabel" id="sbMethod">If you don’t know FCF, estimate it via revenue × margin.</div>
+            <div id="info_method" class="infoBody">
+              <b>Direct FCF:</b> zadáš FCF (nejlepší varianta).<br>
+              <b>Revenue × margin:</b> když nemáš FCF, odhadneš ho přes tržby a FCF marži.<br>
+              <b>Kde:</b> 10-K/10-Q, cash flow statement, nebo agregátory (Macrotrends apod.).
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_years" id="lbYears">Projection (years)</label>
+                <button class="infoBtn" type="button" data-info="info_years" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_years" type="text" placeholder="10" value="10" />
+              <div class="subLabel" id="sbYears">Commonly 5–10 years depending on predictability.</div>
+              <div id="info_years" class="infoBody">
+                Typicky 5–10 let. Stabilnější firmy → klidně 10, cyklické → radši kratší horizont.
               </div>
             </div>
 
-            <div class="hr"></div>
-
-            <div class="two">
-              <div class="row">
-                <label id="lMethod" for="in_method">DCF method</label>
-                <select id="in_method">
-                  <option value="fcf">Direct FCF (recommended)</option>
-                  <option value="rev">Revenue × FCF margin (estimate)</option>
-                </select>
-                <div class="hint" id="hMethod">If you don’t know FCF, estimate it via revenue × margin.</div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_fcf" id="lbFCF">FCF (TTM or 3–5y avg)</label>
+                <button class="infoBtn" type="button" data-info="info_fcf" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
               </div>
+              <input id="in_fcf" type="text" placeholder="e.g., 11000000000" />
+              <div class="subLabel" id="sbFCF">Prefer a 3–5 year average for cyclical firms.</div>
+              <div id="info_fcf" class="infoBody">
+                <b>FCF</b> (free cash flow) ideálně průměr 3–5 let u cyklických firem (ne “jeden skvělej rok”).<br>
+                <b>Kde:</b> Cash Flow Statement → “Free Cash Flow” (nebo CFO − CapEx).
+              </div>
+            </div>
+          </div>
 
-              <div class="row">
-                <label id="lYears" for="in_years">Projection (years)</label>
-                <input class="in" id="in_years" value="10" inputmode="numeric" />
-                <div class="hint" id="hYears">Commonly 5–10 years depending on predictability.</div>
+          <div class="field">
+            <div class="labelRow">
+              <label for="in_units" id="lbUnits">Units</label>
+              <button class="infoBtn" type="button" data-info="info_units" aria-label="Info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            <select id="in_units">
+              <option value="raw">Raw numbers</option>
+              <option value="m">Millions</option>
+              <option value="b">Billions</option>
+            </select>
+            <div class="subLabel" id="sbUnits">Optional: enter values in millions/billions for comfort.</div>
+            <div id="info_units" class="infoBody">
+              Když zadáš “Millions”, tak 11,000 znamená 11,000,000,000 (11B).<br>
+              <b>Tip:</b> drž konzistentní jednotky pro FCF/cash/debt.
+            </div>
+          </div>
+
+          <div class="sectionTitle" id="secCapital">Capital structure</div>
+
+          <div class="field">
+            <div class="labelRow">
+              <label for="in_shares" id="lbShares">Shares (diluted)</label>
+              <button class="infoBtn" type="button" data-info="info_shares" aria-label="Info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+            <input id="in_shares" type="text" placeholder="e.g., 15500000000" />
+            <div class="subLabel" id="sbShares">Used to compute fair value per share.</div>
+            <div id="info_shares" class="infoBody">
+              Počet akcií “diluted” (zředěný).<br>
+              <b>Kde:</b> 10-K/10-Q (Weighted avg diluted shares), nebo Yahoo Finance → Statistics.
+            </div>
+          </div><div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_cash" id="lbCash">Cash (optional)</label>
+                <button class="infoBtn" type="button" data-info="info_cash" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_cash" type="text" placeholder="e.g., 50000000000" />
+              <div class="subLabel" id="sbCash">Added to enterprise value (EV → Equity).</div>
+              <div id="info_cash" class="infoBody">
+                Hotovost + krátkodobé investice (cash & equivalents).<br>
+                <b>Kde:</b> Balance Sheet.
               </div>
             </div>
 
-            <!-- method: FCF -->
-            <div id="boxFCF">
-              <div class="row">
-                <label id="lFCF" for="in_fcf">FCF (TTM or 3–5y avg)</label>
-                <input class="in" id="in_fcf" placeholder="e.g., 11000000000" inputmode="decimal" />
-                <div class="hint" id="hFCF">Prefer a 3–5y average for cyclical firms (avoid “one great year”).</div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_debt" id="lbDebt">Debt (optional)</label>
+                <button class="infoBtn" type="button" data-info="info_debt" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_debt" type="text" placeholder="e.g., 70000000000" />
+              <div class="subLabel" id="sbDebt">Subtracted to get equity value.</div>
+              <div id="info_debt" class="infoBody">
+                Celkový úročený dluh (short + long term debt).<br>
+                <b>Kde:</b> Balance Sheet.
+              </div>
+            </div>
+          </div>
+
+          <div class="sectionTitle" id="secAssumptions">Assumptions (3 scenarios)</div>
+
+          <div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_disc" id="lbDisc">Discount rate (base) %</label>
+                <button class="infoBtn" type="button" data-info="info_disc" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_disc" type="text" placeholder="9" value="9" />
+              <div class="subLabel" id="sbDisc">Higher risk → higher discount → lower fair value.</div>
+              <div id="info_disc" class="infoBody">
+                Diskontní sazba (WACC/požadovaný výnos).<br>
+                <b>Tip:</b> ty chceš typicky ~9 % jako default (sedí).
               </div>
             </div>
 
-            <!-- method: revenue -->
-            <div id="boxREV" class="hidden">
-              <div class="two">
-                <div class="row">
-                  <label id="lRev" for="in_rev">Revenue (TTM)</label>
-                  <input class="in" id="in_rev" placeholder="e.g., 95000000000" inputmode="decimal" />
-                  <div class="hint" id="hRev">Same currency as selected.</div>
-                </div>
-                <div class="row">
-                  <label id="lMargin" for="in_margin">FCF margin (%)</label>
-                  <input class="in" id="in_margin" placeholder="e.g., 18" inputmode="decimal" />
-                  <div class="hint" id="hMargin">FCF ≈ Revenue × Margin.</div>
-                </div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_term" id="lbTerm">Terminal growth %</label>
+                <button class="infoBtn" type="button" data-info="info_term" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_term" type="text" placeholder="2.5" value="2.5" />
+              <div class="subLabel" id="sbTerm">Long-run growth after projection. Keep conservative.</div>
+              <div id="info_term" class="infoBody">
+                Terminální růst po projekci. Bývá blízko dlouhodobé inflace / růstu ekonomiky.<br>
+                <b>Tip:</b> 1.5–3 % je běžný rozumný rozsah.
+              </div>
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_base" id="lbBase">Base FCF growth %</label>
+                <button class="infoBtn" type="button" data-info="info_base" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <input id="in_base" type="text" placeholder="12" value="12" />
+              <div class="subLabel" id="sbBase">Annual growth during projection.</div>
+              <div id="info_base" class="infoBody">
+                Roční růst FCF v projekci.<br>
+                <b>Kde:</b> odhad podle růstu tržeb, marží, guidance, nebo historického průměru (konzervativně).
               </div>
             </div>
 
-            <div class="two">
-              <div class="row">
-                <label id="lUnits" for="in_units">Units</label>
-                <select id="in_units">
-                  <option value="raw">Raw numbers</option>
-                  <option value="m">Millions</option>
-                  <option value="b">Billions</option>
-                </select>
-                <div class="hint" id="hUnits">Optional: you can enter values in millions/billions for comfort.</div>
+            <div class="field">
+              <div class="labelRow">
+                <label for="in_spread" id="lbSpread">Quick spread (± pp)</label>
+                <button class="infoBtn" type="button" data-info="info_spread" aria-label="Info">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 17v-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 7h.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="white" stroke-width="2"/>
+                  </svg>
+                </button>
               </div>
-              <div class="row">
-                <label id="lShares" for="in_shares">Shares (diluted)</label>
-                <input class="in" id="in_shares" placeholder="e.g., 15500000000" inputmode="decimal" />
-                <div class="hint" id="hShares">Used to compute fair value per share.</div>
-              </div>
-            </div>
-
-            <div class="two">
-              <div class="row">
-                <label id="lCash" for="in_cash">Cash (optional)</label>
-                <input class="in" id="in_cash" placeholder="e.g., 50000000000" inputmode="decimal" />
-                <div class="hint" id="hCash">Added to enterprise value (EV → Equity).</div>
-              </div>
-              <div class="row">
-                <label id="lDebt" for="in_debt">Debt (optional)</label>
-                <input class="in" id="in_debt" placeholder="e.g., 70000000000" inputmode="decimal" />
-                <div class="hint" id="hDebt">Subtracted to get equity value.</div>
+              <input id="in_spread" type="text" placeholder="2" value="2" />
+              <div class="subLabel" id="sbSpread">Quick mode derives Bear/Base/Bull = Base ± spread.</div>
+              <div id="info_spread" class="infoBody">
+                Spread pro rychlý režim. Např. Base 12 a spread 2 → Bear 10 / Bull 14.
               </div>
             </div>
+          </div>
 
-            <div class="hr"></div>
+          <div class="actions">
+            <button id="btnCalc" class="btn btnPrimary" type="button">Calculate</button>
+            <button id="btnReset" class="btn" type="button">Reset</button>
+            <button id="btnSave" class="btn" type="button">Save result</button>
+          </div>
 
-            <div class="card" style="border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.10);box-shadow:none">
-              <div class="hd" style="border-bottom:1px solid rgba(255,255,255,.08);padding:14px 14px 10px">
-                <div>
-                  <h2 id="hAss">Assumptions (3 scenarios)</h2>
-                  <p id="pAss">Bear/Base/Bull ranges help avoid false precision.</p>
-                </div>
-                <span class="badge warn" id="badgeGuard">Guardrails ON</span>
-              </div>
-              <div class="bd" style="padding:14px">
-
-                <div class="two">
-                  <div class="row">
-                    <label id="lDiscBase" for="in_disc_base">Discount rate (base) %</label>
-                    <input class="in" id="in_disc_base" value="9" inputmode="decimal" />
-                    <div class="hint" id="hDiscBase">Higher risk → higher discount → lower fair value.</div>
-                  </div>
-                  <div class="row">
-                    <label id="lTerm" for="in_term">Terminal growth %</label>
-                    <input class="in" id="in_term" value="2.5" inputmode="decimal" />
-                    <div class="hint" id="hTerm">Long-run growth after projection. Keep conservative.</div>
-                  </div>
-                </div>
-
-                <div class="two">
-                  <div class="row">
-                    <label id="lGrowthBase" for="in_g_base">Base FCF growth %</label>
-                    <input class="in" id="in_g_base" value="12" inputmode="decimal" />
-                    <div class="hint" id="hGrowthBase">Annual growth during projection.</div>
-                  </div>
-
-                  <div class="row" id="rowQuickSpread">
-                    <label id="lSpread" for="in_spread">Quick spread (± pp)</label>
-                    <input class="in" id="in_spread" value="2" inputmode="decimal" />
-                    <div class="hint" id="hSpread">Quick mode derives Bear/Base/Bull = Base ± spread.</div>
-                  </div>
-                </div>
-
-                <div id="boxAdvanced" class="hidden">
-                  <div class="two">
-                    <div class="row">
-                      <label id="lGrowthBear" for="in_g_bear">Bear growth %</label>
-                      <input class="in" id="in_g_bear" value="10" inputmode="decimal" />
-                      <div class="hint" id="hGrowthBear">More conservative growth.</div>
-                    </div>
-                    <div class="row">
-                      <label id="lGrowthBull" for="in_g_bull">Bull growth %</label>
-                      <input class="in" id="in_g_bull" value="14" inputmode="decimal" />
-                      <div class="hint" id="hGrowthBull">Optimistic scenario (still realistic).</div>
-                    </div>
-                  </div>
-
-                  <div class="two">
-                    <div class="row">
-                      <label id="lDiscBear" for="in_disc_bear">Bear discount %</label>
-                      <input class="in" id="in_disc_bear" value="10" inputmode="decimal" />
-                      <div class="hint" id="hDiscBear">Often Base + 1pp.</div>
-                    </div>
-                    <div class="row">
-                      <label id="lDiscBull" for="in_disc_bull">Bull discount %</label>
-                      <input class="in" id="in_disc_bull" value="8" inputmode="decimal" />
-                      <div class="hint" id="hDiscBull">Often Base − 1pp.</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="actions2">
-                  <button id="btnCalc" class="btn primary" type="button">Calculate</button>
-                  <button id="btnReset" class="btn" type="button">Reset</button>
-                  <button id="btnSave" class="btn" type="button">Save result</button>
-                </div>
-
-                <div class="hint" id="hQuickTip">Tip: In Quick mode you set only Base; Bear/Bull are derived automatically.</div>
-              </div>
-            </div>
-
+          <div class="mini" id="tipQuick">
+            Tip: In Quick mode you set only Base; Bear/Bull are derived automatically.
           </div>
         </div>
 
+        <!-- OUTPUTS -->
         <div class="card">
-          <div class="hd">
+          <div class="cardTitle">
             <div>
-              <h2 id="hOut">Outputs</h2>
-              <p id="pOut">Fair value range + sanity checks.</p>
+              <h2 id="hOutputs">Outputs</h2>
+              <div class="hint" id="hOutputsHint">Fair value range + sanity checks.</div>
             </div>
-            <span class="pill mono" id="pillStatus">READY</span>
+            <div class="badge" id="statusBadge">READY</div>
           </div>
-          <div class="bd">
-            <div class="kpi">
-              <div class="box">
-                <div class="t" id="kBaseT">Fair value (Base)</div>
-                <div class="v" id="kBaseV">—</div>
-                <div class="s" id="kBaseS">Bear/Bull below.</div>
-              </div>
-              <div class="box">
-                <div class="t" id="kRangeT">Range (Bear → Bull)</div>
-                <div class="v" id="kRangeV">—</div>
-                <div class="s" id="kRangeS">Use range, not a single number.</div>
-              </div>
-              <div class="box">
-                <div class="t" id="kUpsideT">Upside vs price</div>
-                <div class="v" id="kUpsideV">—</div>
-                <div class="s" id="kUpsideS">Needs current price (optional).</div>
-              </div>
-              <div class="box">
-                <div class="t" id="kGuardT">Warnings / checks</div>
-                <div class="v" id="kGuardV">—</div>
-                <div class="s" id="kGuardS">—</div>
-              </div>
-            </div>
 
-            <div class="hr"></div>
-            <div class="small" id="outDetails">
-              <div><b id="dTitle">Details</b></div>
-              <div class="mono" id="dLines" style="margin-top:8px;white-space:pre-wrap;color:rgba(238,240,255,.80)"></div>
+          <div class="outGrid">
+            <div class="outBox">
+              <h3 id="outHBase">Fair value (Base)</h3>
+              <div class="outVal" id="out_base">—</div>
+              <div class="outNote" id="outBaseNote">Bear/Bull below.</div>
             </div>
+            <div class="outBox">
+              <h3 id="outHRange">Range (Bear → Bull)</h3>
+              <div class="outVal" id="out_range">—</div>
+              <div class="outNote" id="outRangeNote">Use range, not a single number.</div>
+            </div>
+            <div class="outBox">
+              <h3 id="outHUpside">Upside vs price</h3>
+              <div class="outVal" id="out_upside">—</div>
+              <div class="outNote" id="outUpsideNote">Needs current price (optional).</div>
+            </div>
+            <div class="outBox">
+              <h3 id="outHWarn">Warnings / checks</h3>
+              <div class="outVal" id="out_warn">—</div>
+              <div class="outNote" id="outWarnNote">—</div>
+            </div>
+          </div>
+
+          <div class="sectionTitle" id="secDetails">Details</div>
+          <div class="outBox" style="min-height:140px">
+            <div class="mini" id="out_details">—</div>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- WATCHLIST -->
-    <section id="viewWL" class="hidden">
+    <!-- VIEW: WATCHLIST -->
+    <section id="viewWatch" class="hidden">
       <div class="card">
-        <div class="hd">
+        <div class="cardTitle">
           <div>
-            <h2 id="hWL">Watchlist</h2>
-            <p id="pWL">Saved calculations in your browser (localStorage).</p>
+            <h2 id="hWatch">Watchlist</h2>
+            <div class="hint" id="hWatchHint">Saved calculations stored locally in your browser (localStorage).</div>
           </div>
-          <div class="actions2" style="margin:0">
-            <button id="btnExport" class="btn" type="button">Export CSV</button>
-            <button id="btnClearWL" class="btn danger" type="button">Clear</button>
+          <div class="pillRow">
+            <button id="btnExport" class="btn smallBtn" type="button">Export CSV</button>
+            <button id="btnClearWL" class="btn smallBtn" type="button">Clear</button>
           </div>
         </div>
-        <div class="bd">
-          <div class="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th id="thDate">Date</th>
-                  <th id="thTicker">Ticker</th>
-                  <th id="thCur">Cur</th>
-                  <th class="right" id="thPrice">Price</th>
-                  <th class="right" id="thBear">Bear</th>
-                  <th class="right" id="thBase">Base</th>
-                  <th class="right" id="thBull">Bull</th>
-                  <th class="right" id="thTarget">Target</th>
-                  <th id="thNote">Notes</th>
-                  <th class="right" id="thAct">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="wlBody">
-                <tr><td colspan="10" class="muted" id="wlEmpty">Nothing saved yet.</td></tr>
-              </tbody>
-            </table>
-          </div>
 
-          <div class="hint" id="hWLNote" style="margin-top:10px">
-            Note: Watchlist is stored locally in your browser (localStorage). Different device = different watchlist.
-          </div>
+        <div class="mini" id="wlNote">
+          Note: Watchlist is stored locally in your browser (localStorage). Different device = different watchlist.
+        </div>
+
+        <div style="height:10px"></div>
+
+        <table class="wlTable" aria-label="Watchlist table">
+          <thead>
+            <tr>
+              <th id="wlTh1">Name</th>
+              <th id="wlTh2">Base</th>
+              <th id="wlTh3">Range</th>
+              <th id="wlTh4">Price</th>
+              <th id="wlTh5">Upside</th>
+              <th id="wlTh6">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="wlBody">
+            <tr>
+              <td colspan="6" class="mini" id="wlEmpty">No saved items yet.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="actions" style="margin-top:14px">
+          <button id="btnBackFromWL" class="btn" type="button">Back</button>
         </div>
       </div>
     </section>
 
-    <!-- ================= ABOUT VIEW ================= -->
-<section id="viewAbout" class="hidden">
-  <div class="card">
-    <h2>About Equity Analyzer</h2>
+    <!-- VIEW: ABOUT -->
+    <section id="viewAbout" class="hidden">
+      <div class="card">
+        <div class="cardTitle">
+          <div>
+            <h2 id="hAbout">About Equity Analyzer</h2>
+            <div class="hint" id="hAboutHint">
+              Educational valuation tool based on a multi-scenario DCF model.
+            </div>
+          </div>
+          <div class="badge" id="badgeEdu">EDUCATIONAL</div>
+        </div>
 
-    <p>
-      Equity Analyzer is an <strong>educational valuation tool</strong> based on a
-      multi-scenario Discounted Cash Flow (DCF) model.
-    </p>
+        <div class="sectionTitle" id="abWhat">What this tool does</div>
+        <ul class="mini" id="abList1">
+          <li>Estimates intrinsic value using Bear / Base / Bull scenarios</li>
+          <li>Works best for companies with positive and relatively predictable cash flows</li>
+          <li>Highlights sensitivity to growth and discount assumptions</li>
+        </ul>
 
-    <h3>What this tool does</h3>
-    <ul>
-      <li>Estimates intrinsic value using <strong>Bear / Base / Bull</strong> scenarios</li>
-      <li>Works best for companies with positive and relatively predictable cash flows</li>
-      <li>Helps understand sensitivity to growth and discount assumptions</li>
-    </ul>
+        <div class="sectionTitle" id="abBest">Best suited for</div>
+        <ul class="mini" id="abList2">
+          <li>Mature companies</li>
+          <li>Blue-chip stocks</li>
+          <li>Established growth companies</li>
+        </ul>
 
-    <h3>Best suited for</h3>
-    <ul>
-      <li>Mature companies</li>
-      <li>Blue-chip stocks</li>
-      <li>Established growth companies</li>
-    </ul>
+        <div class="sectionTitle" id="abLess">Less suitable for</div>
+        <ul class="mini" id="abList3">
+          <li>Pre-revenue startups</li>
+          <li>Highly cyclical or turnaround businesses</li>
+          <li>Companies with unstable or negative FCF</li>
+        </ul>
 
-    <h3>Less suitable for</h3>
-    <ul>
-      <li>Pre-revenue startups</li>
-      <li>Highly cyclical or turnaround businesses</li>
-      <li>Companies with unstable or negative FCF</li>
-    </ul>
+        <div class="sectionTitle" id="abNotice">Important notice</div>
+        <p class="mini" id="abNoticeText">
+          This application is <b>NOT</b> financial advice. It is for educational and analytical purposes only.
+          All outputs depend entirely on user assumptions.
+        </p>
 
-    <h3>Important notice</h3>
-    <p>
-      This application is <strong>NOT financial advice</strong>.<br>
-      It is for educational and analytical purposes only.<br>
-      All outputs depend entirely on user assumptions.
-    </p>
+        <div class="actions">
+          <button id="btnBackFromAbout" class="btn" type="button">Back</button>
+        </div>
+      </div>
+    </section>
 
-    <button class="btn" onclick="showView('model')">Back</button>
   </div>
-</section>
 
-<!-- ==================== TOAST ==================== -->
-<div id="toast" class="toast"></div>
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
 
-<!-- ==================== SCRIPT =================== -->
-<script defer src="app.js"></script>
+  <!-- SCRIPT -->
+  <script defer src="app.js"></script>
 </body>
 </html>
-
- 
