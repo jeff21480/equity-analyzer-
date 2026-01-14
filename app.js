@@ -1,11 +1,12 @@
 (() => {
   "use strict";
 
-  // =========================
+  // ============================================================
   // Helpers
-  // =========================
+  // ============================================================
   const $ = (id) => document.getElementById(id);
   const qs = (sel) => document.querySelector(sel);
+  const qsa = (sel) => Array.from(document.querySelectorAll(sel));
 
   function toast(msg) {
     const t = $("toast");
@@ -16,7 +17,11 @@
     toast._tm = setTimeout(() => (t.style.display = "none"), 2400);
   }
 
-  // robust number parse: accepts "1 234,56" | "1,234.56" | "1234.56" | "1234,56"
+  function clamp(x, a, b) {
+    return Math.max(a, Math.min(b, x));
+  }
+
+  // Robust number parse: "1 234,56" | "1,234.56" | "1234.56" | "1234,56"
   function num(v) {
     if (v == null) return NaN;
     let s = String(v).trim();
@@ -28,67 +33,479 @@
     const hasComma = s.includes(",");
     const hasDot = s.includes(".");
 
-    if (hasComma && hasDot) {
-      // assume comma thousands, dot decimal -> remove commas
-      s = s.replace(/,/g, "");
-    } else if (hasComma && !hasDot) {
-      // assume comma decimal
-      s = s.replace(/,/g, ".");
-    }
+    // If contains both, assume comma thousands and dot decimal: 1,234.56 -> remove commas
+    if (hasComma && hasDot) s = s.replace(/,/g, "");
+    // If contains comma but no dot, assume comma decimal: 1234,56 -> replace comma with dot
+    else if (hasComma && !hasDot) s = s.replace(/,/g, ".");
+
     const n = Number(s);
     return Number.isFinite(n) ? n : NaN;
   }
 
-  function clamp(x, a, b) {
-    return Math.max(a, Math.min(b, x));
+  function fmt(n, digits = 2) {
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString(undefined, { maximumFractionDigits: digits });
   }
 
-  function unitsMultiplier(units) {
-    if (units === "m") return 1e6;
-    if (units === "b") return 1e9;
-    return 1;
+  function setText(id, text) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = text;
   }
 
-  function fmtMoney(v, currency) {
-    if (!Number.isFinite(v)) return "—";
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: currency || "USD",
-        maximumFractionDigits: 2,
-      }).format(v);
-    } catch {
-      return `${v.toFixed(2)} ${currency || ""}`.trim();
+  function setHTML(id, html) {
+    const el = $(id);
+    if (!el) return;
+    el.innerHTML = html;
+  }
+
+  function setPlaceholder(id, text) {
+    const el = $(id);
+    if (!el) return;
+    el.placeholder = text;
+  }
+
+  function on(id, ev, fn) {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener(ev, fn);
+  }
+
+  // ============================================================
+  // Theme fixes (dropdown contrast + nicer boxes)
+  // (injected via JS so you don't have to touch CSS now)
+  // ============================================================
+  function injectThemeFixCSS() {
+    const css = `
+      :root{
+        --ea-bg:#0b0b16;
+        --ea-card:#151530;
+        --ea-card2:#12122a;
+        --ea-border: rgba(140, 120, 255, .55);
+        --ea-border2: rgba(90, 160, 255, .35);
+        --ea-glow: rgba(130, 120, 255, .25);
+        --ea-text: rgba(255,255,255,.92);
+        --ea-muted: rgba(255,255,255,.68);
+        --ea-accent:#8f78ff;
+        --ea-accent2:#4da3ff;
+      }
+
+      /* Fix dropdown contrast on Chrome/Android/Windows */
+      select, option, optgroup {
+        background-color: #0f1024 !important;
+        color: rgba(255,255,255,.92) !important;
+      }
+      option:hover, option:checked {
+        background-color: #1b1d3d !important;
+        color: rgba(255,255,255,.95) !important;
+      }
+
+      /* If you use custom select wrappers, this still helps */
+      select{
+        border: 1px solid var(--ea-border) !important;
+        box-shadow: 0 0 0 1px rgba(0,0,0,.2), 0 0 18px var(--ea-glow) !important;
+        outline: none !important;
+      }
+      select:focus{
+        border-color: rgba(140,120,255,.9) !important;
+        box-shadow: 0 0 0 2px rgba(143,120,255,.25), 0 0 22px rgba(77,163,255,.18) !important;
+      }
+
+      /* Tooltips / small help blocks (if exist) */
+      .help, .hint, .note {
+        color: var(--ea-muted) !important;
+      }
+
+      /* Make cards/boxes pop more (if your HTML uses .card / .box / .panel) */
+      .card, .box, .panel {
+        border: 1px solid var(--ea-border) !important;
+        box-shadow: 0 0 0 1px rgba(0,0,0,.22), 0 0 26px var(--ea-glow) !important;
+      }
+    `;
+    const st = document.createElement("style");
+    st.setAttribute("data-ea-style", "theme-fix");
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  // ============================================================
+  // i18n
+  // ============================================================
+  const i18n = {
+    en: {
+      appSubtitle: "DCF fair value • Watchlist • Education",
+      demo: "Demo values",
+      saveWL: "Save to Watchlist",
+      exportCSV: "Export CSV",
+      clearAll: "Clear all",
+      load: "Load",
+      del: "Delete",
+      back: "Back",
+
+      tabs: {
+        model: "DCF Model",
+        watch: "Watchlist",
+        about: "About"
+      },
+
+      labels: {
+        ticker: "Ticker / Name",
+        currency: "Currency",
+        companyType: "Company type",
+        mode: "Mode",
+        price: "Current price (optional)",
+        mos: "Margin of Safety",
+        method: "DCF method",
+        years: "Projection (years)",
+        fcf: "FCF (TTM or 3–5y avg)",
+        units: "Units",
+        shares: "Shares (diluted)",
+        cash: "Cash (optional)",
+        debt: "Debt (optional)",
+        disc: "Discount rate (base) %",
+        term: "Terminal growth %",
+        base: "Base FCF growth %",
+        spread: "Quick spread (± pp)"
+      },
+
+      hints: {
+        ticker: "Used for watchlist label.",
+        currency: "All inputs should be in the selected currency.",
+        companyType: "Sets reasonable defaults + warnings (you can override).",
+        mode: "Quick: enter Base; Bear/Bull are derived (± spread).",
+        price: "Used only for upside / margin-of-safety view.",
+        mos: "Applied after valuation (to Base) for a conservative target.",
+        method: "If you don’t know FCF, estimate it via revenue × margin.",
+        years: "Commonly 5–10 years depending on predictability.",
+        fcf: "Prefer a 3–5y average for cyclical firms (avoid “one great year”).",
+        units: "Optional: you can enter values in millions/billions for comfort.",
+        shares: "Used to compute fair value per share.",
+        cash: "Added to enterprise value (EV → Equity).",
+        debt: "Subtracted to get equity value.",
+        disc: "Higher risk → higher discount → lower fair value.",
+        term: "Long-run growth after projection. Keep conservative.",
+        base: "Annual growth during projection.",
+        spread: "Quick mode derives Bear/Base/Bull = Base ± spread."
+      },
+
+      toasts: {
+        langEN: "Language: English",
+        langCZ: "Language: Czech",
+        saved: "Saved to Watchlist",
+        cleared: "Watchlist cleared",
+        calculated: "Calculated",
+        demoLoaded: "Demo loaded",
+        deleted: "Deleted"
+      },
+
+      aboutHTML: `
+        <h2>About Equity Analyzer</h2>
+        <p>
+          Equity Analyzer is an <strong>educational valuation tool</strong> based on a multi-scenario
+          Discounted Cash Flow (DCF) model (Bear / Base / Bull).
+        </p>
+
+        <h3>Important disclaimer</h3>
+        <p>
+          This application is <strong>NOT financial advice</strong>. It is for educational and analytical purposes only.
+          Outputs depend entirely on your assumptions. Always verify inputs and consider multiple methods.
+        </p>
+
+        <h3>How it works (in plain English)</h3>
+        <ul>
+          <li>You enter <strong>FCF</strong> (Free Cash Flow), a projection horizon (years), growth assumptions, and a discount rate.</li>
+          <li>The model projects future FCF and discounts them back to today.</li>
+          <li>Then it adds a terminal value (what the business is worth after the projection period).</li>
+          <li>If you enter cash/debt, it converts Enterprise Value → Equity Value, and divides by shares to get <strong>fair value per share</strong>.</li>
+          <li>Bear/Base/Bull are used to avoid false precision and show a reasonable range.</li>
+        </ul>
+
+        <h3>What to enter (practical guidance)</h3>
+        <ul>
+          <li><strong>FCF:</strong> Use TTM FCF, or for cyclical firms use a <strong>3–5 year average</strong>.</li>
+          <li><strong>Discount rate:</strong> Higher risk → higher rate. Large stable firms often lower; small/volatile firms higher.</li>
+          <li><strong>Growth:</strong> Keep it conservative. If unsure, use a smaller base growth and wider Bear/Bull spread.</li>
+          <li><strong>Terminal growth:</strong> Usually low (often around long-term inflation + modest real growth).</li>
+          <li><strong>Shares (diluted):</strong> Prefer diluted shares (includes options/RSUs). This matters a lot.</li>
+          <li><strong>Cash / Debt:</strong> Optional, but improves realism if you know the balance sheet values.</li>
+        </ul>
+
+        <h3>Best suited for</h3>
+        <ul>
+          <li>Mature companies</li>
+          <li>Blue-chip stocks</li>
+          <li>Established growth companies with positive, relatively predictable FCF</li>
+        </ul>
+
+        <h3>Less suitable for</h3>
+        <ul>
+          <li>Pre-revenue startups</li>
+          <li>Highly cyclical or turnaround businesses (use normalized/average FCF)</li>
+          <li>Companies with unstable or negative FCF</li>
+        </ul>
+      `
+    },
+
+    cz: {
+      appSubtitle: "DCF férová hodnota • Watchlist • Vysvětlení",
+      demo: "Demo hodnoty",
+      saveWL: "Uložit do Watchlistu",
+      exportCSV: "Export CSV",
+      clearAll: "Smazat vše",
+      load: "Load",
+      del: "Delete",
+      back: "Zpět",
+
+      tabs: {
+        model: "DCF Model",
+        watch: "Watchlist",
+        about: "O aplikaci"
+      },
+
+      labels: {
+        ticker: "Ticker / Název",
+        currency: "Měna",
+        companyType: "Typ firmy",
+        mode: "Režim",
+        price: "Aktuální cena (volitelně)",
+        mos: "Margin of Safety",
+        method: "DCF metoda",
+        years: "Projekce (roky)",
+        fcf: "FCF (TTM nebo 3–5 let průměr)",
+        units: "Jednotky",
+        shares: "Akcie (diluted)",
+        cash: "Cash (volitelně)",
+        debt: "Dluh (volitelně)",
+        disc: "Diskontní sazba (base) %",
+        term: "Terminální růst %",
+        base: "Růst FCF (Base) %",
+        spread: "Quick rozptyl (± pp)"
+      },
+
+      hints: {
+        ticker: "Použije se jako název ve Watchlistu.",
+        currency: "Všechny vstupy drž v zvolené měně.",
+        companyType: "Nastaví rozumné defaulty + upozornění (můžeš přepsat).",
+        mode: "Quick: zadáš Base; Bear/Bull se dopočítají (± rozptyl).",
+        price: "Pouze pro výpočet upside / margin-of-safety.",
+        mos: "Aplikuje se po výpočtu (na Base) pro konzervativní cílovou cenu.",
+        method: "Když neznáš FCF, můžeš ho odhadnout přes tržby × marže.",
+        years: "Běžně 5–10 let podle předvídatelnosti.",
+        fcf: "U cyklických firem raději 3–5 let průměr (ne „jeden skvělý rok“).",
+        units: "Volitelně: můžeš zadávat hodnoty v milionech/miliardách pro pohodlí.",
+        shares: "Použije se pro výpočet férové hodnoty na akcii.",
+        cash: "Přičítá se k EV (EV → Equity).",
+        debt: "Odečítá se pro výpočet Equity value.",
+        disc: "Vyšší riziko → vyšší diskont → nižší férová hodnota.",
+        term: "Dlouhodobý růst po projekci. Drž konzervativně.",
+        base: "Roční růst během projekce.",
+        spread: "Quick režim: Bear/Base/Bull = Base ± rozptyl."
+      },
+
+      toasts: {
+        langEN: "Jazyk: angličtina",
+        langCZ: "Jazyk: čeština",
+        saved: "Uloženo do Watchlistu",
+        cleared: "Watchlist smazán",
+        calculated: "Spočítáno",
+        demoLoaded: "Demo načteno",
+        deleted: "Smazáno"
+      },
+
+      aboutHTML: `
+        <h2>O aplikaci Equity Analyzer</h2>
+        <p>
+          Equity Analyzer je <strong>vzdělávací valuací nástroj</strong> postavený na multi-scenario
+          DCF modelu (Bear / Base / Bull).
+        </p>
+
+        <h3>Důležité upozornění</h3>
+        <p>
+          Tato aplikace <strong>NENÍ finanční poradenství</strong>. Slouží pouze pro vzdělávací a analytické účely.
+          Výstupy závisejí výhradně na tvých předpokladech. Vždy ověř data a používej více metod.
+        </p>
+
+        <h3>Jak to funguje (srozumitelně)</h3>
+        <ul>
+          <li>Zadáš <strong>FCF</strong> (Free Cash Flow), délku projekce, růstové předpoklady a diskontní sazbu.</li>
+          <li>Model promítne budoucí FCF a zdiskontuje je do současnosti.</li>
+          <li>Přidá terminální hodnotu (co firma „stojí“ po konci projekce).</li>
+          <li>Pokud zadáš cash/dluh, převede Enterprise Value → Equity Value a vydělí akciemi na <strong>férovou cenu na akcii</strong>.</li>
+          <li>Bear/Base/Bull slouží proti falešné přesnosti a ukáže rozumné rozpětí.</li>
+        </ul>
+
+        <h3>Jak správně nastavovat vstupy (praktický návod)</h3>
+        <ul>
+          <li><strong>FCF:</strong> Použij TTM FCF; u cyklických firem raději <strong>3–5 let průměr</strong>.</li>
+          <li><strong>Diskont:</strong> Čím vyšší riziko, tím vyšší diskont. Stabilní velké firmy často nižší, rizikovější vyšší.</li>
+          <li><strong>Růst:</strong> Drž konzervativně. Když si nejsi jistý, dej menší Base a širší Bear/Bull rozpětí.</li>
+          <li><strong>Terminální růst:</strong> Většinou nízký (často okolo dlouhodobé inflace + malý reálný růst).</li>
+          <li><strong>Akcie (diluted):</strong> Preferuj diluted (včetně opcí/RSU). Umí výrazně změnit výsledky.</li>
+          <li><strong>Cash / Dluh:</strong> Volitelné, ale zlepší realističnost, pokud hodnoty znáš z rozvahy.</li>
+        </ul>
+
+        <h3>Hodí se pro</h3>
+        <ul>
+          <li>Zralé firmy</li>
+          <li>Blue-chip akcie</li>
+          <li>Ustálené růstové firmy s pozitivním a relativně předvídatelným FCF</li>
+        </ul>
+
+        <h3>Méně vhodné pro</h3>
+        <ul>
+          <li>Pre-revenue startupy</li>
+          <li>Silně cyklické/turnaround firmy (použij normalizované/průměrné FCF)</li>
+          <li>Firmy s nestabilním nebo záporným FCF</li>
+        </ul>
+      `
     }
-  }
-
-  function fmtPct(v) {
-    if (!Number.isFinite(v)) return "—";
-    return `${v.toFixed(1)}%`;
-  }
-
-  function todayISO() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${dd}`;
-  }
-
-  // =========================
-  // State + storage
-  // =========================
-  const LS_LANG = "ea_lang_v1";
-  const LS_WL = "ea_watchlist_v1";
+  };
 
   const state = {
-    lang: (localStorage.getItem(LS_LANG) || "en").toLowerCase(),
+    lang: "en",
     view: "model",
+    // watchlist stored in localStorage
   };
+
+  function loadState() {
+    const l = localStorage.getItem("ea_lang");
+    if (l === "cz" || l === "en") state.lang = l;
+    const v = localStorage.getItem("ea_view");
+    if (v === "model" || v === "watch" || v === "about") state.view = v;
+  }
+
+  function saveState() {
+    localStorage.setItem("ea_lang", state.lang);
+    localStorage.setItem("ea_view", state.view);
+  }
+
+  // ============================================================
+  // Language application
+  // - We translate known IDs + also generic data-i18n attributes.
+  // ============================================================
+  function applyLang(lang) {
+    state.lang = (lang === "cz") ? "cz" : "en";
+    saveState();
+
+    const t = i18n[state.lang];
+
+    // Header / buttons (if IDs exist)
+    setText("heroSub", t.appSubtitle);
+    setText("btnDemo", t.demo);
+    setText("btnSaveTop", t.saveWL);
+    setText("btnExport", t.exportCSV);
+    setText("btnClearWL", t.clearAll);
+
+    // Tabs
+    setText("tabModel", t.tabs.model);
+    setText("tabWatch", t.tabs.watch);
+    setText("tabAbout", t.tabs.about);
+
+    // Labels (common IDs – safe if missing)
+    setText("lbl_ticker", t.labels.ticker);
+    setText("lbl_currency", t.labels.currency);
+    setText("lbl_type", t.labels.companyType);
+    setText("lbl_mode", t.labels.mode);
+    setText("lbl_price", t.labels.price);
+    setText("lbl_mos", t.labels.mos);
+    setText("lbl_method", t.labels.method);
+    setText("lbl_years", t.labels.years);
+    setText("lbl_fcf", t.labels.fcf);
+    setText("lbl_units", t.labels.units);
+    setText("lbl_shares", t.labels.shares);
+    setText("lbl_cash", t.labels.cash);
+    setText("lbl_debt", t.labels.debt);
+    setText("lbl_disc", t.labels.disc);
+    setText("lbl_term", t.labels.term);
+    setText("lbl_base", t.labels.base);
+    setText("lbl_spread", t.labels.spread);
+
+    // Hints (common IDs)
+    setText("hint_ticker", t.hints.ticker);
+    setText("hint_currency", t.hints.currency);
+    setText("hint_type", t.hints.companyType);
+    setText("hint_mode", t.hints.mode);
+    setText("hint_price", t.hints.price);
+    setText("hint_mos", t.hints.mos);
+    setText("hint_method", t.hints.method);
+    setText("hint_years", t.hints.years);
+    setText("hint_fcf", t.hints.fcf);
+    setText("hint_units", t.hints.units);
+    setText("hint_shares", t.hints.shares);
+    setText("hint_cash", t.hints.cash);
+    setText("hint_debt", t.hints.debt);
+    setText("hint_disc", t.hints.disc);
+    setText("hint_term", t.hints.term);
+    setText("hint_base", t.hints.base);
+    setText("hint_spread", t.hints.spread);
+
+    // Placeholders (safe if missing)
+    setPlaceholder("in_ticker", state.lang === "cz" ? "např. AAPL / SOFI / PLTR" : "e.g., AAPL / SOFI / PLTR");
+
+    // About content
+    setHTML("aboutBody", t.aboutHTML);
+
+    // Generic translator (if you add these later in HTML)
+    qsa("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (!key) return;
+      const val = key.split(".").reduce((acc, k) => acc && acc[k], t);
+      if (typeof val === "string") el.textContent = val;
+    });
+    qsa("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      if (!key) return;
+      const val = key.split(".").reduce((acc, k) => acc && acc[k], t);
+      if (typeof val === "string") el.placeholder = val;
+    });
+
+    // Button active state (optional)
+    const bEN = $("btnLangEN");
+    const bCZ = $("btnLangCZ");
+    if (bEN && bCZ) {
+      bEN.classList.toggle("active", state.lang === "en");
+      bCZ.classList.toggle("active", state.lang === "cz");
+    }
+
+    toast(state.lang === "cz" ? t.toasts.langCZ : t.toasts.langEN);
+  }
+
+  // ============================================================
+  // Views / tabs
+  // ============================================================
+  function showView(name) {
+    const views = ["model", "watch", "about"];
+    if (!views.includes(name)) name = "model";
+    state.view = name;
+    saveState();
+
+    const map = {
+      model: "viewModel",
+      watch: "viewWatch",
+      about: "viewAbout"
+    };
+
+    views.forEach(v => {
+      const sec = $(map[v]);
+      if (sec) sec.classList.toggle("hidden", v !== name);
+    });
+
+    // tab active (if tabs exist)
+    const tabMap = { model: "tabModel", watch: "tabWatch", about: "tabAbout" };
+    views.forEach(v => {
+      const el = $(tabMap[v]);
+      if (el) el.classList.toggle("active", v === name);
+    });
+  }
+
+  // ============================================================
+  // Watchlist (localStorage)
+  // ============================================================
+  const WL_KEY = "ea_watchlist_v1";
 
   function loadWL() {
     try {
-      const raw = localStorage.getItem(LS_WL);
+      const raw = localStorage.getItem(WL_KEY);
       const arr = raw ? JSON.parse(raw) : [];
       return Array.isArray(arr) ? arr : [];
     } catch {
@@ -97,955 +514,354 @@
   }
 
   function saveWL(arr) {
-    localStorage.setItem(LS_WL, JSON.stringify(arr));
+    localStorage.setItem(WL_KEY, JSON.stringify(arr || []));
   }
 
-  // =========================
-  // i18n
-  // =========================
-  const i18n = {
-    en: {
-      heroSub: "DCF fair value • Watchlist • Education",
-      tabs: { model: "DCF Model", watch: "Watchlist", about: "About" },
+  function renderWL() {
+    const wrap = $("wlBody");
+    if (!wrap) return;
 
-      inputs: "Inputs",
-      inputsHint:
-        "Multi-scenario DCF with guardrails. Use ranges (Bear/Base/Bull) and stay conservative.",
-      outputs: "Outputs",
-      outputsHint: "Fair value range + sanity checks.",
-      ready: "READY",
-      modeQuick: "MODE: Quick",
-      modeAdvanced: "MODE: Advanced",
+    const arr = loadWL();
+    if (!arr.length) {
+      wrap.innerHTML = `<div class="hint">${state.lang === "cz"
+        ? "Zatím nemáš uložené žádné výpočty."
+        : "No saved results yet."}</div>`;
+      return;
+    }
 
-      basics: "Basics",
-      ticker: "Ticker / Name",
-      tickerSub: "Used for watchlist label.",
-      currency: "Currency",
-      currencySub: "All inputs should be in the selected currency.",
-      type: "Company type",
-      typeSub: "Sets reasonable defaults + warnings (you can override).",
-      mode: "Mode",
-      modeSub: "Quick: enter Base; Bear/Bull are derived (± spread).",
-      price: "Current price (optional)",
-      priceSub: "Used only for upside / margin-of-safety view.",
-      mos: "Margin of Safety",
-      mosSub: "Applied after valuation (to Base) for a conservative target.",
+    // Build table-like rows (simple, safe)
+    const head = `
+      <div class="wlRow wlHead">
+        <div>${state.lang === "cz" ? "Název" : "Name"}</div>
+        <div>${state.lang === "cz" ? "Base" : "Base"}</div>
+        <div>${state.lang === "cz" ? "Rozpětí" : "Range"}</div>
+        <div>${state.lang === "cz" ? "Cena" : "Price"}</div>
+        <div>${state.lang === "cz" ? "Upside" : "Upside"}</div>
+        <div>${state.lang === "cz" ? "Akce" : "Action"}</div>
+      </div>
+    `;
 
-      dcfMethod: "DCF method",
-      method: "Method",
-      methodSub: "If you don’t know FCF, estimate it via revenue × margin.",
-      years: "Projection (years)",
-      yearsSub: "Commonly 5–10 years depending on predictability.",
-      fcf: "FCF (TTM or 3–5y avg)",
-      fcfSub: "Prefer a 3–5 year average for cyclical firms (avoid one great year).",
-      units: "Units",
-      unitsSub: "Optional: enter values in millions/billions for comfort.",
+    const rows = arr.map((x, idx) => {
+      const base = Number.isFinite(x.base) ? `${fmt(x.base)} ${x.ccy || ""}` : "—";
+      const range = (Number.isFinite(x.bear) && Number.isFinite(x.bull))
+        ? `${fmt(x.bear)} → ${fmt(x.bull)} ${x.ccy || ""}`
+        : "—";
+      const price = Number.isFinite(x.price) ? `${fmt(x.price)} ${x.ccy || ""}` : "—";
+      const up = Number.isFinite(x.upside) ? `${fmt(x.upside, 2)}%` : "—";
+      const d = x.date || "";
+      const name = (x.name || "").toUpperCase();
 
-      capital: "Capital structure",
-      shares: "Shares (diluted)",
-      sharesSub: "Used to compute fair value per share.",
-      cash: "Cash (optional)",
-      cashSub: "Added to enterprise value (EV → Equity).",
-      debt: "Debt (optional)",
-      debtSub: "Subtracted to get equity value.",
+      return `
+        <div class="wlRow">
+          <div><strong>${name}</strong><div class="wlSub">${d}</div></div>
+          <div>${base}</div>
+          <div>${range}</div>
+          <div>${price}</div>
+          <div>${up}</div>
+          <div class="wlBtns">
+            <button class="btn sm" data-wl-load="${idx}">${state.lang === "cz" ? "Load" : "Load"}</button>
+            <button class="btn sm ghost" data-wl-del="${idx}">${state.lang === "cz" ? "Delete" : "Delete"}</button>
+          </div>
+        </div>
+      `;
+    }).join("");
 
-      assumptions: "Assumptions (3 scenarios)",
-      disc: "Discount rate (base) %",
-      discSub: "Higher risk → higher discount → lower fair value.",
-      term: "Terminal growth %",
-      termSub: "Long-run growth after projection. Keep conservative.",
-      baseGrowth: "Base FCF growth %",
-      baseGrowthSub: "Annual growth during projection.",
-      spread: "Quick spread (± pp)",
-      spreadSub: "Quick mode derives Bear/Base/Bull = Base ± spread.",
+    wrap.innerHTML = head + rows;
 
-      btnCalc: "Calculate",
-      btnReset: "Reset",
-      btnSave: "Save result",
-      btnSaveTop: "Save to Watchlist",
-      btnDemo: "Demo values",
-      btnBack: "Back",
-      export: "Export CSV",
-      clear: "Clear",
-      tipQuick: "Tip: In Quick mode you set only Base; Bear/Bull are derived automatically.",
+    // bind actions
+    qsa("[data-wl-load]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.getAttribute("data-wl-load"));
+        const arr = loadWL();
+        const x = arr[idx];
+        if (!x) return;
+        // Restore inputs if exist
+        if ($("in_ticker")) $("in_ticker").value = x.name || "";
+        if ($("in_price")) $("in_price").value = Number.isFinite(x.price) ? String(x.price) : "";
+        if ($("in_fcf")) $("in_fcf").value = Number.isFinite(x.fcf) ? String(x.fcf) : "";
+        if ($("in_years")) $("in_years").value = Number.isFinite(x.years) ? String(x.years) : "";
+        if ($("in_disc")) $("in_disc").value = Number.isFinite(x.disc) ? String(x.disc) : "";
+        if ($("in_term")) $("in_term").value = Number.isFinite(x.term) ? String(x.term) : "";
+        if ($("in_base")) $("in_base").value = Number.isFinite(x.baseG) ? String(x.baseG) : "";
+        if ($("in_spread")) $("in_spread").value = Number.isFinite(x.spread) ? String(x.spread) : "";
+        if ($("in_shares")) $("in_shares").value = Number.isFinite(x.shares) ? String(x.shares) : "";
+        if ($("in_cash")) $("in_cash").value = Number.isFinite(x.cash) ? String(x.cash) : "";
+        if ($("in_debt")) $("in_debt").value = Number.isFinite(x.debt) ? String(x.debt) : "";
 
-      outBase: "Fair value (Base)",
-      outBaseNote: "Bear/Bull below.",
-      outRange: "Range (Bear → Bull)",
-      outRangeNote: "Use range, not a single number.",
-      outUpside: "Upside vs price",
-      outUpsideNote: "Needs current price (optional).",
-      outWarn: "Warnings / checks",
-      outWarnNote: "—",
-      details: "Details",
+        if ($("in_ccy")) $("in_ccy").value = x.ccy || $("in_ccy").value;
+        if ($("in_type")) $("in_type").value = x.type || $("in_type").value;
+        if ($("in_mode")) $("in_mode").value = x.mode || $("in_mode").value;
+        if ($("in_method")) $("in_method").value = x.method || $("in_method").value;
 
-      wlTitle: "Watchlist",
-      wlHint: "Saved calculations stored locally in your browser (localStorage).",
-      wlNote:
-        "Note: Watchlist is stored locally in your browser (localStorage). Different device = different watchlist.",
-      wlTh: ["Name", "Base", "Range", "Price", "Upside", "Actions"],
-      wlEmpty: "No saved items yet.",
-      wlLoad: "Load",
-      wlDelete: "Delete",
+        showView("model");
+        toast(i18n[state.lang].toasts.calculated);
+      });
+    });
 
-      aboutTitle: "About Equity Analyzer",
-      aboutHint: "Educational valuation tool based on a multi-scenario DCF model.",
-      edu: "EDUCATIONAL",
-      abWhat: "What this tool does",
-      abBest: "Best suited for",
-      abLess: "Less suitable for",
-      abNotice: "Important notice",
-      abNoticeText:
-        "This application is NOT financial advice. It is for educational and analytical purposes only. All outputs depend entirely on user assumptions.",
-
-      toasts: {
-        saved: "Saved to Watchlist.",
-        updated: "Updated Watchlist item.",
-        cleared: "Watchlist cleared.",
-        exported: "CSV exported.",
-        loaded: "Loaded from Watchlist.",
-        reset: "Reset.",
-        demo: "Demo loaded.",
-        langEN: "Language: English",
-        langCZ: "Jazyk: čeština",
-        needInputs: "Please fill at least FCF + shares.",
-        badTerminal: "Terminal growth must be lower than discount rate.",
-      },
-
-      warns: {
-        ok: "OK",
-        missingPrice: "Price not set (upside hidden).",
-        negativeFCF: "FCF is negative/unstable → DCF may be unreliable.",
-        highTerm: "Terminal growth seems high; keep conservative.",
-        highGrowth: "Growth seems high; consider lowering Base.",
-        lowDisc: "Discount rate seems low for this risk level.",
-      },
-    },
-
-    cz: {
-      heroSub: "DCF férová hodnota • Watchlist • Vysvětlení",
-      tabs: { model: "DCF Model", watch: "Watchlist", about: "O aplikaci" },
-
-      inputs: "Vstupy",
-      inputsHint:
-        "DCF ve 3 scénářích s guardrails. Používej rozpětí (Bear/Base/Bull) a buď konzervativní.",
-      outputs: "Výstupy",
-      outputsHint: "Rozpětí férové hodnoty + kontrolní upozornění.",
-      ready: "PŘIPRAVENO",
-      modeQuick: "REŽIM: Quick",
-      modeAdvanced: "REŽIM: Advanced",
-
-      basics: "Základ",
-      ticker: "Ticker / Název",
-      tickerSub: "Použije se jako název ve Watchlistu.",
-      currency: "Měna",
-      currencySub: "Všechny vstupy drž v zvolené měně.",
-      type: "Typ firmy",
-      typeSub: "Nastaví rozumné defaulty + upozornění (můžeš upravit).",
-      mode: "Režim",
-      modeSub: "Quick: zadáš Base; Bear/Bull se dopočítají (± spread).",
-      price: "Aktuální cena (volitelné)",
-      priceSub: "Pouze pro výpočet upside / margin-of-safety.",
-      mos: "Margin of Safety",
-      mosSub: "Aplikuje se po výpočtu (na Base) pro konzervativní cíl.",
-
-      dcfMethod: "DCF metoda",
-      method: "Metoda",
-      methodSub: "Když neznáš FCF, odhadni přes tržby × marži.",
-      years: "Projekce (roky)",
-      yearsSub: "Typicky 5–10 let podle predikovatelnosti.",
-      fcf: "FCF (TTM nebo průměr 3–5 let)",
-      fcfSub: "U cyklických firem raději průměr 3–5 let (ne jeden skvělý rok).",
-      units: "Jednotky",
-      unitsSub: "Volitelně zadávej v milionech/miliardách pro pohodlí.",
-
-      capital: "Kapitálová struktura",
-      shares: "Počet akcií (diluted)",
-      sharesSub: "Použije se pro férovou cenu na akcii.",
-      cash: "Hotovost (volitelné)",
-      cashSub: "Přičte se (EV → Equity).",
-      debt: "Dluh (volitelné)",
-      debtSub: "Odečte se pro equity value.",
-
-      assumptions: "Předpoklady (3 scénáře)",
-      disc: "Diskontní sazba (base) %",
-      discSub: "Vyšší riziko → vyšší diskont → nižší férová hodnota.",
-      term: "Terminální růst %",
-      termSub: "Dlouhodobý růst po projekci. Konzervativně.",
-      baseGrowth: "Růst FCF (Base) %",
-      baseGrowthSub: "Roční růst v projekci.",
-      spread: "Quick spread (± p. b.)",
-      spreadSub: "Quick dopočítá Bear/Base/Bull = Base ± spread.",
-
-      btnCalc: "Spočítat",
-      btnReset: "Reset",
-      btnSave: "Uložit výsledek",
-      btnSaveTop: "Uložit do Watchlistu",
-      btnDemo: "Demo hodnoty",
-      btnBack: "Zpět",
-      export: "Export CSV",
-      clear: "Smazat vše",
-      tipQuick: "Tip: V Quick režimu nastavuješ jen Base; Bear/Bull se dopočítají automaticky.",
-
-      outBase: "Férová hodnota (Base)",
-      outBaseNote: "Bear/Bull níže.",
-      outRange: "Rozpětí (Bear → Bull)",
-      outRangeNote: "Používej rozpětí, ne jedno číslo.",
-      outUpside: "Upside vs cena",
-      outUpsideNote: "Potřebuje aktuální cenu (volitelné).",
-      outWarn: "Upozornění / kontrola",
-      outWarnNote: "—",
-      details: "Detaily",
-
-      wlTitle: "Watchlist",
-      wlHint: "Uložené výpočty jsou v prohlížeči (localStorage).",
-      wlNote:
-        "Pozn.: Watchlist je uložen lokálně v prohlížeči (localStorage). Jiný telefon/PC = jiný watchlist.",
-      wlTh: ["Název", "Base", "Rozpětí", "Cena", "Upside", "Akce"],
-      wlEmpty: "Zatím nic uloženého.",
-      wlLoad: "Načíst",
-      wlDelete: "Smazat",
-
-      aboutTitle: "O aplikaci Equity Analyzer",
-      aboutHint: "Vzdělávací valuace postavená na multi-scenario DCF modelu.",
-      edu: "VZDĚLÁVACÍ",
-      abWhat: "Co to dělá",
-      abBest: "Hodí se pro",
-      abLess: "Méně vhodné pro",
-      abNotice: "Důležité upozornění",
-      abNoticeText:
-        "Tato aplikace NENÍ finanční poradenství. Slouží pouze pro vzdělávací a analytické účely. Výstupy závisí čistě na tvých předpokladech.",
-
-      toasts: {
-        saved: "Uloženo do Watchlistu.",
-        updated: "Položka ve Watchlistu aktualizována.",
-        cleared: "Watchlist smazán.",
-        exported: "CSV export hotový.",
-        loaded: "Načteno z Watchlistu.",
-        reset: "Reset hotový.",
-        demo: "Demo načteno.",
-        langEN: "Language: English",
-        langCZ: "Jazyk: čeština",
-        needInputs: "Vyplň aspoň FCF + počet akcií.",
-        badTerminal: "Terminální růst musí být menší než diskont.",
-      },
-
-      warns: {
-        ok: "OK",
-        missingPrice: "Není cena (upside se nepočítá).",
-        negativeFCF: "FCF je záporné/nestabilní → DCF může být nespolehlivé.",
-        highTerm: "Terminální růst je dost vysoký; drž konzervativně.",
-        highGrowth: "Růst vypadá vysoký; zvaž nižší Base.",
-        lowDisc: "Diskontní sazba je možná nízká vzhledem k riziku.",
-      },
-    },
-  };
-
-  function t() {
-    return i18n[state.lang] || i18n.en;
-  }
-
-  function setLang(lang) {
-    state.lang = (lang || "en").toLowerCase() === "cz" ? "cz" : "en";
-    localStorage.setItem(LS_LANG, state.lang);
-
-    // top bar
-    $("heroSub").textContent = t().heroSub;
-
-    // tabs
-    $("tabModel").textContent = t().tabs.model;
-    $("tabWatch").textContent = t().tabs.watch;
-    $("tabAbout").textContent = t().tabs.about;
-
-    // model
-    $("hInputs").textContent = t().inputs;
-    $("hInputsHint").textContent = t().inputsHint;
-    $("hOutputs").textContent = t().outputs;
-    $("hOutputsHint").textContent = t().outputsHint;
-    $("statusBadge").textContent = t().ready;
-
-    $("secBasics").textContent = t().basics;
-    $("lbTicker").textContent = t().ticker;
-    $("sbTicker").textContent = t().tickerSub;
-    $("lbCurrency").textContent = t().currency;
-    $("sbCurrency").textContent = t().currencySub;
-    $("lbType").textContent = t().type;
-    $("sbType").textContent = t().typeSub;
-    $("lbMode").textContent = t().mode;
-    $("sbMode").textContent = t().modeSub;
-    $("lbPrice").textContent = t().price;
-    $("sbPrice").textContent = t().priceSub;
-    $("lbMos").textContent = t().mos;
-    $("sbMos").textContent = t().mosSub;
-
-    $("secDCF").textContent = t().dcfMethod;
-    $("lbMethod").textContent = t().method;
-    $("sbMethod").textContent = t().methodSub;
-    $("lbYears").textContent = t().years;
-    $("sbYears").textContent = t().yearsSub;
-    $("lbFCF").textContent = t().fcf;
-    $("sbFCF").textContent = t().fcfSub;
-    $("lbUnits").textContent = t().units;
-    $("sbUnits").textContent = t().unitsSub;
-
-    $("secCapital").textContent = t().capital;
-    $("lbShares").textContent = t().shares;
-    $("sbShares").textContent = t().sharesSub;
-    $("lbCash").textContent = t().cash;
-    $("sbCash").textContent = t().cashSub;
-    $("lbDebt").textContent = t().debt;
-    $("sbDebt").textContent = t().debtSub;
-
-    $("secAssumptions").textContent = t().assumptions;
-    $("lbDisc").textContent = t().disc;
-    $("sbDisc").textContent = t().discSub;
-    $("lbTerm").textContent = t().term;
-    $("sbTerm").textContent = t().termSub;
-    $("lbBase").textContent = t().baseGrowth;
-    $("sbBase").textContent = t().baseGrowthSub;
-    $("lbSpread").textContent = t().spread;
-    $("sbSpread").textContent = t().spreadSub;
-
-    $("btnCalc").textContent = t().btnCalc;
-    $("btnReset").textContent = t().btnReset;
-    $("btnSave").textContent = t().btnSave;
-    $("btnSaveTop").textContent = t().btnSaveTop;
-    $("btnDemo").textContent = t().btnDemo;
-    $("btnBackFromWL").textContent = t().btnBack;
-    $("btnBackFromAbout").textContent = t().btnBack;
-    $("btnExport").textContent = t().export;
-    $("btnClearWL").textContent = t().clear;
-    $("tipQuick").textContent = t().tipQuick;
-
-    // outputs
-    $("outHBase").textContent = t().outBase;
-    $("outBaseNote").textContent = t().outBaseNote;
-    $("outHRange").textContent = t().outRange;
-    $("outRangeNote").textContent = t().outRangeNote;
-    $("outHUpside").textContent = t().outUpside;
-    $("outUpsideNote").textContent = t().outUpsideNote;
-    $("outHWarn").textContent = t().outWarn;
-    $("outWarnNote").textContent = t().outWarnNote;
-    $("secDetails").textContent = t().details;
-
-    // watchlist
-    $("hWatch").textContent = t().wlTitle;
-    $("hWatchHint").textContent = t().wlHint;
-    $("wlNote").textContent = t().wlNote;
-    const th = t().wlTh;
-    $("wlTh1").textContent = th[0];
-    $("wlTh2").textContent = th[1];
-    $("wlTh3").textContent = th[2];
-    $("wlTh4").textContent = th[3];
-    $("wlTh5").textContent = th[4];
-    $("wlTh6").textContent = th[5];
-    $("wlEmpty").textContent = t().wlEmpty;
-
-    // about
-    $("hAbout").textContent = t().aboutTitle;
-    $("hAboutHint").textContent = t().aboutHint;
-    $("badgeEdu").textContent = t().edu;
-    $("abWhat").textContent = t().abWhat;
-    $("abBest").textContent = t().abBest;
-    $("abLess").textContent = t().abLess;
-    $("abNotice").textContent = t().abNotice;
-    $("abNoticeText").textContent = t().abNoticeText;
-
-    // lang buttons style
-    $("btnLangEN").classList.toggle("active", state.lang === "en");
-    $("btnLangCZ").classList.toggle("active", state.lang === "cz");
-
-    toast(state.lang === "cz" ? t().toasts.langCZ : t().toasts.langEN);
-  }
-
-  // =========================
-  // Views (tabs)
-  // =========================
-  function showView(view) {
-    state.view = view;
-
-    $("viewModel").classList.toggle("hidden", view !== "model");
-    $("viewWatch").classList.toggle("hidden", view !== "watch");
-    $("viewAbout").classList.toggle("hidden", view !== "about");
-
-    $("tabModel").classList.toggle("active", view === "model");
-    $("tabWatch").classList.toggle("active", view === "watch");
-    $("tabAbout").classList.toggle("active", view === "about");
-  }
-
-  // =========================
-  // Info toggles
-  // =========================
-  function wireInfoToggles() {
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest(".infoBtn");
-      if (!btn) return;
-      const id = btn.getAttribute("data-info");
-      if (!id) return;
-      const el = $(id);
-      if (!el) return;
-      el.classList.toggle("open");
+    qsa("[data-wl-del]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.getAttribute("data-wl-del"));
+        const arr = loadWL();
+        if (!arr[idx]) return;
+        arr.splice(idx, 1);
+        saveWL(arr);
+        renderWL();
+        toast(i18n[state.lang].toasts.deleted);
+      });
     });
   }
 
-  // =========================
-  // Defaults by company type
-  // =========================
-  function applyTypeDefaults() {
-    const type = ($("in_type")?.value || "growth").toLowerCase();
+  // ============================================================
+  // DCF compute (simple multi-scenario based on Base + spread)
+  // ============================================================
+  function computeDCF() {
+    const lang = state.lang;
+    const t = i18n[lang];
 
-    // If user already changed stuff, we still set reasonable defaults,
-    // but not too aggressive: only if empty OR clearly not a number.
-    const setIfBad = (id, val) => {
-      const el = $(id);
-      if (!el) return;
-      const cur = num(el.value);
-      if (!Number.isFinite(cur)) el.value = String(val);
-    };
-
-    // base defaults
-    if (type === "growth") {
-      setIfBad("in_disc", 9);
-      setIfBad("in_term", 2.5);
-      setIfBad("in_base", 12);
-      setIfBad("in_spread", 2);
-    } else if (type === "mature") {
-      setIfBad("in_disc", 8.5);
-      setIfBad("in_term", 2.0);
-      setIfBad("in_base", 6);
-      setIfBad("in_spread", 1.5);
-    } else if (type === "cyclical") {
-      setIfBad("in_disc", 10);
-      setIfBad("in_term", 1.8);
-      setIfBad("in_base", 4);
-      setIfBad("in_spread", 2.5);
-    } else if (type === "financial") {
-      setIfBad("in_disc", 10);
-      setIfBad("in_term", 2.0);
-      setIfBad("in_base", 4);
-      setIfBad("in_spread", 2);
-    }
-
-    // update badge
-    const mode = ($("in_mode")?.value || "quick").toLowerCase();
-    $("modeBadge").textContent = mode === "advanced" ? t().modeAdvanced : t().modeQuick;
-  }
-
-  // =========================
-  // DCF compute
-  // =========================
-  function computeScenario({ fcf0, years, r, g, gT }) {
-    // fcf0 is current/starting FCF, growth g for years, terminal growth gT
-    let pvSum = 0;
-    let fcf = fcf0;
-    const details = [];
-
-    for (let i = 1; i <= years; i++) {
-      fcf = fcf * (1 + g);
-      const pv = fcf / Math.pow(1 + r, i);
-      pvSum += pv;
-      if (i <= 3 || i === years) {
-        details.push({ year: i, fcf, pv });
-      }
-    }
-
-    // terminal at year N based on fcf_N (already grown to year N)
-    const tv = (fcf * (1 + gT)) / (r - gT);
-    const pvTV = tv / Math.pow(1 + r, years);
-
-    return { pvCF: pvSum, tv, pvTV, lastFCF: fcf, details };
-  }
-
-  function calcAll() {
-    const currency = $("in_currency")?.value || "USD";
-    const units = $("in_units")?.value || "raw";
-    const mult = unitsMultiplier(units);
-
-    const years = num($("in_years")?.value);
-    const fcf0 = num($("in_fcf")?.value) * mult;
-    const shares = num($("in_shares")?.value);
-
-    const cash = (num($("in_cash")?.value) || 0) * mult;
-    const debt = (num($("in_debt")?.value) || 0) * mult;
-
-    const r = num($("in_disc")?.value) / 100;
-    const gT = num($("in_term")?.value) / 100;
-
-    const gBase = num($("in_base")?.value) / 100;
+    const name = ($("in_ticker")?.value || "").trim() || "—";
+    const ccy = $("in_ccy")?.value || "USD";
+    const years = Math.round(num($("in_years")?.value));
+    const disc = num($("in_disc")?.value) / 100;
+    const term = num($("in_term")?.value) / 100;
+    const baseG = num($("in_base")?.value) / 100;
     const spread = num($("in_spread")?.value) / 100;
 
-    const mos = num($("in_mos")?.value) / 100;
-
+    const fcf = num($("in_fcf")?.value);
+    const shares = num($("in_shares")?.value);
+    const cash = num($("in_cash")?.value);
+    const debt = num($("in_debt")?.value);
     const price = num($("in_price")?.value);
 
-    if (!Number.isFinite(fcf0) || !Number.isFinite(shares) || shares <= 0) {
-      toast(t().toasts.needInputs);
-      $("out_warn").textContent = "—";
-      $("outWarnNote").textContent = t().toasts.needInputs;
+    // Basic validation (soft)
+    if (!Number.isFinite(fcf) || fcf <= 0) {
+      toast(lang === "cz" ? "Zadej FCF > 0" : "Enter FCF > 0");
+      return;
+    }
+    if (!Number.isFinite(years) || years < 1 || years > 40) {
+      toast(lang === "cz" ? "Zadej roky projekce (1–40)" : "Enter projection years (1–40)");
+      return;
+    }
+    if (!Number.isFinite(disc) || disc <= 0 || disc > 0.5) {
+      toast(lang === "cz" ? "Zadej rozumný diskont (např. 6–20%)" : "Enter a reasonable discount (e.g., 6–20%)");
+      return;
+    }
+    if (!Number.isFinite(term) || term < -0.02 || term > 0.08) {
+      toast(lang === "cz" ? "Terminální růst bývá nízký (např. 0–4%)" : "Terminal growth is usually low (e.g., 0–4%)");
+      // not blocking
+    }
+    if (!Number.isFinite(shares) || shares <= 0) {
+      toast(lang === "cz" ? "Zadej počet akcií (diluted) > 0" : "Enter diluted shares > 0");
       return;
     }
 
-    if (!(r > gT)) {
-      toast(t().toasts.badTerminal);
-      $("out_warn").textContent = "—";
-      $("outWarnNote").textContent = t().toasts.badTerminal;
-      return;
-    }
+    const scenarios = [
+      { key: "bear", g: baseG - spread },
+      { key: "base", g: baseG },
+      { key: "bull", g: baseG + spread }
+    ];
 
-    const gBear = gBase - spread;
-    const gBull = gBase + spread;
+    function dcfPerShare(g) {
+      // Project FCF with constant growth
+      let pv = 0;
+      let f = fcf;
+      for (let y = 1; y <= years; y++) {
+        f = f * (1 + g);
+        pv += f / Math.pow(1 + disc, y);
+      }
 
-    // compute scenarios
-    const S = {
-      bear: computeScenario({ fcf0, years, r, g: gBear, gT }),
-      base: computeScenario({ fcf0, years, r, g: gBase, gT }),
-      bull: computeScenario({ fcf0, years, r, g: gBull, gT }),
-    };
+      // Terminal value using Gordon Growth on final year FCF
+      const fN = f; // already grown to year N
+      const tvDen = disc - term;
+      const tv = (tvDen > 0.0001) ? (fN * (1 + term)) / tvDen : NaN;
+      const pvTV = Number.isFinite(tv) ? tv / Math.pow(1 + disc, years) : NaN;
 
-    function toPerShare(scn) {
-      const ev = scn.pvCF + scn.pvTV;
-      const equity = ev + cash - debt;
+      let equity = pv + (Number.isFinite(pvTV) ? pvTV : 0);
+
+      // EV -> Equity adjust
+      if (Number.isFinite(cash)) equity += cash;
+      if (Number.isFinite(debt)) equity -= debt;
+
       return equity / shares;
     }
 
-    const perBear = toPerShare(S.bear);
-    const perBase = toPerShare(S.base);
-    const perBull = toPerShare(S.bull);
+    const out = {};
+    scenarios.forEach(s => out[s.key] = dcfPerShare(s.g));
 
-    const baseAfterMos = perBase * (1 - mos);
+    // Outputs
+    setText("out_base", `${fmt(out.base)} ${ccy}`);
+    setText("out_range", `${fmt(out.bear)} → ${fmt(out.bull)} ${ccy}`);
 
-    // output
-    $("out_base").textContent = fmtMoney(baseAfterMos, currency);
-    $("out_range").textContent =
-      `${fmtMoney(perBear * (1 - mos), currency)} → ${fmtMoney(perBull * (1 - mos), currency)}`;
-
-    // upside
-    if (Number.isFinite(price) && price > 0) {
-      const up = (baseAfterMos - price) / price;
-      $("out_upside").textContent = fmtPct(up * 100);
-      $("outUpsideNote").textContent = `${fmtMoney(price, currency)} → ${fmtMoney(baseAfterMos, currency)}`;
+    // Upside
+    if (Number.isFinite(price) && price > 0 && Number.isFinite(out.base)) {
+      const up = ((out.base / price) - 1) * 100;
+      setText("out_upside", `${fmt(up, 2)}%`);
     } else {
-      $("out_upside").textContent = "—";
-      $("outUpsideNote").textContent = t().warns.missingPrice;
+      setText("out_upside", lang === "cz" ? "Potřebuje aktuální cenu (volitelně)." : "Needs current price (optional).");
     }
 
-    // warnings
-    const warnList = [];
-    if (fcf0 < 0) warnList.push(t().warns.negativeFCF);
-    if (gT > 0.03) warnList.push(t().warns.highTerm);
-    if (gBase > 0.18) warnList.push(t().warns.highGrowth);
+    // Small warnings/checks
+    const warns = [];
+    if (baseG > 0.25) warns.push(lang === "cz" ? "Base růst je velmi vysoký – zvaž konzervativnější." : "Base growth is very high – consider being more conservative.");
+    if (term > 0.04) warns.push(lang === "cz" ? "Terminální růst je vysoký – běžně bývá nízký." : "Terminal growth is high – it is usually low.");
+    if (disc < 0.06) warns.push(lang === "cz" ? "Nízký diskont – pro rizikové firmy bývá vyšší." : "Low discount rate – riskier firms usually require higher.");
+    if (disc <= term) warns.push(lang === "cz" ? "Pozor: diskont musí být > terminální růst." : "Warning: discount rate must be > terminal growth.");
 
-    // simple risk sanity by type
-    const type = ($("in_type")?.value || "growth").toLowerCase();
-    if ((type === "growth" || type === "cyclical") && r < 0.085) warnList.push(t().warns.lowDisc);
-    if (type === "financial" && gBase > 0.10) warnList.push(t().warns.highGrowth);
+    setText("out_warn", warns.length ? warns.join(" • ") : "—");
 
-    $("out_warn").textContent = warnList.length ? "⚠" : "✓";
-    $("outWarnNote").textContent = warnList.length ? warnList.join(" • ") : t().warns.ok;
-
-    // details
-    const det = [];
-    det.push(`Discount rate (r): ${fmtPct(r * 100)}`);
-    det.push(`Terminal growth (gT): ${fmtPct(gT * 100)}`);
-    det.push(
-      `Growth (Bear/Base/Bull): ${fmtPct(gBear * 100)} / ${fmtPct(gBase * 100)} / ${fmtPct(gBull * 100)}`
-    );
-    det.push(`MoS: ${fmtPct(mos * 100)}`);
-    det.push(`FCF0: ${fmtMoney(fcf0, currency)} • Years: ${years}`);
-    det.push(`Cash: ${fmtMoney(cash, currency)} • Debt: ${fmtMoney(debt, currency)} • Shares: ${shares.toLocaleString()}`);
-    det.push(
-      `Per share (pre-MoS): Bear ${fmtMoney(perBear, currency)} • Base ${fmtMoney(perBase, currency)} • Bull ${fmtMoney(perBull, currency)}`
-    );
-    $("out_details").textContent = det.join("\n");
-
-    $("statusBadge").textContent = "OK";
-    toast("Calculated");
+    toast(t.toasts.calculated);
   }
 
-  // =========================
-  // Watchlist
-  // =========================
-  function buildItemFromInputs() {
-    const currency = $("in_currency")?.value || "USD";
-    const units = $("in_units")?.value || "raw";
-    const mult = unitsMultiplier(units);
+  function saveCurrentToWL() {
+    const lang = state.lang;
+    const t = i18n[lang];
 
-    const ticker = ($("in_ticker")?.value || "").trim() || "(unnamed)";
-    const type = ($("in_type")?.value || "growth");
-    const mode = ($("in_mode")?.value || "quick");
-    const method = ($("in_method")?.value || "fcf");
+    const name = ($("in_ticker")?.value || "").trim();
+    if (!name) {
+      toast(lang === "cz" ? "Zadej ticker/název." : "Enter ticker/name.");
+      return;
+    }
 
-    const years = num($("in_years")?.value);
-    const fcf = num($("in_fcf")?.value) * mult;
-    const shares = num($("in_shares")?.value);
-    const cash = (num($("in_cash")?.value) || 0) * mult;
-    const debt = (num($("in_debt")?.value) || 0) * mult;
-
-    const r = num($("in_disc")?.value);
-    const gT = num($("in_term")?.value);
-    const base = num($("in_base")?.value);
+    const ccy = $("in_ccy")?.value || "USD";
+    const years = Math.round(num($("in_years")?.value));
+    const disc = num($("in_disc")?.value);
+    const term = num($("in_term")?.value);
+    const baseG = num($("in_base")?.value);
     const spread = num($("in_spread")?.value);
-
-    const mos = num($("in_mos")?.value);
+    const fcf = num($("in_fcf")?.value);
+    const shares = num($("in_shares")?.value);
+    const cash = num($("in_cash")?.value);
+    const debt = num($("in_debt")?.value);
     const price = num($("in_price")?.value);
+    const type = $("in_type")?.value || "";
+    const mode = $("in_mode")?.value || "";
+    const method = $("in_method")?.value || "";
 
-    return {
-      id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
-      date: todayISO(),
-      ticker,
-      currency,
-      type,
-      mode,
-      method,
+    // parse outputs if exist
+    const baseText = $("out_base")?.textContent || "";
+    const rangeText = $("out_range")?.textContent || "";
+    const base = num(baseText);
+    // range parse is hard; ignore if fails
+    const m = rangeText.match(/(-?[\d\s.,]+)\s*→\s*(-?[\d\s.,]+)/);
+    const bear = m ? num(m[1]) : NaN;
+    const bull = m ? num(m[2]) : NaN;
+
+    const upText = $("out_upside")?.textContent || "";
+    const upside = num(upText);
+
+    const arr = loadWL();
+    arr.unshift({
+      name: name.toUpperCase(),
+      date: new Date().toISOString().slice(0, 10),
+      ccy,
       years,
+      disc,
+      term,
+      baseG,
+      spread,
       fcf,
       shares,
       cash,
       debt,
-      r,
-      gT,
+      price,
+      type,
+      mode,
+      method,
       base,
-      spread,
-      mos,
-      price: Number.isFinite(price) ? price : null,
-      // store last outputs too (filled after calc)
-      out: {
-        base: $("out_base")?.textContent || "—",
-        range: $("out_range")?.textContent || "—",
-        upside: $("out_upside")?.textContent || "—",
-      },
-    };
-  }
-
-  function renderWL() {
-    const body = $("wlBody");
-    if (!body) return;
-
-    const wl = loadWL();
-
-    body.innerHTML = "";
-    if (!wl.length) {
-      const tr = document.createElement("tr");
-      const td = document.createElement("td");
-      td.colSpan = 6;
-      td.className = "mini";
-      td.id = "wlEmpty";
-      td.textContent = t().wlEmpty;
-      tr.appendChild(td);
-      body.appendChild(tr);
-      return;
-    }
-
-    wl.forEach((it) => {
-      const tr = document.createElement("tr");
-
-      const td1 = document.createElement("td");
-      td1.innerHTML = `<b style="color:rgba(243,239,255,.92)">${escapeHtml(it.ticker)}</b><div class="mini">${escapeHtml(it.date || "")}</div>`;
-      tr.appendChild(td1);
-
-      const td2 = document.createElement("td");
-      td2.textContent = it.out?.base || "—";
-      tr.appendChild(td2);
-
-      const td3 = document.createElement("td");
-      td3.textContent = it.out?.range || "—";
-      tr.appendChild(td3);
-
-      const td4 = document.createElement("td");
-      td4.textContent = it.price != null ? fmtMoney(it.price, it.currency) : "—";
-      tr.appendChild(td4);
-
-      const td5 = document.createElement("td");
-      td5.textContent = it.out?.upside || "—";
-      tr.appendChild(td5);
-
-      const td6 = document.createElement("td");
-      td6.style.whiteSpace = "nowrap";
-
-      const bLoad = document.createElement("button");
-      bLoad.className = "btn smallBtn";
-      bLoad.textContent = t().wlLoad;
-      bLoad.addEventListener("click", () => {
-        loadItemToInputs(it);
-        toast(t().toasts.loaded);
-        showView("model");
-      });
-
-      const bDel = document.createElement("button");
-      bDel.className = "btn smallBtn";
-      bDel.style.marginLeft = "8px";
-      bDel.textContent = t().wlDelete;
-      bDel.addEventListener("click", () => {
-        const next = loadWL().filter((x) => x.id !== it.id);
-        saveWL(next);
-        renderWL();
-      });
-
-      td6.appendChild(bLoad);
-      td6.appendChild(bDel);
-      tr.appendChild(td6);
-
-      body.appendChild(tr);
+      bear,
+      bull,
+      upside
     });
-  }
-
-  function loadItemToInputs(it) {
-    $("in_ticker").value = it.ticker || "";
-    $("in_currency").value = it.currency || "USD";
-    $("in_type").value = it.type || "growth";
-    $("in_mode").value = it.mode || "quick";
-    $("in_method").value = it.method || "fcf";
-    $("in_years").value = it.years != null ? String(it.years) : "10";
-
-    // values stored as raw absolute numbers; set units to raw for safety
-    $("in_units").value = "raw";
-    $("in_fcf").value = it.fcf != null ? String(it.fcf) : "";
-    $("in_shares").value = it.shares != null ? String(it.shares) : "";
-    $("in_cash").value = it.cash != null ? String(it.cash) : "";
-    $("in_debt").value = it.debt != null ? String(it.debt) : "";
-
-    $("in_disc").value = it.r != null ? String(it.r) : "9";
-    $("in_term").value = it.gT != null ? String(it.gT) : "2.5";
-    $("in_base").value = it.base != null ? String(it.base) : "12";
-    $("in_spread").value = it.spread != null ? String(it.spread) : "2";
-    $("in_mos").value = it.mos != null ? String(it.mos) : "0";
-    $("in_price").value = it.price != null ? String(it.price) : "";
-
-    applyTypeDefaults(); // updates badge
-  }
-
-  function saveCurrentToWL() {
-    // ensure calc done (or do it)
-    calcAll();
-
-    const item = buildItemFromInputs();
-    const wl = loadWL();
-
-    // If same ticker exists, update the newest
-    const idx = wl.findIndex((x) => (x.ticker || "").toLowerCase() === item.ticker.toLowerCase());
-    if (idx >= 0) {
-      wl[idx] = { ...wl[idx], ...item, id: wl[idx].id }; // keep old id
-      saveWL(wl);
-      renderWL();
-      toast(t().toasts.updated);
-    } else {
-      wl.unshift(item);
-      saveWL(wl);
-      renderWL();
-      toast(t().toasts.saved);
-    }
+    saveWL(arr);
+    renderWL();
+    toast(t.toasts.saved);
   }
 
   function clearWL() {
     saveWL([]);
     renderWL();
-    toast(t().toasts.cleared);
+    toast(i18n[state.lang].toasts.cleared);
   }
 
-  function exportCSV() {
-    const wl = loadWL();
-    if (!wl.length) return;
-
-    const header = [
-      "date",
-      "ticker",
-      "currency",
-      "type",
-      "years",
-      "fcf",
-      "shares",
-      "cash",
-      "debt",
-      "disc%",
-      "term%",
-      "baseGrowth%",
-      "spread%",
-      "mos%",
-      "price",
-      "out_base",
-      "out_range",
-      "out_upside",
-    ];
-
-    const rows = wl.map((it) => [
-      it.date || "",
-      it.ticker || "",
-      it.currency || "",
-      it.type || "",
-      it.years ?? "",
-      it.fcf ?? "",
-      it.shares ?? "",
-      it.cash ?? "",
-      it.debt ?? "",
-      it.r ?? "",
-      it.gT ?? "",
-      it.base ?? "",
-      it.spread ?? "",
-      it.mos ?? "",
-      it.price ?? "",
-      it.out?.base || "",
-      it.out?.range || "",
-      it.out?.upside || "",
-    ]);
-
-    const csv = [header, ...rows]
-      .map((r) => r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `equity-analyzer-watchlist_${todayISO()}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(url);
-    toast(t().toasts.exported);
-  }
-
-  function escapeHtml(s) {
-    return String(s || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  // =========================
-  // Demo + Reset
-  // =========================
   function demo() {
-    $("in_ticker").value = "AAPL";
-    $("in_currency").value = "USD";
-    $("in_type").value = "mature";
-    $("in_mode").value = "quick";
-    $("in_method").value = "fcf";
-    $("in_years").value = "10";
-    $("in_units").value = "b";
+    // demo values that look realistic for AAPL-ish
+    if ($("in_ticker")) $("in_ticker").value = "AAPL";
+    if ($("in_ccy")) $("in_ccy").value = "USD";
+    if ($("in_type")) $("in_type").value = $("in_type").value || "mature";
+    if ($("in_mode")) $("in_mode").value = $("in_mode").value || "quick";
+    if ($("in_method")) $("in_method").value = $("in_method").value || "fcf";
 
-    $("in_fcf").value = "110"; // billions (because Units=Billions)
-    $("in_shares").value = "15500000000";
-    $("in_cash").value = "65";
-    $("in_debt").value = "105";
+    if ($("in_price")) $("in_price").value = "180.50";
+    if ($("in_years")) $("in_years").value = "10";
+    if ($("in_fcf")) $("in_fcf").value = "110000000000";
+    if ($("in_shares")) $("in_shares").value = "15500000000";
+    if ($("in_cash")) $("in_cash").value = "50000000000";
+    if ($("in_debt")) $("in_debt").value = "70000000000";
+    if ($("in_disc")) $("in_disc").value = "9";
+    if ($("in_term")) $("in_term").value = "2.5";
+    if ($("in_base")) $("in_base").value = "12";
+    if ($("in_spread")) $("in_spread").value = "2";
 
-    $("in_disc").value = "8.5";
-    $("in_term").value = "2.0";
-    $("in_base").value = "6";
-    $("in_spread").value = "1.5";
-
-    $("in_price").value = "180.50";
-    $("in_mos").value = "15";
-
-    applyTypeDefaults();
-    toast(t().toasts.demo);
+    toast(i18n[state.lang].toasts.demoLoaded);
   }
 
-  function resetAll() {
-    // keep language
-    $("in_ticker").value = "";
-    $("in_currency").value = "USD";
-    $("in_type").value = "growth";
-    $("in_mode").value = "quick";
-    $("in_method").value = "fcf";
-    $("in_years").value = "10";
-    $("in_units").value = "raw";
-
-    $("in_fcf").value = "";
-    $("in_shares").value = "";
-    $("in_cash").value = "";
-    $("in_debt").value = "";
-
-    $("in_disc").value = "9";
-    $("in_term").value = "2.5";
-    $("in_base").value = "12";
-    $("in_spread").value = "2";
-    $("in_price").value = "";
-    $("in_mos").value = "0";
-
-    $("out_base").textContent = "—";
-    $("out_range").textContent = "—";
-    $("out_upside").textContent = "—";
-    $("out_warn").textContent = "—";
-    $("outWarnNote").textContent = t().outWarnNote;
-    $("out_details").textContent = "—";
-    $("statusBadge").textContent = t().ready;
-
-    applyTypeDefaults();
-    toast(t().toasts.reset);
-  }
-
-  // =========================
-  // Wiring
-  // =========================
-  function wireTabs() {
-    document.querySelectorAll(".tab").forEach((b) => {
-      b.addEventListener("click", () => {
-        const v = b.getAttribute("data-view");
-        if (v === "model") showView("model");
-        if (v === "watch") {
-          renderWL();
-          showView("watch");
-        }
-        if (v === "about") showView("about");
-      });
-    });
-
-    $("btnBackFromWL").addEventListener("click", () => showView("model"));
-    $("btnBackFromAbout").addEventListener("click", () => showView("model"));
-  }
-
-  function wireLang() {
-    $("btnLangEN").addEventListener("click", () => setLang("en"));
-    $("btnLangCZ").addEventListener("click", () => setLang("cz"));
-  }
-
-  function wireButtons() {
-    $("btnCalc").addEventListener("click", calcAll);
-    $("btnReset").addEventListener("click", resetAll);
-
-    $("btnDemo").addEventListener("click", demo);
-
-    $("btnSave").addEventListener("click", () => {
-      saveCurrentToWL();
-      renderWL();
-    });
-    $("btnSaveTop").addEventListener("click", () => {
-      saveCurrentToWL();
-      renderWL();
-    });
-
-    $("btnClearWL").addEventListener("click", clearWL);
-    $("btnExport").addEventListener("click", exportCSV);
-  }
-
-  function wireAutoDefaults() {
-    $("in_type").addEventListener("change", () => {
-      applyTypeDefaults();
-      toast(state.lang === "cz" ? "Defaulty upraveny dle typu firmy." : "Defaults set by company type.");
-    });
-
-    $("in_mode").addEventListener("change", () => {
-      applyTypeDefaults();
-    });
-  }
-
-  // =========================
+  // ============================================================
   // Init
-  // =========================
+  // ============================================================
   function init() {
-    wireInfoToggles();
-    wireTabs();
-    wireLang();
-    wireButtons();
-    wireAutoDefaults();
+    injectThemeFixCSS();
+    loadState();
 
-    // set initial view + lang
-    setLang(state.lang);
-    applyTypeDefaults();
-    renderWL();
-    showView("model");
+    // Bind language buttons (IMPORTANT: do not remove listeners on re-render)
+    on("btnLangEN", "click", () => applyLang("en"));
+    on("btnLangCZ", "click", () => applyLang("cz"));
+
+    // Bind tabs
+    on("tabModel", "click", () => showView("model"));
+    on("tabWatch", "click", () => { showView("watch"); renderWL(); });
+    on("tabAbout", "click", () => showView("about"));
+
+    // Back buttons inside cards (if exist)
+    // In your HTML you used onclick="showView('model')" before – we provide global fallback:
+    window.showView = (v) => showView(v);
+
+    // Buttons
+    on("btnCalc", "click", computeDCF);
+    on("btnDemo", "click", demo);
+    on("btnSave", "click", saveCurrentToWL);
+    on("btnSaveTop", "click", saveCurrentToWL);
+    on("btnClearWL", "click", clearWL);
+
+    // Export CSV (optional if you already have UI)
+    on("btnExport", "click", () => {
+      const arr = loadWL();
+      if (!arr.length) {
+        toast(state.lang === "cz" ? "Watchlist je prázdný." : "Watchlist is empty.");
+        return;
+      }
+      const header = ["date","name","ccy","base","bear","bull","price","upside","years","disc","term","baseG","spread","fcf","shares","cash","debt","type","mode","method"];
+      const lines = [header.join(",")].concat(arr.map(x => header.map(k => {
+        const v = x[k];
+        if (v == null) return "";
+        const s = String(v).replace(/"/g, '""');
+        return `"${s}"`;
+      }).join(",")));
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "equity_analyzer_watchlist.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+
+    // Apply language + view
+    applyLang(state.lang);
+    showView(state.view);
+
+    // Render WL if currently on watch view
+    if (state.view === "watch") renderWL();
   }
 
   document.addEventListener("DOMContentLoaded", init);
