@@ -1293,3 +1293,18 @@
 
   document.addEventListener("DOMContentLoaded", init);
 })();
+function renderResearchPromptsSafe(lang) {
+  const root = document.getElementById("research-prompts-root");
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="card" style="margin-top:16px;">
+      <h3>${lang === "cz" ? "Research prompty (AI)" : "Research Prompts (AI)"}</h3>
+      <p style="opacity:.8;">
+        ${lang === "cz"
+          ? "Bezpečný testovací blok – pokud se zobrazí, máme vyhráno."
+          : "Safe test block – if you see this, integration works."}
+      </p>
+    </div>
+  `;
+}
