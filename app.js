@@ -768,7 +768,7 @@
         }
       });
     });
-  }<ResearchPromptsDrawer lang={state.lang} />
+  }
 
   // =========================
   // Defaults by company type
