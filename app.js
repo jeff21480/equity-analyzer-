@@ -1300,11 +1300,13 @@ function renderResearchPromptsSafe(lang) {
   root.innerHTML = `
     <div class="card" style="margin-top:16px;">
       <h3>${lang === "cz" ? "Research prompty (AI)" : "Research Prompts (AI)"}</h3>
-      <p style="opacity:.8;">
-        ${lang === "cz"
-          ? "Bezpečný testovací blok – pokud se zobrazí, máme vyhráno."
-          : "Safe test block – if you see this, integration works."}
-      </p>
+      <ul>
+  <li>Analyse business model</li>
+  <li>Key risks</li>
+  <li>Competitive advantages</li>
+  <li>Growth drivers</li>
+  <li>Financial red flags</li>
+</ul>
     </div>
   `;
 }renderResearchPromptsSafe(state.lang);
