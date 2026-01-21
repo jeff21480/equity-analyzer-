@@ -1307,4 +1307,4 @@ function renderResearchPromptsSafe(lang) {
       </p>
     </div>
   `;
-}
+}renderResearchPromptsSafe(state.lang);
