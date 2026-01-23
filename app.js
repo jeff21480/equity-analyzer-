@@ -1,5 +1,6 @@
 (() => {
   "use strict";
+  let state = { lang: "cz" };
 
   // =========================
   // Helpers
