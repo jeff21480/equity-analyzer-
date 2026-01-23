@@ -1294,7 +1294,7 @@
 
   document.addEventListener("DOMContentLoaded", init);
 })();
-function renderResearchPromptsSafe(lang) {
+renderResearchPromptsSafe((window.state && window.state.lang) ? window.state.lang : "cz");
   const root = document.getElementById("research-prompts-root");
   if (!root) return;
 
