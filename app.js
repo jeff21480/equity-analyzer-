@@ -523,7 +523,7 @@
   // App state
   // =========================
   const state = {
-    lang: "en",
+    lang: "cz",
     view: "model",
     mode: "quick",
     lastResult: null,
@@ -1267,47 +1267,39 @@
       setText("pillMode", I18N[state.lang].modePill(state.mode));
     });
 
-    // close tip pop on Esc
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") hideTipPop();
-    });
+    // ============================
+// Init
+// ============================
 
-    // initial values
-    const savedLang = localStorage.getItem(LS.lang);
-    state.lang = savedLang === "cz" ? "cz" : "en";
+function init() {
+  // close tip pop on Esc
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideTipPop();
+  });
 
-    // set defaults if empty
-    if (!$("in_years")?.value) $("in_years").value = "10";
-    if (!$("in_disc")?.value) $("in_disc").value = "9";
-    if (!$("in_term")?.value) $("in_term").value = "2.5";
-    if (!$("in_base")?.value) $("in_base").value = "12";
-    if (!$("in_spread")?.value) $("in_spread").value = "2";
+  // initial values
+  const savedLang = localStorage.getItem(LS.lang);
+  state.lang = savedLang === "cz" ? "cz" : "en";
 
-    // render watchlist and set language
-    renderWatchlist();
-    setLang(state.lang);
+  // set defaults if empty
+  if ($("in_years")?.value === "") $("in_years").value = "10";
+  if ($("in_disc")?.value === "") $("in_disc").value = "9";
+  if ($("in_term")?.value === "") $("in_term").value = "2.5";
+  if ($("in_base")?.value === "") $("in_base").value = "12";
+  if ($("in_spread")?.value === "") $("in_spread").value = "2";
 
-    // default view
-    showView("model");
-    setText("out_details", I18N[state.lang].detailsEmpty);
-  }
+  // render watchlist and set language
+  renderWatchlist();
+  setLang(state.lang);
 
-  document.addEventListener("DOMContentLoaded", init);
+  // default view
+  showView("model");
+  setText("out_details", I18N[state.lang].detailsEmpty);
+
+  // research prompts
+  renderResearchPromptsSafe(state.lang);
+}
+
+document.addEventListener("DOMContentLoaded", init);
 })();
-renderResearchPromptsSafe((window.state && window.state.lang) ? window.state.lang : "cz");
-  const root = document.getElementById("research-prompts-root");
-  if (!root) return;
-
-  root.innerHTML = `
-    <div class="card" style="margin-top:16px;">
-      <h3>${lang === "cz" ? "Research prompty (AI)" : "Research Prompts (AI)"}</h3>
-      <ul>
-  <li>Analyse business model</li>
-  <li>Key risks</li>
-  <li>Competitive advantages</li>
-  <li>Growth drivers</li>
-  <li>Financial red flags</li>
-</ul>
-    </div>
-  `;
-}renderResearchPromptsSafe(state.lang);
+  
