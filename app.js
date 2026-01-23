@@ -1298,7 +1298,7 @@ function init() {
 
   // research prompts
   renderResearchPromptsSafe(state.lang);
-}
+
 document.addEventListener("DOMContentLoaded", init);
 })();
   
